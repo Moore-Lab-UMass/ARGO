@@ -6,20 +6,39 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "gen-types": "graphql-codegen",
+    "gen-types -w": "graphql-codegen -w"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@apollo/experimental-nextjs-app-support": "^0.11.3",
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/lab": "6.0.0-beta.13",
+    "@mui/material": "^6.1.5",
+    "@mui/material-nextjs": "^6.1.5",
+    "@weng-lab/ui-components": "^1.0.6",
+    "graphql": "^16.9.0",
     "next": "15.4.6",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react": "^19.1.1",
+    "react-dom": "19.1.1",
+    "react-dropzone": "^14.2.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/client-preset": "^4.3.3",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "yarn@4.6.0"
 }

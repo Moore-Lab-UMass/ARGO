@@ -1,0 +1,136 @@
+/* eslint-disable */
+import * as types from './graphql';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+
+/**
+ * Map of all GraphQL operations in the project.
+ *
+ * This map has several performance disadvantages:
+ * 1. It is not tree-shakeable, so it will include all operations in the project.
+ * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
+ * 3. It does not support dead code elimination, so it will add unused operations.
+ *
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
+ * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
+ */
+type Documents = {
+    "\n  query RNASeqQuery($assembly: String!){\n    rnaSeqQuery(assembly:$assembly) {\n      biosample\n    }\n  }\n": typeof types.RnaSeqQueryDocument,
+    "\n  query biosamples_1($assembly: String!, $assays: [String!]) {\n    ccREBiosampleQuery(assembly: $assembly, assay: $assays) {\n      biosamples {\n        name\n        ontology\n        lifeStage\n        sampleType\n        displayname\n        dnase: experimentAccession(assay: \"DNase\")\n        h3k4me3: experimentAccession(assay: \"H3K4me3\")\n        h3k27ac: experimentAccession(assay: \"H3K27ac\")\n        ctcf: experimentAccession(assay: \"CTCF\")\n        atac: experimentAccession(assay: \"ATAC\")\n        dnase_signal: fileAccession(assay: \"DNase\")\n        h3k4me3_signal: fileAccession(assay: \"H3K4me3\")\n        h3k27ac_signal: fileAccession(assay: \"H3K27ac\")\n        ctcf_signal: fileAccession(assay: \"CTCF\")\n        atac_signal: fileAccession(assay: \"ATAC\")\n      }\n    }\n  }\n": typeof types.Biosamples_1Document,
+    "\n  query getGeneLocation($name: String!, $assembly: String!, $version: Int!) {\n    gene(name: [$name], assembly: $assembly, version: $version) {\n      coordinates {\n        chromosome\n        start\n        end\n      }\n    }\n  }\n": typeof types.GetGeneLocationDocument,
+    "\nquery ccreSearchQuery($assembly: String!, $accessions: [String!], $cellType: String) {\n   cCRESCREENSearch(assembly: $assembly, accessions: $accessions, cellType: $cellType) {\n      dnase_zscore      \n      promoter_zscore      \n      enhancer_zscore\n      ctcf_zscore\n      atac_zscore\n      vertebrates\n      mammals\n      primates\n      pct \n      info {\n        accession\n      } \n      ctspecific\n      {\n        dnase_zscore\n        ctcf_zscore\n        atac_zscore\n        h3k4me3_zscore\n        h3k27ac_zscore\n      }\n   }\n}\n": typeof types.CcreSearchQueryDocument,
+    "\n  query geneSpecificity($geneids: [String]){\n  geneSpecificity(geneid: $geneids) {\n    score\n    stop\n    start\n    chromosome\n    name\n  }\n}\n  ": typeof types.GeneSpecificityDocument,
+    "\n  query closestAndLinked($accessions: [String]!){\n  closestGenetocCRE(ccre: $accessions) {\n    ccre\n    strand\n    chromosome\n    start\n    stop\n    transcriptid\n    gene {\n      name\n      type\n      geneid\n      chromosome\n      stop\n      start\n    }\n  }\n  linkedGenesQuery(assembly: \"grch38\", accession: $accessions) {\n      accession  \n      p_val\n      gene\n      geneid\n      genetype\n      method\n      score\n      displayname\n      assay\n    }\n}\n  ": typeof types.ClosestAndLinkedDocument,
+    "\n  query orthoQuery($accessions: [String], $assembly: String){\n  orthologQuery(accession: $accessions, assembly: $assembly) {\n    assembly\n    accession\n    ortholog\n     { \n      accession\n    }\n  }\n}\n   ": typeof types.OrthoQueryDocument,
+    "\n    query BigRequestQuery($requests: [BigRequest!]!) {\n  bigRequests(requests: $requests) {\n    data\n  }\n}\n     ": typeof types.BigRequestQueryDocument,
+    "\n  query occurrences($range: [GenomicRegionInput!], $limit: Int) {\n        meme_occurrences(genomic_region: $range, , limit: $limit) {\n            motif {\n              id\n                pwm\n                peaks_file {\n                    assembly\n                    accession\n                    dataset_accession\n                }\n              \n                tomtom_matches {\n                    jaspar_name\n                    target_id\n                    e_value\n                  \n                }\n                flank_p_value\n                shuffled_p_value\n            }\n            strand\n            peaks_accession\n            consensus_regex\n            q_value\n            genomic_region {\n                chromosome\n                start\n                end\n            }\n        }\n    }\n  ": typeof types.OccurrencesDocument,
+    "\n    query tomtomMatches($peaks_accessions: [String!]!, $ids: [String!]!) {\n        target_motifs(peaks_accessions: $peaks_accessions, motif_id: $ids) {\n            target_id\n            e_value\n            jaspar_name\n        }\n    }\n": typeof types.TomtomMatchesDocument,
+    "\n  query bigRequestsMultipleRegionsSequence($requests: MultipleRegionBigRequest!) {\n  bigRequestsMultipleRegions(requests: $requests) {\n    data\n    error {\n      errortype\n      message\n    }\n  }  \n}\n  ": typeof types.BigRequestsMultipleRegionsSequenceDocument,
+    "\n    query geneOrthologQuery($name: [String]!, $assembly: String!) {\n    geneOrthologQuery: geneorthologQuery(name: $name, assembly: $assembly) {\n      humanGene: external_gene_name\n      mouseGene: mmusculus_homolog_associated_gene_name\n    }\n  }\n    ": typeof types.GeneOrthologQueryDocument,
+    "\n  query test_geneEXpBiosampleQuery($genes: [String!]!, $tissue:  [String!], $biosample:  [String!], $aggregateBy: AggregateByEnum) {\n    geneexpressiontpms(genes: $genes, tissue: $tissue, biosample: $biosample, aggregateBy: $aggregateBy) {\n      tpm \n      gene\n      geneid\n    }\n  }\n  ": typeof types.Test_GeneEXpBiosampleQueryDocument,
+    "\n  query MotifRankingQuery($motifinputs: [MotifRankingInput!]) {\n    motifranking(motifinputs: $motifinputs) {\n      alt\n      ref\n      diff\n      regionid    \n      threshold\n      motif\n    }\n  }\n  ": typeof types.MotifRankingQueryDocument,
+    "\n    query RefCheckMotifRankingQuery($inputs: [MotifRankingRefCheckInput!]!) {\n  refcheckmotifranking(refcheckmotifinputs: $inputs) {\n    chrom\n    start\n    end\n    ref\n    regionid\n    refTrue\n  }\n}\n    ": typeof types.RefCheckMotifRankingQueryDocument,
+    "\nquery bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {\n  intersection (\n    userCcres: $user_ccres,\n    assembly: $assembly,\n    maxOutputLength: $max_ouput_length\n  )\n}\n": typeof types.BedIntersectCcre_1Document,
+};
+const documents: Documents = {
+    "\n  query RNASeqQuery($assembly: String!){\n    rnaSeqQuery(assembly:$assembly) {\n      biosample\n    }\n  }\n": types.RnaSeqQueryDocument,
+    "\n  query biosamples_1($assembly: String!, $assays: [String!]) {\n    ccREBiosampleQuery(assembly: $assembly, assay: $assays) {\n      biosamples {\n        name\n        ontology\n        lifeStage\n        sampleType\n        displayname\n        dnase: experimentAccession(assay: \"DNase\")\n        h3k4me3: experimentAccession(assay: \"H3K4me3\")\n        h3k27ac: experimentAccession(assay: \"H3K27ac\")\n        ctcf: experimentAccession(assay: \"CTCF\")\n        atac: experimentAccession(assay: \"ATAC\")\n        dnase_signal: fileAccession(assay: \"DNase\")\n        h3k4me3_signal: fileAccession(assay: \"H3K4me3\")\n        h3k27ac_signal: fileAccession(assay: \"H3K27ac\")\n        ctcf_signal: fileAccession(assay: \"CTCF\")\n        atac_signal: fileAccession(assay: \"ATAC\")\n      }\n    }\n  }\n": types.Biosamples_1Document,
+    "\n  query getGeneLocation($name: String!, $assembly: String!, $version: Int!) {\n    gene(name: [$name], assembly: $assembly, version: $version) {\n      coordinates {\n        chromosome\n        start\n        end\n      }\n    }\n  }\n": types.GetGeneLocationDocument,
+    "\nquery ccreSearchQuery($assembly: String!, $accessions: [String!], $cellType: String) {\n   cCRESCREENSearch(assembly: $assembly, accessions: $accessions, cellType: $cellType) {\n      dnase_zscore      \n      promoter_zscore      \n      enhancer_zscore\n      ctcf_zscore\n      atac_zscore\n      vertebrates\n      mammals\n      primates\n      pct \n      info {\n        accession\n      } \n      ctspecific\n      {\n        dnase_zscore\n        ctcf_zscore\n        atac_zscore\n        h3k4me3_zscore\n        h3k27ac_zscore\n      }\n   }\n}\n": types.CcreSearchQueryDocument,
+    "\n  query geneSpecificity($geneids: [String]){\n  geneSpecificity(geneid: $geneids) {\n    score\n    stop\n    start\n    chromosome\n    name\n  }\n}\n  ": types.GeneSpecificityDocument,
+    "\n  query closestAndLinked($accessions: [String]!){\n  closestGenetocCRE(ccre: $accessions) {\n    ccre\n    strand\n    chromosome\n    start\n    stop\n    transcriptid\n    gene {\n      name\n      type\n      geneid\n      chromosome\n      stop\n      start\n    }\n  }\n  linkedGenesQuery(assembly: \"grch38\", accession: $accessions) {\n      accession  \n      p_val\n      gene\n      geneid\n      genetype\n      method\n      score\n      displayname\n      assay\n    }\n}\n  ": types.ClosestAndLinkedDocument,
+    "\n  query orthoQuery($accessions: [String], $assembly: String){\n  orthologQuery(accession: $accessions, assembly: $assembly) {\n    assembly\n    accession\n    ortholog\n     { \n      accession\n    }\n  }\n}\n   ": types.OrthoQueryDocument,
+    "\n    query BigRequestQuery($requests: [BigRequest!]!) {\n  bigRequests(requests: $requests) {\n    data\n  }\n}\n     ": types.BigRequestQueryDocument,
+    "\n  query occurrences($range: [GenomicRegionInput!], $limit: Int) {\n        meme_occurrences(genomic_region: $range, , limit: $limit) {\n            motif {\n              id\n                pwm\n                peaks_file {\n                    assembly\n                    accession\n                    dataset_accession\n                }\n              \n                tomtom_matches {\n                    jaspar_name\n                    target_id\n                    e_value\n                  \n                }\n                flank_p_value\n                shuffled_p_value\n            }\n            strand\n            peaks_accession\n            consensus_regex\n            q_value\n            genomic_region {\n                chromosome\n                start\n                end\n            }\n        }\n    }\n  ": types.OccurrencesDocument,
+    "\n    query tomtomMatches($peaks_accessions: [String!]!, $ids: [String!]!) {\n        target_motifs(peaks_accessions: $peaks_accessions, motif_id: $ids) {\n            target_id\n            e_value\n            jaspar_name\n        }\n    }\n": types.TomtomMatchesDocument,
+    "\n  query bigRequestsMultipleRegionsSequence($requests: MultipleRegionBigRequest!) {\n  bigRequestsMultipleRegions(requests: $requests) {\n    data\n    error {\n      errortype\n      message\n    }\n  }  \n}\n  ": types.BigRequestsMultipleRegionsSequenceDocument,
+    "\n    query geneOrthologQuery($name: [String]!, $assembly: String!) {\n    geneOrthologQuery: geneorthologQuery(name: $name, assembly: $assembly) {\n      humanGene: external_gene_name\n      mouseGene: mmusculus_homolog_associated_gene_name\n    }\n  }\n    ": types.GeneOrthologQueryDocument,
+    "\n  query test_geneEXpBiosampleQuery($genes: [String!]!, $tissue:  [String!], $biosample:  [String!], $aggregateBy: AggregateByEnum) {\n    geneexpressiontpms(genes: $genes, tissue: $tissue, biosample: $biosample, aggregateBy: $aggregateBy) {\n      tpm \n      gene\n      geneid\n    }\n  }\n  ": types.Test_GeneEXpBiosampleQueryDocument,
+    "\n  query MotifRankingQuery($motifinputs: [MotifRankingInput!]) {\n    motifranking(motifinputs: $motifinputs) {\n      alt\n      ref\n      diff\n      regionid    \n      threshold\n      motif\n    }\n  }\n  ": types.MotifRankingQueryDocument,
+    "\n    query RefCheckMotifRankingQuery($inputs: [MotifRankingRefCheckInput!]!) {\n  refcheckmotifranking(refcheckmotifinputs: $inputs) {\n    chrom\n    start\n    end\n    ref\n    regionid\n    refTrue\n  }\n}\n    ": types.RefCheckMotifRankingQueryDocument,
+    "\nquery bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {\n  intersection (\n    userCcres: $user_ccres,\n    assembly: $assembly,\n    maxOutputLength: $max_ouput_length\n  )\n}\n": types.BedIntersectCcre_1Document,
+};
+
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ *
+ *
+ * @example
+ * ```ts
+ * const query = gql(`query GetUser($id: ID!) { user(id: $id) { name } }`);
+ * ```
+ *
+ * The query argument is unknown!
+ * Please regenerate the types.
+ */
+export function gql(source: string): unknown;
+
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query RNASeqQuery($assembly: String!){\n    rnaSeqQuery(assembly:$assembly) {\n      biosample\n    }\n  }\n"): (typeof documents)["\n  query RNASeqQuery($assembly: String!){\n    rnaSeqQuery(assembly:$assembly) {\n      biosample\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query biosamples_1($assembly: String!, $assays: [String!]) {\n    ccREBiosampleQuery(assembly: $assembly, assay: $assays) {\n      biosamples {\n        name\n        ontology\n        lifeStage\n        sampleType\n        displayname\n        dnase: experimentAccession(assay: \"DNase\")\n        h3k4me3: experimentAccession(assay: \"H3K4me3\")\n        h3k27ac: experimentAccession(assay: \"H3K27ac\")\n        ctcf: experimentAccession(assay: \"CTCF\")\n        atac: experimentAccession(assay: \"ATAC\")\n        dnase_signal: fileAccession(assay: \"DNase\")\n        h3k4me3_signal: fileAccession(assay: \"H3K4me3\")\n        h3k27ac_signal: fileAccession(assay: \"H3K27ac\")\n        ctcf_signal: fileAccession(assay: \"CTCF\")\n        atac_signal: fileAccession(assay: \"ATAC\")\n      }\n    }\n  }\n"): (typeof documents)["\n  query biosamples_1($assembly: String!, $assays: [String!]) {\n    ccREBiosampleQuery(assembly: $assembly, assay: $assays) {\n      biosamples {\n        name\n        ontology\n        lifeStage\n        sampleType\n        displayname\n        dnase: experimentAccession(assay: \"DNase\")\n        h3k4me3: experimentAccession(assay: \"H3K4me3\")\n        h3k27ac: experimentAccession(assay: \"H3K27ac\")\n        ctcf: experimentAccession(assay: \"CTCF\")\n        atac: experimentAccession(assay: \"ATAC\")\n        dnase_signal: fileAccession(assay: \"DNase\")\n        h3k4me3_signal: fileAccession(assay: \"H3K4me3\")\n        h3k27ac_signal: fileAccession(assay: \"H3K27ac\")\n        ctcf_signal: fileAccession(assay: \"CTCF\")\n        atac_signal: fileAccession(assay: \"ATAC\")\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query getGeneLocation($name: String!, $assembly: String!, $version: Int!) {\n    gene(name: [$name], assembly: $assembly, version: $version) {\n      coordinates {\n        chromosome\n        start\n        end\n      }\n    }\n  }\n"): (typeof documents)["\n  query getGeneLocation($name: String!, $assembly: String!, $version: Int!) {\n    gene(name: [$name], assembly: $assembly, version: $version) {\n      coordinates {\n        chromosome\n        start\n        end\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nquery ccreSearchQuery($assembly: String!, $accessions: [String!], $cellType: String) {\n   cCRESCREENSearch(assembly: $assembly, accessions: $accessions, cellType: $cellType) {\n      dnase_zscore      \n      promoter_zscore      \n      enhancer_zscore\n      ctcf_zscore\n      atac_zscore\n      vertebrates\n      mammals\n      primates\n      pct \n      info {\n        accession\n      } \n      ctspecific\n      {\n        dnase_zscore\n        ctcf_zscore\n        atac_zscore\n        h3k4me3_zscore\n        h3k27ac_zscore\n      }\n   }\n}\n"): (typeof documents)["\nquery ccreSearchQuery($assembly: String!, $accessions: [String!], $cellType: String) {\n   cCRESCREENSearch(assembly: $assembly, accessions: $accessions, cellType: $cellType) {\n      dnase_zscore      \n      promoter_zscore      \n      enhancer_zscore\n      ctcf_zscore\n      atac_zscore\n      vertebrates\n      mammals\n      primates\n      pct \n      info {\n        accession\n      } \n      ctspecific\n      {\n        dnase_zscore\n        ctcf_zscore\n        atac_zscore\n        h3k4me3_zscore\n        h3k27ac_zscore\n      }\n   }\n}\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query geneSpecificity($geneids: [String]){\n  geneSpecificity(geneid: $geneids) {\n    score\n    stop\n    start\n    chromosome\n    name\n  }\n}\n  "): (typeof documents)["\n  query geneSpecificity($geneids: [String]){\n  geneSpecificity(geneid: $geneids) {\n    score\n    stop\n    start\n    chromosome\n    name\n  }\n}\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query closestAndLinked($accessions: [String]!){\n  closestGenetocCRE(ccre: $accessions) {\n    ccre\n    strand\n    chromosome\n    start\n    stop\n    transcriptid\n    gene {\n      name\n      type\n      geneid\n      chromosome\n      stop\n      start\n    }\n  }\n  linkedGenesQuery(assembly: \"grch38\", accession: $accessions) {\n      accession  \n      p_val\n      gene\n      geneid\n      genetype\n      method\n      score\n      displayname\n      assay\n    }\n}\n  "): (typeof documents)["\n  query closestAndLinked($accessions: [String]!){\n  closestGenetocCRE(ccre: $accessions) {\n    ccre\n    strand\n    chromosome\n    start\n    stop\n    transcriptid\n    gene {\n      name\n      type\n      geneid\n      chromosome\n      stop\n      start\n    }\n  }\n  linkedGenesQuery(assembly: \"grch38\", accession: $accessions) {\n      accession  \n      p_val\n      gene\n      geneid\n      genetype\n      method\n      score\n      displayname\n      assay\n    }\n}\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query orthoQuery($accessions: [String], $assembly: String){\n  orthologQuery(accession: $accessions, assembly: $assembly) {\n    assembly\n    accession\n    ortholog\n     { \n      accession\n    }\n  }\n}\n   "): (typeof documents)["\n  query orthoQuery($accessions: [String], $assembly: String){\n  orthologQuery(accession: $accessions, assembly: $assembly) {\n    assembly\n    accession\n    ortholog\n     { \n      accession\n    }\n  }\n}\n   "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query BigRequestQuery($requests: [BigRequest!]!) {\n  bigRequests(requests: $requests) {\n    data\n  }\n}\n     "): (typeof documents)["\n    query BigRequestQuery($requests: [BigRequest!]!) {\n  bigRequests(requests: $requests) {\n    data\n  }\n}\n     "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query occurrences($range: [GenomicRegionInput!], $limit: Int) {\n        meme_occurrences(genomic_region: $range, , limit: $limit) {\n            motif {\n              id\n                pwm\n                peaks_file {\n                    assembly\n                    accession\n                    dataset_accession\n                }\n              \n                tomtom_matches {\n                    jaspar_name\n                    target_id\n                    e_value\n                  \n                }\n                flank_p_value\n                shuffled_p_value\n            }\n            strand\n            peaks_accession\n            consensus_regex\n            q_value\n            genomic_region {\n                chromosome\n                start\n                end\n            }\n        }\n    }\n  "): (typeof documents)["\n  query occurrences($range: [GenomicRegionInput!], $limit: Int) {\n        meme_occurrences(genomic_region: $range, , limit: $limit) {\n            motif {\n              id\n                pwm\n                peaks_file {\n                    assembly\n                    accession\n                    dataset_accession\n                }\n              \n                tomtom_matches {\n                    jaspar_name\n                    target_id\n                    e_value\n                  \n                }\n                flank_p_value\n                shuffled_p_value\n            }\n            strand\n            peaks_accession\n            consensus_regex\n            q_value\n            genomic_region {\n                chromosome\n                start\n                end\n            }\n        }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query tomtomMatches($peaks_accessions: [String!]!, $ids: [String!]!) {\n        target_motifs(peaks_accessions: $peaks_accessions, motif_id: $ids) {\n            target_id\n            e_value\n            jaspar_name\n        }\n    }\n"): (typeof documents)["\n    query tomtomMatches($peaks_accessions: [String!]!, $ids: [String!]!) {\n        target_motifs(peaks_accessions: $peaks_accessions, motif_id: $ids) {\n            target_id\n            e_value\n            jaspar_name\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query bigRequestsMultipleRegionsSequence($requests: MultipleRegionBigRequest!) {\n  bigRequestsMultipleRegions(requests: $requests) {\n    data\n    error {\n      errortype\n      message\n    }\n  }  \n}\n  "): (typeof documents)["\n  query bigRequestsMultipleRegionsSequence($requests: MultipleRegionBigRequest!) {\n  bigRequestsMultipleRegions(requests: $requests) {\n    data\n    error {\n      errortype\n      message\n    }\n  }  \n}\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query geneOrthologQuery($name: [String]!, $assembly: String!) {\n    geneOrthologQuery: geneorthologQuery(name: $name, assembly: $assembly) {\n      humanGene: external_gene_name\n      mouseGene: mmusculus_homolog_associated_gene_name\n    }\n  }\n    "): (typeof documents)["\n    query geneOrthologQuery($name: [String]!, $assembly: String!) {\n    geneOrthologQuery: geneorthologQuery(name: $name, assembly: $assembly) {\n      humanGene: external_gene_name\n      mouseGene: mmusculus_homolog_associated_gene_name\n    }\n  }\n    "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query test_geneEXpBiosampleQuery($genes: [String!]!, $tissue:  [String!], $biosample:  [String!], $aggregateBy: AggregateByEnum) {\n    geneexpressiontpms(genes: $genes, tissue: $tissue, biosample: $biosample, aggregateBy: $aggregateBy) {\n      tpm \n      gene\n      geneid\n    }\n  }\n  "): (typeof documents)["\n  query test_geneEXpBiosampleQuery($genes: [String!]!, $tissue:  [String!], $biosample:  [String!], $aggregateBy: AggregateByEnum) {\n    geneexpressiontpms(genes: $genes, tissue: $tissue, biosample: $biosample, aggregateBy: $aggregateBy) {\n      tpm \n      gene\n      geneid\n    }\n  }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query MotifRankingQuery($motifinputs: [MotifRankingInput!]) {\n    motifranking(motifinputs: $motifinputs) {\n      alt\n      ref\n      diff\n      regionid    \n      threshold\n      motif\n    }\n  }\n  "): (typeof documents)["\n  query MotifRankingQuery($motifinputs: [MotifRankingInput!]) {\n    motifranking(motifinputs: $motifinputs) {\n      alt\n      ref\n      diff\n      regionid    \n      threshold\n      motif\n    }\n  }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query RefCheckMotifRankingQuery($inputs: [MotifRankingRefCheckInput!]!) {\n  refcheckmotifranking(refcheckmotifinputs: $inputs) {\n    chrom\n    start\n    end\n    ref\n    regionid\n    refTrue\n  }\n}\n    "): (typeof documents)["\n    query RefCheckMotifRankingQuery($inputs: [MotifRankingRefCheckInput!]!) {\n  refcheckmotifranking(refcheckmotifinputs: $inputs) {\n    chrom\n    start\n    end\n    ref\n    regionid\n    refTrue\n  }\n}\n    "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\nquery bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {\n  intersection (\n    userCcres: $user_ccres,\n    assembly: $assembly,\n    maxOutputLength: $max_ouput_length\n  )\n}\n"): (typeof documents)["\nquery bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {\n  intersection (\n    userCcres: $user_ccres,\n    assembly: $assembly,\n    maxOutputLength: $max_ouput_length\n  )\n}\n"];
+
+export function gql(source: string) {
+  return (documents as any)[source] ?? {};
+}
+
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;
