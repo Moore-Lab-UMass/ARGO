@@ -126,7 +126,8 @@ const Filters: React.FC<FilterProps> = ({
                 sx={{
                     '& .MuiDrawer-paper': {
                         width: '25vw',
-                        zIndex: theme => theme.zIndex.appBar - 1,
+                        top: theme => `${theme.mixins.toolbar.minHeight}px`,
+                        zIndex: 0,
                         minWidth: 300
                     }
                 }}
@@ -153,6 +154,7 @@ const Filters: React.FC<FilterProps> = ({
                     </IconButton>
                 </Stack>
                 <Box
+                    height="calc(100vh - 113px)"
                     overflow="auto"
                 >
                     <SequenceFilters

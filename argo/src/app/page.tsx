@@ -445,9 +445,6 @@ export default function Argo() {
                 height={"100%"}
                 zIndex={1}
             >
-                <Typography variant="h4" mb={3}>
-                    <b>A</b>ggregate <b>R</b>ank <b>G</b>enerat<b>o</b>r
-                </Typography>
                 <ArgoUpload
                     selectedSearch={selectedSearch}
                     handleSearchChange={handleSearchChange}
