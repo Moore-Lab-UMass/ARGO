@@ -118,7 +118,6 @@ const Filters: React.FC<FilterProps> = ({
                 sx={{
                     '& .MuiDrawer-paper': {
                         width: '25vw',
-                        top: theme => `${theme.mixins.toolbar.minHeight}px`,
                         zIndex: theme => theme.zIndex.appBar - 1,
                         minWidth: 300
                     }

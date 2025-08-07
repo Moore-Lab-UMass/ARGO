@@ -247,6 +247,8 @@ export default function Argo() {
                 client: client,
                 fetchPolicy: 'cache-and-network',
             })
+        } else {
+            setInputRegions([]);
         }
     };
 
