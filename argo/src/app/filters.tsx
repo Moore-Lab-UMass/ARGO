@@ -40,8 +40,16 @@ const initialElementFilterState: ElementFilterState = {
 const initialGeneFilterState: GeneFilterState = {
     useGenes: true,
     methodOfLinkage: {
-        distance: true, eQTLs: true, CRISPRi_FlowFISH: true,
-        Intact_HiC: true, CTCF_ChIAPET: true, RNAPII_ChIAPET: true
+        distance: true, 
+        eQTLs: true, 
+        CRISPRi_FlowFISH: true,
+        Intact_HiC: true, 
+        CTCF_ChIAPET: true, 
+        RNAPII_ChIAPET: true,
+        ABC: true,
+        EPIraction: true,
+        GraphRegLR: true,
+        rE2G: true
     },
     mustBeProteinCoding: false,
     mustHaveOrtholog: false,
