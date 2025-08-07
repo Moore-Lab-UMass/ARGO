@@ -6,22 +6,9 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import SequenceFilters from './sequence/sequenceFilters';
 import ElementFilters from './elements/elementFilters';
 import GeneFilters from './genes/geneFilters';
-import { Clear } from "@mui/icons-material"
+import { Clear } from "@mui/icons-material";
 
-const Filters: React.FC<FilterProps> = ({
-    sequenceFilterVariables,
-    elementFilterVariables,
-    geneFilterVariables,
-    updateSequenceFilter,
-    updateElementFilter,
-    updateGeneFilter,
-    drawerOpen,
-    toggleDrawer,
-}) => {
-
-    const [expandedAccordions, setExpandedAccordions] = useState<Panel[]>([]);
-
-    // Initial filter states
+// Initial filter states
     const initialSequenceFilterState: SequenceFilterState = {
         useConservation: true,
         alignment: "241-mam-phyloP",
@@ -62,6 +49,19 @@ const Filters: React.FC<FilterProps> = ({
         rankGeneExpBy: "max",
         selectedBiosample: null
     };
+
+const Filters: React.FC<FilterProps> = ({
+    sequenceFilterVariables,
+    elementFilterVariables,
+    geneFilterVariables,
+    updateSequenceFilter,
+    updateElementFilter,
+    updateGeneFilter,
+    drawerOpen,
+    toggleDrawer,
+}) => {
+
+    const [expandedAccordions, setExpandedAccordions] = useState<Panel[]>([]);
 
     // Function to reset filters
     const handleClearFilters = () => {

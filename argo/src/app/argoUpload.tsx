@@ -87,7 +87,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
         return allLines
     }
 
-    const compareRegionsToReferences = useCallback(async (regions: InputRegions, regionRefs: string[]): Promise<string> => {
+    const compareRegionsToReferences = useCallback(async (regions: InputRegions): Promise<string> => {
         const response = await getAllele({
             variables: {
                 inputs: regions.map(region => ({
@@ -170,8 +170,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
         }
 
         // Validate reference alleles
-        const regionRefs = regions.map((region) => region.ref);
-        const refError = await compareRegionsToReferences(regions, regionRefs);
+        const refError = await compareRegionsToReferences(regions);
         if (refError !== "") {
             setCellErr("ref")
             return refError;
