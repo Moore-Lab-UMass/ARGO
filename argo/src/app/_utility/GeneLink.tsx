@@ -36,7 +36,7 @@ const GeneLink = ({ geneName, assembly, typographyProps }: GeneLinkProps) => {
     setOpen(true);
   };
 
-  const [getGeneCoords, { data: dataCoords, loading: loadingCoords, error: errorCoords, called: coordsWereFetched }] = useLazyQuery(
+  const [getGeneCoords, { data: dataCoords }] = useLazyQuery(
     GET_GENE_COORDS,
     { variables: { name: geneName, assembly: assembly, version: assembly === "GRCh38" ? 40 :25 } }
   )

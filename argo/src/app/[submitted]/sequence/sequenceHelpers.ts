@@ -1,4 +1,4 @@
-import { GenomicRegion, InputRegions, MotifRanking, RankedRegions, SequenceTableRow } from "../types";
+import { GenomicRegion, InputRegions, MotifRanking, RankedRegions, SequenceTableRow } from "../../types";
 
 // switch between min, max, avg for conservation scores, calculate each respectivley
 export const calculateConservationScores = (scores, rankBy: string, inputRegions: InputRegions): SequenceTableRow[] => {

@@ -1,7 +1,7 @@
 import React from "react";
-import { CCREAssays, CCREClasses, ElementAccordianProps } from "../types";
+import { CCREAssays, CCREClasses, ElementAccordianProps } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
-import BiosampleTables from "../_biosampleTables/BiosampleTables";
+import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
 
@@ -119,6 +119,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             disableGutters
             expanded={isExpanded('element')}
             onChange={handleAccordionChange('element')}
+            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('element') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>

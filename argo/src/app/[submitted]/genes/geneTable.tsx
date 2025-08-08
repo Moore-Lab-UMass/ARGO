@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { AllLinkedGenes, GeneTableProps, GeneTableRow, LinkedGenes } from "../types";
+import { AllLinkedGenes, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
 import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
 import { Skeleton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { client } from "../client";
-import { CLOSEST_LINKED_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY } from "../queries";
+import { client } from "../../client";
+import { CLOSEST_LINKED_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY } from "../../queries";
 import { parseLinkedGenes, pushClosestGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
-import { AggregateByEnum } from "../../graphql/__generated__/graphql";
-import GeneLink from "../_utility/GeneLink";
+import { AggregateByEnum } from "../../../graphql/__generated__/graphql";
+import GeneLink from "../../_utility/GeneLink";
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,

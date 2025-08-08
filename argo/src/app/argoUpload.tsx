@@ -1,20 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { Button, Typography, Stack, IconButton, FormControl, Box, TextField, Alert, Container, Table, TableBody, TableCell, TableRow, RadioGroup, FormControlLabel, Radio, Accordion, AccordionSummary, AccordionDetails, Tooltip } from "@mui/material"
+import { Button, Typography, Stack, IconButton, FormControl, Box, TextField, Alert, Container, Table, TableBody, TableCell, TableRow, RadioGroup, FormControlLabel, Radio, Tooltip, DialogContent, Dialog, DialogTitle } from "@mui/material"
 import { useDropzone } from "react-dropzone"
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
-import { InputRegions, UploadProps } from "./types";
+import { InputRegions } from "./types";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useLazyQuery } from "@apollo/client";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { REF_CHECK_QUERY } from "./queries";
+import { encodeRegions } from "./_utility/coding";
 
-const ArgoUpload: React.FC<UploadProps> = ({
-    selectedSearch,
-    handleSearchChange,
-    onRegionsConfigured
+const ArgoUpload: React.FC = ({
 }) => {
     const [files, setFiles] = useState<File>(null)
     const onDrop = useCallback(acceptedFiles => {
@@ -25,16 +23,11 @@ const ArgoUpload: React.FC<UploadProps> = ({
     const [error, setError] = useState([false, ""]); // status, message
     const [filesSubmitted, setFilesSubmitted] = useState(false);
     const [textValue, setTextValue] = useState(""); // State to control the TextField value
-    const [submittedText, setSubmittedText] = useState("")
     const [textChanged, setTextChanged] = useState(true);
     const [getAllele] = useLazyQuery(REF_CHECK_QUERY);
     const [cellErr, setCellErr] = useState("");
-    const [expanded, setExpanded] = useState(true);
-
-    //expand the accordion
-    const handleExpand = () => {
-        setExpanded(!expanded)
-    }
+    const [requiredOpen, setRequiredOpen] = useState(false);
+    const [selectedSearch, setSelectedSearch] = useState<string>("TSV File")
 
     //check to see if the value in the text box has changed
     useEffect(() => {
@@ -45,12 +38,10 @@ const ArgoUpload: React.FC<UploadProps> = ({
         setCellErr(""); //clear the errored cells
         setTextValue(""); // Clear the text box
         setFiles(null); //clear uploaded files
-        handleSearchChange(searchChange); //change search to selected search
+        setSelectedSearch(searchChange); //change search to selected search
         setError([false, ""]); // clear the error message
         setFilesSubmitted(false); //clear submitted files
-        setExpanded(true); //expand the accordion
         setTextChanged(true); //text has changed
-        setSubmittedText(""); //no submitted text
     };
 
     //Allow the user to insert a tab in the text box
@@ -87,7 +78,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
         return allLines
     }
 
-    const compareRegionsToReferences = useCallback(async (regions: InputRegions, regionRefs: string[]): Promise<string> => {
+    const compareRegionsToReferences = useCallback(async (regions: InputRegions): Promise<string> => {
         const response = await getAllele({
             variables: {
                 inputs: regions.map(region => ({
@@ -101,17 +92,17 @@ const ArgoUpload: React.FC<UploadProps> = ({
             },
             fetchPolicy: "cache-first",
         });
-    
+
         // Extract mismatched regions from the response
         const mismatchedRegions = response.data?.refcheckmotifranking ?? [];
-    
+
         // If there are no mismatches, return an empty string
         if (mismatchedRegions.length === 0) {
             return "";
         }
-    
+
         // Format the error message for mismatched regions
-        return mismatchedRegions.map(region => 
+        return mismatchedRegions.map(region =>
             `Reference allele does not match at regionID: ${region.regionid} 
             (${region.chrom} ${region.start} ${region.end}), the correct reference allele would be ${region.refTrue}`
         ).join("\n");
@@ -170,8 +161,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
         }
 
         // Validate reference alleles
-        const regionRefs = regions.map((region) => region.ref);
-        const refError = await compareRegionsToReferences(regions, regionRefs);
+        const refError = await compareRegionsToReferences(regions);
         if (refError !== "") {
             setCellErr("ref")
             return refError;
@@ -198,7 +188,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
     }, [compareRegionsToReferences])
 
     //map parsed file / text to Genomic region type and sort them
-    const configureInputedRegions = useCallback(async (data) => {
+    const configureInputedRegions = useCallback(async (data, fileName: string) => {
         const regions: InputRegions = data.map((item, index) => ({
             chr: item[0],
             start: Number(item[1]),
@@ -229,14 +219,14 @@ const ArgoUpload: React.FC<UploadProps> = ({
             }
             return a.start - b.start;
         });
+        const encoded = encodeRegions(sortedRegions);
+        const url = `/${fileName}#${encoded}`
+        window.open(url, "_self")
 
         setLoading(false);
         setFilesSubmitted(true);
-        setSubmittedText(textValue)
         setTextChanged(false);
-        setExpanded(false);
-        onRegionsConfigured(sortedRegions);
-    }, [onRegionsConfigured, textValue, validateRegions])
+    }, [validateRegions])
 
 
     function submitTextUpload(event) {
@@ -245,7 +235,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
         setCellErr("")
         const uploadedData = event.get("textUploadFile").toString()
         const inputData = parseDataInput(uploadedData)
-        configureInputedRegions(inputData)
+        configureInputedRegions(inputData, "textSubmission")
     }
 
     const submitUploadedFile = useCallback((file: File) => {
@@ -272,13 +262,13 @@ const ArgoUpload: React.FC<UploadProps> = ({
         reader.onerror = () => console.log("file reading has failed")
         reader.onloadend = () => {
             sessionStorage.setItem("filenames", filenames)
-            configureInputedRegions(allLines)
+            configureInputedRegions(allLines, file.name.split('.')[0])
         }
         reader.readAsText(file)
     }, [configureInputedRegions])
 
     //coppied from BedUpload
-    function truncateFileName(string, maxLength, ellipsis = "...") {
+    function truncateFileName(string, maxLength, ellipsis = "") {
         if (string.length <= maxLength) {
             return string;
         }
@@ -289,7 +279,7 @@ const ArgoUpload: React.FC<UploadProps> = ({
     //set files to the example file provided
     const handleUseExample = async () => {
         handleReset("TSV File")
-        // const url = "/ArgoExample.tsv";
+        // const url = "/ArgoTesting.tsv";
         const url = "/ArgoExample.tsv";
         try {
             const response = await fetch(url);
@@ -308,308 +298,264 @@ const ArgoUpload: React.FC<UploadProps> = ({
 
     return (
         <>
-            {error[0] && <Alert variant="outlined" severity="error" sx={{ mb: 2 }}>{error[1]}</Alert>}
-            <Accordion
-                defaultExpanded
-                disableGutters
-                expanded={expanded}
-                onChange={() => handleExpand()}
+            <Box
+                sx={{
+                    backgroundColor: "rgba(249, 248, 244, .8)",
+                    borderRadius: 2,
+                    px: 2,
+                    py: 2,
+                    display: "flex",
+                    width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
+                    minWidth: { xs: "unset", md: 450 },
+                    mt: 2,
+                    alignItems: "center",
+                    flexDirection: "column",
+                    mx: "auto"
+                }}
             >
-                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: expanded ? '#030f98' : 'inherit' }} />} sx={{
-                    fontSize: '1.25rem',
-                    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
-                }}>
-                    {/* When a file is submitted */}
-                    {filesSubmitted ? (
-                        <>
-                            <Stack
-                                borderRadius={1}
-                                direction={"row"}
-                                spacing={3}
-                                sx={{ backgroundColor: theme => theme.palette.secondary.main, padding: 1 }}
-                                alignItems={"center"}
-                                justifyContent={"space-between"}
-                            >
-                                <Typography mb={1} variant="h5">Submitted:</Typography>
-                                <Typography>
-                                    {selectedSearch === "Text Box"
-                                        ? submittedText.includes("\n")
-                                            ? `${submittedText.split("\n")[0]}...`
-                                            : submittedText
-                                        : `${truncateFileName(files.name, 40)}\u00A0-\u00A0${(files.size / 1000000).toFixed(1)}\u00A0mb`}
-                                </Typography>
-                                <IconButton color="primary" onClick={(event) => { handleReset(null); event.stopPropagation(); }}>
-                                    <Cancel />
+                {error[0] && (
+                    <Alert variant="outlined" severity="error" sx={{ width: "100%" }}>
+                        {error[1]}
+                    </Alert>
+                )}
+                {/* Top action buttons */}
+                <Stack direction="row" justifyContent="space-between" width="100%">
+                    <Button
+                        variant="text"
+                        sx={{
+                            fontWeight: "bold",
+                            color: "primary.main",
+                            fontSize: "1rem",
+                            display: "inline-flex",
+                            alignItems: "center",
+                        }}
+                        startIcon={<FileDownloadIcon />}
+                        onClick={() => {
+                            const url = "/ArgoExample.tsv";
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.download = "ArgoExample.tsv";
+                            link.click();
+                        }}
+                    >
+                        Download Example File
+                    </Button>
+                    <Button
+                        variant="text"
+                        sx={{
+                            fontWeight: "bold",
+                            color: "primary.main",
+                            fontSize: "1rem",
+                            display: "inline-flex",
+                            alignItems: "center",
+                        }}
+                        startIcon={<FileUploadIcon />}
+                        onClick={handleUseExample}
+                    >
+                        Use Example File
+                    </Button>
+                </Stack>
+                {/* Upload section */}
+                    <Stack width="100%">
+                        <Stack direction="row" alignItems="flex-start" flexWrap="wrap" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Stack alignItems="center" spacing={2}>
+                                <FormControl>
+                                    <RadioGroup
+                                        row
+                                        value={selectedSearch}
+                                        onChange={(event) => handleReset(event.target.value)}
+                                    >
+                                        <FormControlLabel value="TSV File" control={<Radio />} label="TSV File" />
+                                        <FormControlLabel value="Text Box" control={<Radio />} label="Text Box" />
+                                    </RadioGroup>
+                                </FormControl>
+                                {/* Help icon to open Required Fields */}
+                            </Stack>
+                            <Tooltip title="View required fields" arrow>
+                                <IconButton color={cellErr === "" ? "default" : "error"} onClick={() => setRequiredOpen(true)}>
+                                    <HelpOutlineIcon />
                                 </IconButton>
-                            </Stack>
-                        </>
-                    ) : (
-                        <Typography mb={1} variant="h5">Submit Your Regions</Typography>
-                    )
-                    }
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Stack direction={"row"} spacing={3} mt="10px" alignItems="stretch" justifyContent={"space-between"}>
-                        <Stack>
-                            <Stack direction={"row"} alignItems={"flex-start"} flexWrap={"wrap"} justifyContent={"space-between"}>
-                                <Typography variant={"h5"} mr={1}>
-                                    Upload Through
-                                </Typography>
-                                <Stack
-                                    alignItems={"center"}
-                                    spacing={2}
-                                >
-                                    <FormControl>
-                                        <RadioGroup
-                                            row
-                                            value={selectedSearch}
-                                            onChange={(event) => handleReset(event.target.value)}
-                                        >
-                                            <FormControlLabel
-                                                value="TSV File"
-                                                control={<Radio />}
-                                                label="TSV File"
-                                            />
-                                            <FormControlLabel
-                                                value="Text Box"
-                                                control={<Radio />}
-                                                label="Text Box"
-                                            />
-                                        </RadioGroup>
-                                    </FormControl>
-                                </Stack>
-                            </Stack>
-                            <Box
-                                mt="20px"
-                                width="30vw"
-                                sx={{
-                                    ...(files === null && {
-                                        flexGrow: 1,
-                                        display: "flex",
-                                    }),
-                                }}
-                            >
-                                {selectedSearch === "TSV File" ? (
-                                    files === null && (
-                                        <Container
-                                            sx={{
-                                                border: isDragActive ? "2px dashed blue" : "2px dashed grey",
-                                                borderRadius: "10px",
-                                                minWidth: "250px",
-                                                pl: "0 !important",
-                                                pr: "0 !important",
-                                                color: isDragActive ? "text.secondary" : "text.primary",
-                                            }}
-                                        >
-                                            <div {...getRootProps()} style={{ padding: "1rem" }}>
-                                                <input {...getInputProps()} type="file" accept=".tsv" />
-                                                <Stack spacing={1} direction="column" alignItems="center">
-                                                    <UploadFileIcon />
-                                                    <Typography>
-                                                        Drag and drop a .tsv file
-                                                    </Typography>
-                                                    <Typography>
-                                                        or
-                                                    </Typography>
-                                                    <Button variant="outlined" disabled={isDragActive} sx={{ textTransform: "none" }}>
-                                                        Click to select a file
-                                                    </Button>
-                                                </Stack>
-                                            </div>
-                                        </Container>
-                                    )
-                                ) : (
-                                    <FormControl fullWidth>
-                                        <form action={submitTextUpload}>
-                                            <TextField
-                                                name="textUploadFile"
-                                                multiline
-                                                fullWidth
-                                                rows={6}
-                                                placeholder="Copy and paste your data from Excel here"
-                                                onKeyDown={handleKeyDown}
-                                                value={textValue}
-                                                onChange={(e) => setTextValue(e.target.value)}
-                                            />
-                                            <Stack
-                                                direction="row"
-                                                alignItems="center"
-                                                justifyContent="space-between"
-                                                sx={{ mt: 1 }}
-                                            >
-                                                <LoadingButton
-                                                    loading={loading}
-                                                    loadingPosition="end"
-                                                    type="submit"
-                                                    size="medium"
-                                                    variant="outlined"
-                                                    disabled={!textChanged}
-                                                    sx={{ textTransform: "none" }}
-                                                >
-                                                    Submit
-                                                </LoadingButton>
-                                                <Button
-                                                    color="error"
-                                                    type="button"
-                                                    size="medium"
-                                                    variant="outlined"
-                                                    onClick={() => handleReset(null)}
-                                                    sx={{ textTransform: "none" }}
-                                                >
-                                                    Reset
-                                                </Button>
-                                            </Stack>
-                                        </form>
-                                    </FormControl>
-                                )}
-                                {/* When a file is uploaded */}
-                                {files !== null &&
-                                    <>
-                                        <Typography mb={1} variant="h5">Uploaded:</Typography>
-                                        <Stack direction="row" alignItems="center" spacing={2}>
-                                            <Typography>{`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(files.size / 1000000).toFixed(1)}\u00A0mb`}</Typography>
-                                            <IconButton color="primary" onClick={() => handleReset(null)}>
-                                                <Cancel />
-                                            </IconButton>
-                                        </Stack>
-                                        <LoadingButton
-                                            loading={loading}
-                                            loadingPosition="end"
-                                            sx={{ textTransform: 'none', maxWidth: "18rem" }}
-                                            onClick={() => { submitUploadedFile(files) }}
-                                            variant="outlined"
-                                            color="primary"
-                                            disabled={filesSubmitted}
-                                        >
-                                            <span>
-                                                Submit
-                                            </span>
-                                        </LoadingButton>
-                                    </>
-                                }
-                            </Box>
+                            </Tooltip>
                         </Stack>
-                        <Stack
-                            direction={"column"}
-                            spacing={2}
+                        <Box
                             sx={{
-                                padding: "16px",
-                                border: "1px solid",
-                                borderColor: "grey.300",
-                                borderRadius: "8px",
-                                backgroundColor: "grey.100",
+                                ...(files === null && {
+                                    flexGrow: 1,
+                                    display: "flex"
+                                })
                             }}
                         >
-                            <Typography variant="body1" fontSize="1.1rem" fontWeight="bold">
-                                Required Fields:
-                            </Typography>
-                            <Table
-                                sx={{
-                                    border: "1px solid",
-                                    borderColor: "black",
-                                    width: "100%",
-                                    "& td, & th": {
-                                        padding: "8px",
-                                        fontSize: "1rem",
-                                        textAlign: "center",
-                                        border: "1px solid",
-                                        borderColor: "black",
-                                    },
-                                }}
-                            >
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell sx={{ backgroundColor: cellErr === "chr" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="Chromosome where the variant is located Ex: Chr1" arrow>
-                                                <span>Chromosome</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="Start position of the variant Ex: 1000000" arrow>
-                                                <span>Start</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="End position of the variant Ex: 1000001" arrow>
-                                                <span>End</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: cellErr === "ref" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="Original Sequence Ex: G" arrow>
-                                                <span>Reference Allele</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: cellErr === "alt" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="Mutated Sequence, Insertion Ex: C, Deletion Ex: -" arrow>
-                                                <span>Alternate Allele</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: cellErr === "strand" ? "error.light" : "transparent" }}>
-                                            <Tooltip title="Strand information (+ or -)" arrow>
-                                                <span>Strand</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Tooltip title="Optional region identifier, String or Number" arrow>
-                                                <span>Region ID (optional)</span>
-                                            </Tooltip>
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                            <Typography variant="body1" fontSize="1rem">
-                                If using the text box, separate fields with a tab. Below is an example file to help you
-                                format your data correctly.
-                            </Typography>
-                            <Stack direction={"row"} justifyContent={"space-between"}>
-                                <Button
-                                    variant="text"
-                                    sx={{
-                                        fontWeight: "bold",
-                                        color: "primary.main",
-                                        fontSize: "1rem",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        marginTop: "8px",
-                                    }}
-                                    startIcon={
-                                        <FileDownloadIcon />
-                                    }
-                                    onClick={() => {
-                                        const url = "/ArgoExample.tsv";
-                                        const link = document.createElement('a');
-                                        link.href = url;
-                                        link.download = "ArgoExample.tsv";
-                                        link.click();
-                                    }}
-                                >
-                                    Download Example File
-                                </Button>
-                                <Button
-                                    variant="text"
-                                    sx={{
-                                        fontWeight: "bold",
-                                        color: "primary.main",
-                                        fontSize: "1rem",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        marginTop: "8px",
-                                    }}
-                                    startIcon={
-                                        <FileUploadIcon />
-                                    }
-                                    onClick={handleUseExample}
-                                >
-                                    Use Example File
-                                </Button>
-                            </Stack>
-                        </Stack>
-                    </Stack>
-                </AccordionDetails>
-            </Accordion>
+                            {selectedSearch === "TSV File" ? (
+                                files === null && (
+                                    <Container
+                                        sx={{
+                                            border: isDragActive ? "2px dashed blue" : "2px dashed grey",
+                                            borderRadius: "10px",
+                                            minWidth: "250px",
+                                            pl: "0 !important",
+                                            pr: "0 !important",
+                                            color: isDragActive ? "text.secondary" : "text.primary",
+                                            height: "215.5px"
+                                        }}
+                                    >
+                                        <div {...getRootProps()} style={{ padding: "1rem" }}>
+                                            <input {...getInputProps()} type="file" accept=".tsv" />
+                                            <Stack spacing={1} direction="column" alignItems="center">
+                                                <UploadFileIcon />
+                                                <Typography>Drag and drop a .tsv file</Typography>
+                                                <Typography>or</Typography>
+                                                <Button
+                                                    variant="outlined"
+                                                    disabled={isDragActive}
+                                                    sx={{ textTransform: "none" }}
+                                                >
+                                                    Click to select a file
+                                                </Button>
+                                            </Stack>
+                                        </div>
+                                    </Container>
+                                )
+                            ) : (
+                                <FormControl fullWidth>
+                                    <form action={submitTextUpload}>
+                                        <TextField
+                                            name="textUploadFile"
+                                            multiline
+                                            fullWidth
+                                            rows={6}
+                                            placeholder="Copy and paste your data from Excel here"
+                                            onKeyDown={handleKeyDown}
+                                            value={textValue}
+                                            onChange={(e) => setTextValue(e.target.value)}
+                                        />
+                                        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1 }}>
+                                            <LoadingButton
+                                                loading={loading}
+                                                loadingPosition="end"
+                                                type="submit"
+                                                size="medium"
+                                                variant="outlined"
+                                                disabled={!textChanged}
+                                                sx={{ textTransform: "none" }}
+                                            >
+                                                Submit
+                                            </LoadingButton>
+                                            <Button
+                                                color="error"
+                                                type="button"
+                                                size="medium"
+                                                variant="outlined"
+                                                onClick={() => handleReset(selectedSearch)}
+                                                sx={{ textTransform: "none" }}
+                                            >
+                                                Reset
+                                            </Button>
+                                        </Stack>
+                                    </form>
+                                </FormControl>
+                            )}
 
+                            {/* Uploaded file display */}
+                            {files !== null && (
+                                <>
+                                    <Typography mb={1} variant="h5">
+                                        Uploaded:
+                                    </Typography>
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <Typography>
+                                            {`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(
+                                                files.size / 1000000
+                                            ).toFixed(1)}\u00A0mb`}
+                                        </Typography>
+                                        <IconButton color="primary" onClick={() => handleReset(selectedSearch)}>
+                                            <Cancel />
+                                        </IconButton>
+                                    </Stack>
+                                    <LoadingButton
+                                        loading={loading}
+                                        loadingPosition="end"
+                                        sx={{ textTransform: "none", maxWidth: "18rem" }}
+                                        onClick={() => {
+                                            submitUploadedFile(files);
+                                        }}
+                                        variant="outlined"
+                                        color="primary"
+                                        disabled={filesSubmitted}
+                                    >
+                                        <span>Submit</span>
+                                    </LoadingButton>
+                                </>
+                            )}
+                        </Box>
+                    </Stack>
+            </Box>
+
+            {/* Dialog with Required Fields */}
+            <Dialog open={requiredOpen} onClose={() => setRequiredOpen(false)} maxWidth="md" fullWidth>
+                <DialogTitle>Required Fields</DialogTitle>
+                <DialogContent>
+                    <Table
+                        sx={{
+                            border: "1px solid",
+                            borderColor: "black",
+                            width: "100%",
+                            "& td, & th": {
+                                padding: "8px",
+                                fontSize: "1rem",
+                                textAlign: "center",
+                                border: "1px solid",
+                                borderColor: "black"
+                            }
+                        }}
+                    >
+                        <TableBody>
+                            <TableRow>
+                                <TableCell sx={{ backgroundColor: cellErr === "chr" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="Chromosome where the variant is located Ex: Chr1" arrow>
+                                        <span>Chromosome</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="Start position of the variant Ex: 1000000" arrow>
+                                        <span>Start</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="End position of the variant Ex: 1000001" arrow>
+                                        <span>End</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: cellErr === "ref" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="Original Sequence Ex: G" arrow>
+                                        <span>Reference Allele</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: cellErr === "alt" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="Mutated Sequence, Insertion Ex: C, Deletion Ex: -" arrow>
+                                        <span>Alternate Allele</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: cellErr === "strand" ? "error.light" : "transparent" }}>
+                                    <Tooltip title="Strand information (+ or -)" arrow>
+                                        <span>Strand</span>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell>
+                                    <Tooltip title="Optional region identifier, String or Number" arrow>
+                                        <span>Region ID (optional)</span>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                    <Typography variant="body1" fontSize="1rem" sx={{ mt: 2 }}>
+                        If using the text box, separate fields with a tab. Below is an example file to help you
+                        format your data correctly.
+                    </Typography>
+                </DialogContent>
+            </Dialog>
         </>
-    )
+    );
 }
 
 export default ArgoUpload

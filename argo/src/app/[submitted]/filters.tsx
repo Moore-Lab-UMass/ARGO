@@ -1,12 +1,62 @@
 import React, { useMemo, useState } from 'react';
-import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from './types';
+import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../types';
 import { Box, Drawer, IconButton, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SequenceFilters from './sequence/sequenceFilters';
 import ElementFilters from './elements/elementFilters';
 import GeneFilters from './genes/geneFilters';
-import { Clear } from "@mui/icons-material"
+import { Clear } from "@mui/icons-material";
+
+// Initial filter states
+const initialSequenceFilterState: SequenceFilterState = {
+    useConservation: true,
+    alignment: "241-mam-phyloP",
+    rankBy: "max",
+    useMotifs: true,
+    motifCatalog: "hocomoco",
+    motifQuality: { a: true, b: true, c: true, d: true },
+    dataSource: { p: true, s: true, m: true, g: true, i: true, b: true },
+    numOverlappingMotifs: true,
+    motifScoreDelta: true,
+    overlapsTFPeak: false,
+    tfPeakStrength: false
+};
+
+const initialElementFilterState: ElementFilterState = {
+    usecCREs: true,
+    cCREAssembly: "GRCh38",
+    mustHaveOrtholog: false,
+    selectedBiosample: null,
+    assays: { dnase: true, atac: true, ctcf: true, h3k4me3: true, h3k27ac: true },
+    rankBy: "avg",
+    availableAssays: { dnase: true, atac: true, ctcf: true, h3k4me3: true, h3k27ac: true },
+    classes: {
+        CA: true, "CA-CTCF": true, "CA-H3K4me3": true, "CA-TF": true,
+        dELS: true, pELS: true, PLS: true, TF: true
+    }
+};
+
+const initialGeneFilterState: GeneFilterState = {
+    useGenes: true,
+    methodOfLinkage: {
+        distance: true, 
+        eQTLs: true, 
+        CRISPRi_FlowFISH: true,
+        Intact_HiC: true, 
+        CTCF_ChIAPET: true, 
+        RNAPII_ChIAPET: true,
+        ABC: true,
+        EPIraction: true,
+        GraphRegLR: true,
+        rE2G: true
+    },
+    mustBeProteinCoding: false,
+    mustHaveOrtholog: false,
+    rankExpSpecBy: "max",
+    rankGeneExpBy: "max",
+    selectedBiosample: null
+};
 
 const Filters: React.FC<FilterProps> = ({
     sequenceFilterVariables,
@@ -20,48 +70,6 @@ const Filters: React.FC<FilterProps> = ({
 }) => {
 
     const [expandedAccordions, setExpandedAccordions] = useState<Panel[]>([]);
-
-    // Initial filter states
-    const initialSequenceFilterState: SequenceFilterState = {
-        useConservation: true,
-        alignment: "241-mam-phyloP",
-        rankBy: "max",
-        useMotifs: true,
-        motifCatalog: "hocomoco",
-        motifQuality: { a: true, b: true, c: true, d: true },
-        dataSource: { p: true, s: true, m: true, g: true, i: true, b: true },
-        numOverlappingMotifs: true,
-        motifScoreDelta: true,
-        overlapsTFPeak: false,
-        tfPeakStrength: false
-    };
-
-    const initialElementFilterState: ElementFilterState = {
-        usecCREs: true,
-        cCREAssembly: "GRCh38",
-        mustHaveOrtholog: false,
-        selectedBiosample: null,
-        assays: { dnase: true, atac: true, ctcf: true, h3k4me3: true, h3k27ac: true },
-        rankBy: "avg",
-        availableAssays: { dnase: true, atac: true, ctcf: true, h3k4me3: true, h3k27ac: true },
-        classes: {
-            CA: true, "CA-CTCF": true, "CA-H3K4me3": true, "CA-TF": true,
-            dELS: true, pELS: true, PLS: true, TF: true
-        }
-    };
-
-    const initialGeneFilterState: GeneFilterState = {
-        useGenes: true,
-        methodOfLinkage: {
-            distance: true, eQTLs: true, CRISPRi_FlowFISH: true,
-            Intact_HiC: true, CTCF_ChIAPET: true, RNAPII_ChIAPET: true
-        },
-        mustBeProteinCoding: false,
-        mustHaveOrtholog: false,
-        rankExpSpecBy: "max",
-        rankGeneExpBy: "max",
-        selectedBiosample: null
-    };
 
     // Function to reset filters
     const handleClearFilters = () => {
@@ -118,13 +126,15 @@ const Filters: React.FC<FilterProps> = ({
                 sx={{
                     '& .MuiDrawer-paper': {
                         width: '25vw',
-                        zIndex: theme => theme.zIndex.appBar - 1,
-                        minWidth: 300
+                        top: theme => `${theme.mixins.toolbar.minHeight}px`,
+                        zIndex: 0,
+                        minWidth: 300,
+                        backgroundColor: "rgba(249, 248, 244, 1)"
                     }
                 }}
             >
 
-                <Stack direction={"row"} justifyContent={"space-between"} padding={1} sx={{borderBottom: "1px solid #ddd"}}>
+                <Stack direction={"row"} justifyContent={"space-between"} padding={1} sx={{ borderBottom: "1px solid #ddd" }}>
                     <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }} alignContent={"center"}>Filters</Typography>
                     {filtersChanged && (
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>

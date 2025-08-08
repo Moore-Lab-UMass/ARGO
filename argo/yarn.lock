@@ -2200,6 +2200,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pako@npm:^2":
+  version: 2.0.3
+  resolution: "@types/pako@npm:2.0.3"
+  checksum: 10c0/45119ac3c4e8a77317c35493327039b74e333562f06ce038048228918d8ddfaa7958125aab960d1565b3861046022754c414dba1eecb210c44a32c415956bee2
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.2
   resolution: "@types/parse-json@npm:4.0.2"
@@ -2741,6 +2748,7 @@ __metadata:
     "@mui/material": "npm:^6.1.5"
     "@mui/material-nextjs": "npm:^6.1.5"
     "@types/node": "npm:^20"
+    "@types/pako": "npm:^2"
     "@types/react": "npm:^19.1.9"
     "@types/react-dom": "npm:^19.1.7"
     "@weng-lab/ui-components": "npm:^1.0.6"
@@ -2748,6 +2756,7 @@ __metadata:
     eslint-config-next: "npm:15.4.6"
     graphql: "npm:^16.9.0"
     next: "npm:15.4.6"
+    pako: "npm:^2.1.0"
     react: "npm:^19.1.1"
     react-dom: "npm:19.1.1"
     react-dropzone: "npm:^14.2.3"
@@ -5887,6 +5896,13 @@ __metadata:
   dependencies:
     aggregate-error: "npm:^3.0.0"
   checksum: 10c0/592c05bd6262c466ce269ff172bb8de7c6975afca9b50c975135b974e9bdaafbfe80e61aaaf5be6d1200ba08b30ead04b88cfa7e25ff1e3b93ab28c9f62a2c75
+  languageName: node
+  linkType: hard
+
+"pako@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "pako@npm:2.1.0"
+  checksum: 10c0/8e8646581410654b50eb22a5dfd71159cae98145bd5086c9a7a816ec0370b5f72b4648d08674624b3870a521e6a3daffd6c2f7bc00fdefc7063c9d8232ff5116
   languageName: node
   linkType: hard
 

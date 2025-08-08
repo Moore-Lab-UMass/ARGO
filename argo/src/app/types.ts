@@ -1,4 +1,4 @@
-import { RegistryBiosample } from "../../_biosampleTables/types"
+import { RegistryBiosample } from "./_biosampleTables/types"
 
 export type ZScores = {
     accession: string
@@ -92,7 +92,9 @@ export type Alignment =
     "100-vert-phyloP" |
     "100-vert-phastCons"
 
-export type GeneLinkingMethod = "distance" | "eQTLs" | "Intact_HiC" | "CRISPRi_FlowFISH" | "CTCF_ChIAPET" | "RNAPII_ChIAPET"
+export type ComputationalMethod = "ABC" | "EPIraction" | "GraphRegLR" | "rE2G"
+
+export type GeneLinkingMethod = "distance" | "eQTLs" | "Intact_HiC" | "CRISPRi_FlowFISH" | "CTCF_ChIAPET" | "RNAPII_ChIAPET" | ComputationalMethod
 
 export type SequenceFilterState = {
     useConservation: boolean;
@@ -179,7 +181,6 @@ export type GeneAccordianProps = {
 }
 
 export type UploadProps = {
-    selectedSearch: string;
     handleSearchChange: (search: string) => void;
     onRegionsConfigured: (regions: GenomicRegion[]) => void;
 }
