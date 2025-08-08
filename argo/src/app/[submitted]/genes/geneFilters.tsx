@@ -59,6 +59,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
             disableGutters
             expanded={isExpanded('gene')}
             onChange={handleAccordionChange('gene')}
+            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('gene') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>

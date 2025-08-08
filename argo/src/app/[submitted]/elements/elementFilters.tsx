@@ -119,6 +119,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             disableGutters
             expanded={isExpanded('element')}
             onChange={handleAccordionChange('element')}
+            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('element') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>

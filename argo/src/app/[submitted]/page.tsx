@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useMemo } from "react"
 import { useState } from "react"
-import { Stack, Typography, Box, CircularProgress, IconButton, Tooltip, Skeleton } from "@mui/material"
+import { Stack, Typography, Box, CircularProgress, IconButton, Tooltip, Skeleton, Button } from "@mui/material"
 import { DataTable, DataTableColumn } from "@weng-lab/ui-components"
 import { useLazyQuery } from "@apollo/client"
 import { client } from "../client"
@@ -18,8 +18,12 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { generateGeneRanks } from "./genes/geneHelpers"
 import { BED_INTERSECT_QUERY } from "../queries"
 import { decodeRegions } from "../_utility/coding"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 export default function Argo() {
+    const pathname = usePathname()
+    const fileName = pathname.split("/")[1]
     const [regions, setRegions] = useState<InputRegions>([]);
     const [inputRegions, setInputRegions] = useState<InputRegions>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
@@ -429,7 +433,7 @@ export default function Argo() {
     }, [isolatedRowID, sequenceRows, elementRows, geneRows, mainRows])
 
     return (
-        <Box display="flex" >
+        <Box display="flex">
             <Filters
                 sequenceFilterVariables={sequenceFilterVariables}
                 elementFilterVariables={elementFilterVariables}
@@ -447,6 +451,19 @@ export default function Argo() {
                 height={"100%"}
                 zIndex={1}
             >
+                <Stack direction={"row"} justifyContent={"space-between"}  alignItems="center">
+                    <Stack direction="row" spacing={2} alignItems="center" sx={{ backgroundColor: theme => theme.palette.secondary.main, padding: 1 }} borderRadius={1}>
+                        <Typography mb={1} variant="h6">
+                            Uploaded:
+                        </Typography>
+                        <Typography>
+                            {fileName}
+                        </Typography>
+                    </Stack>
+                    <Button variant="outlined" LinkComponent={Link} href="/" sx={{height: "48px"}}>
+                        New Submission
+                    </Button>
+                </Stack>
                 {inputRegions.length > 0 && (
                     <>
                         <Box mt="20px" id="123456">

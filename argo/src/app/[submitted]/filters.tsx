@@ -128,7 +128,8 @@ const Filters: React.FC<FilterProps> = ({
                         width: '25vw',
                         top: theme => `${theme.mixins.toolbar.minHeight}px`,
                         zIndex: 0,
-                        minWidth: 300
+                        minWidth: 300,
+                        backgroundColor: "rgba(249, 248, 244, 1)"
                     }
                 }}
             >

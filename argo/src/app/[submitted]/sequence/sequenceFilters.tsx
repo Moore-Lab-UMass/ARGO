@@ -82,6 +82,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
             disableGutters
             expanded={isExpanded('sequence')}
             onChange={handleAccordionChange('sequence')}
+            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('sequence') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>
