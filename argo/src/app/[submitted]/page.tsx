@@ -23,7 +23,7 @@ import Link from "next/link"
 
 export default function Argo() {
     const pathname = usePathname()
-    const fileName = pathname.split("/")[1]
+    const fileName = decodeURIComponent(pathname.split("/")[1])
     const [regions, setRegions] = useState<InputRegions>([]);
     const [inputRegions, setInputRegions] = useState<InputRegions>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)

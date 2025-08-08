@@ -22,6 +22,10 @@ const pageLinks: PageInfo[] = [
         pageName: "About",
         link: "/about",
     },
+    {
+        pageName: "Help",
+        link: "/abhelpout",
+    },
 ];
 
 type ResponsiveAppBarProps = {
