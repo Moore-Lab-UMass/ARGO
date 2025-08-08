@@ -132,7 +132,7 @@ export default function Argo() {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const encodedRegions = window.location.hash.slice(1);
+            const encodedRegions = window.location.hash.slice(1); 
             console.log(encodedRegions)
             if (encodedRegions) {
                 try {
