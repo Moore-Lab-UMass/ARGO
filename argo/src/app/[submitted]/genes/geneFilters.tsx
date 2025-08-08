@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
-import { GeneAccordianProps, GeneLinkingMethod } from "../types";
+import { GeneAccordianProps, GeneLinkingMethod } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import Grid from "@mui/material/Grid2"
-import BiosampleTables from "../_biosampleTables/BiosampleTables";
+import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 
 const GeneFilters: React.FC<GeneAccordianProps> = ({
     geneFilterVariables,

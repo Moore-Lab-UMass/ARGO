@@ -53,7 +53,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                 <WarningAmberIcon />
             </Stack>
             <AppBar position="static">
-                <Toolbar sx={{ justifyContent: "space-between", backgroundColor: "white" }}>
+                <Toolbar sx={{ justifyContent: "space-between", backgroundColor: "rgba(249, 248, 244, 1)" }}>
                     <Stack direction={"row"} spacing={2} alignItems={"center"}>
                         <Box component={Link} href={"/"} height={45} width={45} position={"relative"}>
                             <Image
@@ -65,7 +65,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                             />
                         </Box>
                         <Typography variant="h5" mb={3} color="black">
-                            <b>A</b>ggregate <b>R</b>ank <b>G</b>enerat<b>o</b>r
+                            ARGO
                         </Typography>
                     </Stack>
                     <Stack spacing={3} direction={"row"} display={{ xs: "none", md: "flex" }} alignItems={"center"}>

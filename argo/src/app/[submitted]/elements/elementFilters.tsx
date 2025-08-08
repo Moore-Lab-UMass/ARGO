@@ -1,7 +1,7 @@
 import React from "react";
-import { CCREAssays, CCREClasses, ElementAccordianProps } from "../types";
+import { CCREAssays, CCREClasses, ElementAccordianProps } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
-import BiosampleTables from "../_biosampleTables/BiosampleTables";
+import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
 

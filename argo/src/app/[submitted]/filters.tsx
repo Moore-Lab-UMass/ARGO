@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from './types';
+import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../types';
 import { Box, Drawer, IconButton, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import FilterListIcon from '@mui/icons-material/FilterList';

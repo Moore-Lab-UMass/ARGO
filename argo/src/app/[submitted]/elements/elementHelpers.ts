@@ -1,4 +1,4 @@
-import { AssayRankEntry, CCREAssays, CCREClasses, ElementTableRow, RankedRegions } from "../types";
+import { AssayRankEntry, CCREAssays, CCREClasses, ElementTableRow, RankedRegions } from "../../types";
 
 const assayNames = ["dnase", "h3k4me3", "h3k27ac", "ctcf", "atac"]
 

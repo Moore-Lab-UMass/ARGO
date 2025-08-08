@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { ElementTableProps, ElementTableRow } from "../types";
+import { ElementTableProps, ElementTableRow } from "../../types";
 import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
 import { Skeleton, useTheme } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { client } from "../client";
-import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../queries";
+import { client } from "../../client";
+import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
 
 const ElementTable: React.FC<ElementTableProps> = ({

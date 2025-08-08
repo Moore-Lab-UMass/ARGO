@@ -181,7 +181,6 @@ export type GeneAccordianProps = {
 }
 
 export type UploadProps = {
-    selectedSearch: string;
     handleSearchChange: (search: string) => void;
     onRegionsConfigured: (regions: GenomicRegion[]) => void;
 }
