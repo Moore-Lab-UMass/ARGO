@@ -21,6 +21,8 @@ import { decodeRegions } from "../_utility/coding"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
+//TODO Change links out to screen
+
 export default function Argo() {
     const pathname = usePathname()
     const fileName = decodeURIComponent(pathname.split("/")[1])
@@ -131,6 +133,7 @@ export default function Argo() {
     useEffect(() => {
         if (typeof window !== "undefined") {
             const encodedRegions = window.location.hash.slice(1);
+            console.log(encodedRegions)
             if (encodedRegions) {
                 try {
                     const decoded = decodeRegions(encodedRegions);
