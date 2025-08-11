@@ -18,14 +18,12 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { generateGeneRanks } from "./genes/geneHelpers"
 import { BED_INTERSECT_QUERY } from "../queries"
 import { decodeRegions } from "../_utility/coding"
-import { usePathname } from "next/navigation"
 import Link from "next/link"
 
 //TODO Change links out to screen
 
 export default function Argo() {
-    const pathname = usePathname()
-    const fileName = decodeURIComponent(pathname.split("/")[1])
+    const [fileName, setFileName] = useState<string | null>(null);
     const [regions, setRegions] = useState<InputRegions>([]);
     const [inputRegions, setInputRegions] = useState<InputRegions>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
@@ -130,21 +128,22 @@ export default function Argo() {
         selectedBiosample: null,
     });
 
+    //Run on first page load to decode the submitted regions and file name
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const encodedRegions = window.location.hash.slice(1); 
-            console.log(encodedRegions)
-            if (encodedRegions) {
-                try {
-                    const decoded = decodeRegions(encodedRegions);
-                    setRegions(decoded);
-                } catch (err) {
-                    console.error("Failed to decode regions:", err);
-                }
+        const encodedRegions = sessionStorage.getItem("encodedRegions")
+        const file = sessionStorage.getItem("fileName")
+        if (encodedRegions) {
+            try {
+                const decoded = decodeRegions(encodedRegions);
+                setRegions(decoded);
+                setFileName(file)
+            } catch (err) {
+                console.error("Failed to get regions:", err);
             }
         }
     }, []);
 
+    //Query the intersecting ccres based on the user inputed regions
     useEffect(() => {
     if (regions && regions.length > 0) {
       setInputRegions(regions);
