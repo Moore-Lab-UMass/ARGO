@@ -28,10 +28,12 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
             CTCF_ChIAPET: checked,
             RNAPII_ChIAPET: checked,
             CRISPRi_FlowFISH: checked,
-            ABC: checked,
+            ABCD: checked,
+            ABCF: checked,
             EPIraction: checked,
             GraphRegLR: checked,
-            rE2G: checked
+            rE2GD: checked,
+            rE2GE: checked
         });
     }
 
@@ -242,10 +244,18 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 >
                                     <Grid size={6}>
                                         <FormControlLabel
-                                            label="ABC"
+                                            label="ABC (DNase Only)"
                                             control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.ABC}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "ABC")}
+                                            checked={geneFilterVariables.methodOfLinkage.ABCD}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "ABCD")}
+                                            disabled={geneFilterVariables.selectedBiosample === null}
+                                            sx={{ width: "100%" }}
+                                        />
+                                        <FormControlLabel
+                                            label="ABC (Full)"
+                                            control={<Checkbox />}
+                                            checked={geneFilterVariables.methodOfLinkage.ABCF}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "ABCF")}
                                             disabled={geneFilterVariables.selectedBiosample === null}
                                             sx={{ width: "100%" }}
                                         />
@@ -278,10 +288,18 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                             sx={{ width: "100%" }}
                                         />
                                         <FormControlLabel
-                                            label="rE2G"
+                                            label="rE2G (DNase Only)"
                                             control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.rE2G}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "rE2G")}
+                                            checked={geneFilterVariables.methodOfLinkage.rE2GD}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "rE2GD")}
+                                            disabled={geneFilterVariables.selectedBiosample === null}
+                                            sx={{ width: "100%" }}
+                                        />
+                                        <FormControlLabel
+                                            label="rE2G (Extended)"
+                                            control={<Checkbox />}
+                                            checked={geneFilterVariables.methodOfLinkage.rE2GE}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "rE2GE")}
                                             disabled={geneFilterVariables.selectedBiosample === null}
                                             sx={{ width: "100%" }}
                                         />

@@ -46,10 +46,12 @@ const initialGeneFilterState: GeneFilterState = {
         Intact_HiC: true, 
         CTCF_ChIAPET: true, 
         RNAPII_ChIAPET: true,
-        ABC: true,
+        ABCD: true,
+        ABCF: true,
         EPIraction: true,
         GraphRegLR: true,
-        rE2G: true
+        rE2GD: true,
+        rE2GE: true
     },
     mustBeProteinCoding: false,
     mustHaveOrtholog: false,
