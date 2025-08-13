@@ -27,9 +27,7 @@ export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs
             ...gene,
             genes: gene.genes.filter((linkedGene) => {
                 // Check if at least one linkage method is valid based on geneFilterVariables
-                return linkedGene.linkedBy.some((method) =>
-                    geneFilterVariables.methodOfLinkage[method as keyof GeneFilterState['methodOfLinkage']]
-                );
+                return linkedGene.linkedBy === geneFilterVariables.methodOfLinkage
             }),
         }));
 
@@ -53,8 +51,7 @@ export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs
             } else {
                 const avgScore =
                 specificityScores.reduce((sum, { score }) => sum + score, 0) / specificityScores.length;
-                const linkedBySet = new Set(specificityScores.flatMap(({ linkedBy }) => linkedBy));
-                expressionSpecificity = { geneName: "Average", score: avgScore, linkedBy: Array.from(linkedBySet) };
+                expressionSpecificity = { geneName: "Average", score: avgScore, linkedBy: specificityScores[0].linkedBy };
             }
         }
 
@@ -67,7 +64,7 @@ export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs
                 accession: gene.accession,
                 name: linkedGene.name,
                 geneid: linkedGene.geneId,
-                linkedBy: linkedGene.linkedBy as GeneLinkingMethod[],
+                linkedBy: linkedGene.linkedBy,
             })),
         }));
     });
@@ -101,9 +98,7 @@ export const getExpressionScores = (allGenes: AllLinkedGenes, accessions: CCREs,
             ...gene,
             genes: gene.genes.filter((linkedGene) => {
                 // Check if at least one linkage method is valid based on geneFilterVariables
-                return linkedGene.linkedBy.some((method) =>
-                    geneFilterVariables.methodOfLinkage[method as keyof GeneFilterState['methodOfLinkage']]
-                );
+                return linkedGene.linkedBy === geneFilterVariables.methodOfLinkage
             }),
         }));
 
@@ -127,8 +122,7 @@ export const getExpressionScores = (allGenes: AllLinkedGenes, accessions: CCREs,
             } else {
                 const avgScore =
                     expressionScores.reduce((sum, { score }) => sum + score, 0) / expressionScores.length;
-                    const linkedBySet = new Set(expressionScores.flatMap(({ linkedBy }) => linkedBy));
-                geneExpression = { geneName: "Average", score: avgScore, linkedBy: Array.from(linkedBySet) };
+                geneExpression = { geneName: "Average", score: avgScore, linkedBy: expressionScores[0].linkedBy };
             }
         }
 
@@ -141,7 +135,7 @@ export const getExpressionScores = (allGenes: AllLinkedGenes, accessions: CCREs,
                 accession: gene.accession,
                 name: linkedGene.name,
                 geneid: linkedGene.geneId,
-                linkedBy: linkedGene.linkedBy as GeneLinkingMethod[],
+                linkedBy: linkedGene.linkedBy,
             })),
         }));
     });
@@ -149,10 +143,10 @@ export const getExpressionScores = (allGenes: AllLinkedGenes, accessions: CCREs,
     return expressionRows
 }
 
-export const parseLinkedGenes = (data, methodOfLinkage: { [key in GeneLinkingMethod]: boolean }): AllLinkedGenes => {
+export const parseLinkedGenes = (data, methodOfLinkage: GeneLinkingMethod): AllLinkedGenes => {
     const uniqueAccessions: {
         accession: string;
-        genes: { name: string; geneId: string; linkedBy: string[] }[]
+        genes: { name: string; geneId: string; linkedBy: GeneLinkingMethod }[]
     }[] = [];
 
     for (const gene of data) {
@@ -168,7 +162,7 @@ export const parseLinkedGenes = (data, methodOfLinkage: { [key in GeneLinkingMet
 
             if (existingGene) {
                 // Add the method if it's not already in the linkedBy array
-                if (!existingGene.linkedBy.includes(methodToPush) && methodOfLinkage[methodToPush]) {
+                if (!existingGene.linkedBy === methodToPush && methodOfLinkage === methodToPush) {
                     existingGene.linkedBy.push(methodToPush);
                 }
             } else {

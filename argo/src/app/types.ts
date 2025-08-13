@@ -123,7 +123,7 @@ export type ElementFilterState = {
 
 export type GeneFilterState = {
     useGenes: boolean;
-    methodOfLinkage: { [key in GeneLinkingMethod]: boolean }
+    methodOfLinkage: GeneLinkingMethod
     mustBeProteinCoding: boolean;
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
@@ -197,7 +197,7 @@ export type AllLinkedGenes = {
         geneId: string;
         expressionSpecificity?: number;
         geneExpression?: number;
-        linkedBy: string[];
+        linkedBy: GeneLinkingMethod;
     }[];
 }[]
 
@@ -205,7 +205,7 @@ export type LinkedGenes = {
     accession: string
     name: string
     geneid: string
-    linkedBy: GeneLinkingMethod[]
+    linkedBy: GeneLinkingMethod
 }[];
 
 export type MainTableRow = {
@@ -268,12 +268,12 @@ export type GeneTableRow = {
     geneExpression?: {
         geneName: string
         score: number
-        linkedBy: string[]
+        linkedBy: GeneLinkingMethod
     }
     expressionSpecificity?:  {
         geneName: string
         score: number
-        linkedBy: string[]
+        linkedBy: GeneLinkingMethod
     }
     linkedGenes?: LinkedGenes
 }

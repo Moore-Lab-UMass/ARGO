@@ -57,7 +57,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
             closestGenes = closestAndLinkedGenes.closestGenetocCRE.filter((gene) => gene.gene.type === "PC")
         }
 
-        const allGenes = geneFilterVariables.methodOfLinkage.distance ? pushClosestGenes(closestGenes, linkedGenes) : linkedGenes;
+        const allGenes = geneFilterVariables.methodOfLinkage === "distance" ? pushClosestGenes(closestGenes, linkedGenes) : linkedGenes;
         const uniqueGeneNames = Array.from(
             new Set(
                 allGenes.flatMap((item) => item.genes.map((gene) => gene.name.trim()))
@@ -174,7 +174,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                                     <span>
                                         {row.geneExpression.linkedBy && (
                                             <>
-                                                <strong>Linked By:</strong> {row.geneExpression.linkedBy.join(", ")}
+                                                <strong>Linked By:</strong> {row.geneExpression.linkedBy}
                                             </>
                                         )}
                                     </span>
@@ -204,7 +204,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                                     <span>
                                         {row.expressionSpecificity.linkedBy && (
                                             <>
-                                                <strong>Linked By:</strong> {row.expressionSpecificity.linkedBy.join(", ")}
+                                                <strong>Linked By:</strong> {row.expressionSpecificity.linkedBy}
                                             </>
                                         )}
                                     </span>
