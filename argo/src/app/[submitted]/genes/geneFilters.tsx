@@ -60,9 +60,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         <Typography>Method of Linkage</Typography>
                         <Select
                             value={geneFilterVariables.methodOfLinkage}
-                            onChange={(event) =>
+                            onChange={(event) => {
                                 updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
-                            }
+                                console.log(event.target.value)
+                            }}
                             size="small"
                         >
                             <MenuItem value="distance">Distance</MenuItem>

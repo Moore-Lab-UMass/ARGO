@@ -163,17 +163,17 @@ export const parseLinkedGenes = (data, methodOfLinkage: GeneLinkingMethod): AllL
             if (existingGene) {
                 // Add the method if it's not already in the linkedBy array
                 if (!existingGene.linkedBy === methodToPush && methodOfLinkage === methodToPush) {
-                    existingGene.linkedBy.push(methodToPush);
+                    existingGene.linkedBy = (methodToPush);
                 }
             } else {
                 // Add a new gene entry if the gene name and geneId don't exist
-                existingGeneEntry.genes.push({ name: geneNameToPush, geneId: geneIdToPush, linkedBy: methodOfLinkage[methodToPush] ? [methodToPush] : [] });
+                existingGeneEntry.genes.push({ name: geneNameToPush, geneId: geneIdToPush, linkedBy: methodOfLinkage === methodToPush ? methodToPush : [] });
             }
         } else {
             // Create a new entry for the accession if it doesn't exist
             uniqueAccessions.push({
                 accession: geneAccession,
-                genes: [{ name: geneNameToPush, geneId: geneIdToPush, linkedBy: methodOfLinkage[methodToPush] ? [methodToPush] : [] }],
+                genes: [{ name: geneNameToPush, geneId: geneIdToPush, linkedBy: methodOfLinkage === methodToPush ? methodToPush : [] }],
             });
         }
     }
@@ -200,14 +200,14 @@ export const pushClosestGenes = (closestGenes: ClosestGenetocCRE, linkedGenes: A
             if (existingGene) {
                 // Add "distance" to the linkedBy array if not already present
                 if (!existingGene.linkedBy.includes("distance")) {
-                    existingGene.linkedBy.push("distance");
+                    existingGene.linkedBy = ("distance");
                 }
             } else {
                 // Add a new gene with "distance" as the linkedBy method
                 linkedAccession.genes.push({
                     name: closestGeneName,
                     geneId: closestGeneId,
-                    linkedBy: ["distance"],
+                    linkedBy: "distance",
                 });
             }
         } else {
@@ -218,7 +218,7 @@ export const pushClosestGenes = (closestGenes: ClosestGenetocCRE, linkedGenes: A
                     {
                         name: closestGeneName,
                         geneId: closestGeneId,
-                        linkedBy: ["distance"],
+                        linkedBy: "distance",
                     },
                 ],
             });
