@@ -8,7 +8,7 @@ type LinkedGenes = {
     accession: string
     name: string
     geneid: string
-    linkedBy: GeneLinkingMethod[]
+    linkedBy: GeneLinkingMethod
 };
 
 type GeneModalProps = {
@@ -43,7 +43,7 @@ const GenesModal: React.FC<GeneModalProps> = ({
         },
         {
             header: "Linked By",
-            value: (row) => row.linkedBy.join(", "),
+            value: (row) => row.linkedBy,
         },
     ];
 

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { GeneAccordianProps, GeneLinkingMethod } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
-import Grid from "@mui/material/Grid2"
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 
 const GeneFilters: React.FC<GeneAccordianProps> = ({
@@ -11,32 +10,6 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     isExpanded,
     handleAccordionChange
 }) => {
-    //This has poor readability, consider changing
-    const handleMethodChange = (e: React.ChangeEvent<HTMLInputElement>, method: GeneLinkingMethod) => {
-        updateGeneFilter("methodOfLinkage", {
-            ...geneFilterVariables.methodOfLinkage,
-            [`${method}`]: e.target.checked,
-        });
-    };
-
-    const handleChangeAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const checked = e.target.checked
-        updateGeneFilter("methodOfLinkage", {
-            distance: checked,
-            eQTLs: checked,
-            Intact_HiC: checked,
-            CTCF_ChIAPET: checked,
-            RNAPII_ChIAPET: checked,
-            CRISPRi_FlowFISH: checked,
-            ABC: checked,
-            EPIraction: checked,
-            GraphRegLR: checked,
-            rE2G: checked
-        });
-    }
-
-    const allChecked = useMemo(() => Object.values(geneFilterVariables.methodOfLinkage).every(val => val === true), [geneFilterVariables.methodOfLinkage])
-    const noneChecked = useMemo(() => Object.values(geneFilterVariables.methodOfLinkage).every(val => val === false), [geneFilterVariables.methodOfLinkage])
 
     //change assays and availible assays depending on if there is a biosample selected or not
     const handleSelectedBiosample = (biosample) => {
@@ -45,11 +18,13 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
 
     const handleDeselectBiosample = () => {
         updateGeneFilter("selectedBiosample", null);
+        updateGeneFilter("methodOfLinkage", "distance");
     }
 
     useEffect(() => {
         if (geneFilterVariables.selectedBiosample?.length === 0) {
             updateGeneFilter("selectedBiosample", null);
+            updateGeneFilter("methodOfLinkage", "distance");
         }
     }, [geneFilterVariables.selectedBiosample, updateGeneFilter])
 
@@ -59,7 +34,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
             disableGutters
             expanded={isExpanded('gene')}
             onChange={handleAccordionChange('gene')}
-            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
+            sx={{ backgroundColor: "rgba(249, 248, 244, 1)" }}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('gene') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>
@@ -80,6 +55,65 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
             <AccordionDetails>
                 <FormControlLabel value="genes" control={<Checkbox onChange={() => updateGeneFilter("useGenes", !geneFilterVariables.useGenes)} checked={geneFilterVariables.useGenes} />} label="Linked Genes" />
                 <Stack ml={2}>
+                    <FormControl
+                        fullWidth
+                        disabled={!geneFilterVariables.useGenes}
+                    >
+                        <Typography>Method of Linkage</Typography>
+                        <Tooltip
+                            title={
+                                geneFilterVariables.selectedBiosample === null
+                                    ? "Select a biosample to include other gene linking methods"
+                                    : ""
+                            }
+                            disableHoverListener={geneFilterVariables.selectedBiosample !== null}
+                            placement="top"
+                        >
+                            <Select
+                                value={geneFilterVariables.methodOfLinkage}
+                                onChange={(event) => {
+                                    updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
+                                }}
+                                size="small"
+                            >
+                                <MenuItem value="distance">Distance</MenuItem>
+                                <MenuItem value="Intact_HiC" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    Intact Hi-C Loops
+                                </MenuItem>
+
+                                <MenuItem value="CTCF_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    CTCF ChIA-PET Interactions
+                                </MenuItem>
+                                <MenuItem value="RNAPII_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    RNAPII ChIA-PET Interactions
+                                </MenuItem>
+                                <MenuItem value="CRISPRi_FlowFISH" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    CRISPRi-FlowFISH
+                                </MenuItem>
+                                <MenuItem value="eQTLs" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    eQTLs
+                                </MenuItem>
+                                <MenuItem value="ABCD" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    ABC (DNase Only)
+                                </MenuItem>
+                                <MenuItem value="ABCF" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    ABC (Full)
+                                </MenuItem>
+                                <MenuItem value="EPIraction" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    EPIraction
+                                </MenuItem>
+                                <MenuItem value="GraphRegLR" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    GraphRegLR
+                                </MenuItem>
+                                <MenuItem value="rE2GD" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    rE2G (DNase Only)
+                                </MenuItem>
+                                <MenuItem value="rE2GE" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    rE2G (Extended)
+                                </MenuItem>
+                            </Select>
+                        </Tooltip>
+                    </FormControl>
                     <FormControl disabled={!geneFilterVariables.useGenes}>
                         <Typography sx={{ mt: 1 }}>Rank Expression Specificity By</Typography>
                         <RadioGroup
@@ -175,121 +209,6 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                             />
                         </AccordionDetails>
                     </Accordion>
-                    <FormControl disabled={!geneFilterVariables.useGenes} sx={{ mt: 1 }}>
-                        <Typography>Method of Linkage</Typography>
-                        <FormGroup>
-                            <FormControlLabel
-                                label="Select All"
-                                control={<Checkbox indeterminate={!allChecked && !noneChecked} />}
-                                checked={allChecked}
-                                onChange={handleChangeAll}
-                            />
-                            <Grid container rowSpacing={0} ml={2}>
-                                <Grid size={6}>
-                                    <FormControlLabel
-                                        label="Distance"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.distance}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "distance")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                    <FormControlLabel
-                                        label="Intact Hi-C Loops"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.Intact_HiC}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "Intact_HiC")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                    <FormControlLabel
-                                        label="CTCF ChIA-PET Interactions"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.CTCF_ChIAPET}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "CTCF_ChIAPET")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                </Grid>
-                                <Grid size={6}>
-                                    <FormControlLabel
-                                        label="RNAPII ChIA-PET Interactions"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.RNAPII_ChIAPET}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "RNAPII_ChIAPET")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                    <FormControlLabel
-                                        label="CRISPRi-FlowFISH"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.CRISPRi_FlowFISH}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "CRISPRi_FlowFISH")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                    <FormControlLabel
-                                        label="eQTLs"
-                                        control={<Checkbox />}
-                                        checked={geneFilterVariables.methodOfLinkage.eQTLs}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "eQTLs")}
-                                        sx={{ width: "100%" }}
-                                    />
-                                </Grid>
-                                <Tooltip
-                                    title={
-                                        geneFilterVariables.selectedBiosample === null
-                                            ? "Select a biosample to include computational gene linking methods"
-                                            : ""
-                                    }
-                                    disableHoverListener={geneFilterVariables.selectedBiosample !== null}
-                                    placement="top"
-                                >
-                                    <Grid size={6}>
-                                        <FormControlLabel
-                                            label="ABC"
-                                            control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.ABC}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "ABC")}
-                                            disabled={geneFilterVariables.selectedBiosample === null}
-                                            sx={{ width: "100%" }}
-                                        />
-                                        <FormControlLabel
-                                            label="EPIraction"
-                                            control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.EPIraction}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "EPIraction")}
-                                            disabled={geneFilterVariables.selectedBiosample === null}
-                                            sx={{ width: "100%" }}
-                                        />
-                                    </Grid>
-                                </Tooltip>
-                                <Tooltip
-                                    title={
-                                        geneFilterVariables.selectedBiosample === null
-                                            ? "Select a biosample to include computational gene linking methods"
-                                            : ""
-                                    }
-                                    disableHoverListener={geneFilterVariables.selectedBiosample !== null}
-                                    placement="top"
-                                >
-                                    <Grid size={6}>
-                                        <FormControlLabel
-                                            label="GraphRegLR"
-                                            control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.GraphRegLR}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "GraphRegLR")}
-                                            disabled={geneFilterVariables.selectedBiosample === null}
-                                            sx={{ width: "100%" }}
-                                        />
-                                        <FormControlLabel
-                                            label="rE2G"
-                                            control={<Checkbox />}
-                                            checked={geneFilterVariables.methodOfLinkage.rE2G}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleMethodChange(e, "rE2G")}
-                                            disabled={geneFilterVariables.selectedBiosample === null}
-                                            sx={{ width: "100%" }}
-                                        />
-                                    </Grid>
-                                </Tooltip>
-                            </Grid>
-                        </FormGroup>
-                    </FormControl>
                     <FormControl disabled={!geneFilterVariables.useGenes}>
                         <Typography sx={{ mt: 1 }}>Gene Filters</Typography>
                         <FormGroup>

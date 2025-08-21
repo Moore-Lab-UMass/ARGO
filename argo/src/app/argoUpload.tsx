@@ -220,8 +220,9 @@ const ArgoUpload: React.FC = ({
             return a.start - b.start;
         });
         const encoded = encodeRegions(sortedRegions);
-        const url = `/${fileName}#${encoded}`
-        window.open(url, "_self")
+        sessionStorage.setItem("encodedRegions", encoded);
+        sessionStorage.setItem("fileName", fileName);
+        window.open(`/${fileName}`, "_self")
 
         setLoading(false);
         setFilesSubmitted(true);
@@ -243,8 +244,6 @@ const ArgoUpload: React.FC = ({
         setError([false, ""])
         setCellErr("")
         let allLines = []
-        let filenames: string = ''
-        filenames += (' ' + file.name)
         if (file.type !== "tsv" && file.name.split('.').pop() !== "tsv") {
             console.error("File type is not tsv");
             setLoading(false)
@@ -261,7 +260,6 @@ const ArgoUpload: React.FC = ({
         reader.onabort = () => console.log("file reading was aborted")
         reader.onerror = () => console.log("file reading has failed")
         reader.onloadend = () => {
-            sessionStorage.setItem("filenames", filenames)
             configureInputedRegions(allLines, file.name.split('.')[0])
         }
         reader.readAsText(file)
