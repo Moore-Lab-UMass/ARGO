@@ -18,11 +18,13 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
 
     const handleDeselectBiosample = () => {
         updateGeneFilter("selectedBiosample", null);
+        updateGeneFilter("methodOfLinkage", "distance");
     }
 
     useEffect(() => {
         if (geneFilterVariables.selectedBiosample?.length === 0) {
             updateGeneFilter("selectedBiosample", null);
+            updateGeneFilter("methodOfLinkage", "distance");
         }
     }, [geneFilterVariables.selectedBiosample, updateGeneFilter])
 
@@ -58,61 +60,59 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         disabled={!geneFilterVariables.useGenes}
                     >
                         <Typography>Method of Linkage</Typography>
-                        <Select
-                            value={geneFilterVariables.methodOfLinkage}
-                            onChange={(event) => {
-                                updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
-                                console.log(event.target.value)
-                            }}
-                            size="small"
+                        <Tooltip
+                            title={
+                                geneFilterVariables.selectedBiosample === null
+                                    ? "Select a biosample to include other gene linking methods"
+                                    : ""
+                            }
+                            disableHoverListener={geneFilterVariables.selectedBiosample !== null}
+                            placement="top"
                         >
-                            <MenuItem value="distance">Distance</MenuItem>
-                            <Tooltip
-                                title={
-                                    geneFilterVariables.selectedBiosample === null
-                                        ? "Select a biosample to include other gene linking methods"
-                                        : ""
-                                }
-                                disableHoverListener={geneFilterVariables.selectedBiosample !== null}
-                                placement="top"
+                            <Select
+                                value={geneFilterVariables.methodOfLinkage}
+                                onChange={(event) => {
+                                    updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
+                                }}
+                                size="small"
                             >
-                                <span>
-                                    <MenuItem value="Intact_HiC" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        Intact Hi-C Loops
-                                    </MenuItem>
-                                    <MenuItem value="CTCF_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        CTCF ChIA-PET Interactions
-                                    </MenuItem>
-                                    <MenuItem value="RNAPII_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        RNAPII ChIA-PET Interactions
-                                    </MenuItem>
-                                    <MenuItem value="CRISPRi_FlowFISH" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        CRISPRi-FlowFISH
-                                    </MenuItem>
-                                    <MenuItem value="eQTLs" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        eQTLs
-                                    </MenuItem>
-                                    <MenuItem value="ABCD" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        ABC (DNase Only)
-                                    </MenuItem>
-                                    <MenuItem value="ABCF" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        ABC (Full)
-                                    </MenuItem>
-                                    <MenuItem value="EPIraction" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        EPIraction
-                                    </MenuItem>
-                                    <MenuItem value="GraphRegLR" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        GraphRegLR
-                                    </MenuItem>
-                                    <MenuItem value="rE2GD" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        rE2G (DNase Only)
-                                    </MenuItem>
-                                    <MenuItem value="rE2GE" disabled={geneFilterVariables.selectedBiosample === null}>
-                                        rE2G (Extended)
-                                    </MenuItem>
-                                </span>
-                            </Tooltip>
-                        </Select>
+                                <MenuItem value="distance">Distance</MenuItem>
+                                <MenuItem value="Intact_HiC" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    Intact Hi-C Loops
+                                </MenuItem>
+
+                                <MenuItem value="CTCF_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    CTCF ChIA-PET Interactions
+                                </MenuItem>
+                                <MenuItem value="RNAPII_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    RNAPII ChIA-PET Interactions
+                                </MenuItem>
+                                <MenuItem value="CRISPRi_FlowFISH" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    CRISPRi-FlowFISH
+                                </MenuItem>
+                                <MenuItem value="eQTLs" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    eQTLs
+                                </MenuItem>
+                                <MenuItem value="ABCD" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    ABC (DNase Only)
+                                </MenuItem>
+                                <MenuItem value="ABCF" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    ABC (Full)
+                                </MenuItem>
+                                <MenuItem value="EPIraction" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    EPIraction
+                                </MenuItem>
+                                <MenuItem value="GraphRegLR" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    GraphRegLR
+                                </MenuItem>
+                                <MenuItem value="rE2GD" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    rE2G (DNase Only)
+                                </MenuItem>
+                                <MenuItem value="rE2GE" disabled={geneFilterVariables.selectedBiosample === null}>
+                                    rE2G (Extended)
+                                </MenuItem>
+                            </Select>
+                        </Tooltip>
                     </FormControl>
                     <FormControl disabled={!geneFilterVariables.useGenes}>
                         <Typography sx={{ mt: 1 }}>Rank Expression Specificity By</Typography>
