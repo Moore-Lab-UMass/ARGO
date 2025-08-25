@@ -58,38 +58,36 @@ const GenesModal: React.FC<GeneModalProps> = ({
 
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
-            <>
-                <Paper sx={style}>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    <Typography variant="h4">
-                        Linked Genes found in {chromosome}:{start.toLocaleString()}-
-                        {end.toLocaleString()}
-                    </Typography>
-                    <br />
-                    <br/>
-                    {genes && (
-                        <DataTable
-                            searchable
-                            columns={GENE_COLS}
-                            rows={genes}
-                            sortColumn={2}
-                            key={"tfpeaks"}
-                            itemsPerPage={10}
-                        />
-                    )}
-                </Paper>
-            </>
+            <Paper sx={style}>
+                <IconButton
+                    aria-label="close"
+                    onClick={() => setOpen(false)}
+                    sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <Typography variant="h4">
+                    Linked Genes found in {chromosome}:{start.toLocaleString()}-
+                    {end.toLocaleString()}
+                </Typography>
+                <br />
+                <br />
+                {genes && (
+                    <DataTable
+                        searchable
+                        columns={GENE_COLS}
+                        rows={genes}
+                        sortColumn={2}
+                        key={"tfpeaks"}
+                        itemsPerPage={10}
+                    />
+                )}
+            </Paper>
         </Modal>
     );
 };

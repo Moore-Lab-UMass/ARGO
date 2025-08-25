@@ -121,44 +121,42 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
 
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
-            <>
-                <Paper sx={style}>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    <Typography variant="h4">
-                        Motifs found in {chromosome}:{peakStart.toLocaleString()}-
-                        {peakEnd.toLocaleString()}
-                    </Typography>
-                    <br />
-                    <Typography>
-                        <b>Reference Allele: </b>{motifs[0].referenceAllele.sequence}
-                    </Typography>
-                    <Typography>
-                        <b>Alternate Allele: </b>{motifs[0].alt.sequence}
-                    </Typography>
-                    <br/>
-                    {motifs && (
-                        <DataTable
-                            searchable
-                            columns={MOTIFS_COLS}
-                            rows={motifs}
-                            sortColumn={2}
-                            key={"tfpeaks"}
-                            itemsPerPage={10}
-                        />
-                    )}
-                </Paper>
-            </>
+            <Paper sx={style}>
+                <IconButton
+                    aria-label="close"
+                    onClick={() => setOpen(false)}
+                    sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <Typography variant="h4">
+                    Motifs found in {chromosome}:{peakStart.toLocaleString()}-
+                    {peakEnd.toLocaleString()}
+                </Typography>
+                <br />
+                <Typography>
+                    <b>Reference Allele: </b>{motifs[0].referenceAllele.sequence}
+                </Typography>
+                <Typography>
+                    <b>Alternate Allele: </b>{motifs[0].alt.sequence}
+                </Typography>
+                <br />
+                {motifs && (
+                    <DataTable
+                        searchable
+                        columns={MOTIFS_COLS}
+                        rows={motifs}
+                        sortColumn={2}
+                        key={"tfpeaks"}
+                        itemsPerPage={10}
+                    />
+                )}
+            </Paper>
         </Modal>
     );
 };
