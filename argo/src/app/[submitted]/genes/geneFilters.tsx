@@ -194,6 +194,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 fullWidth
                                 sx={{ height: "40px" }}
                                 onClick={() => setOpen(true)}
+                                disabled={!geneFilterVariables.useGenes}
                             >
                                 Within a Biosample
                             </Button>
