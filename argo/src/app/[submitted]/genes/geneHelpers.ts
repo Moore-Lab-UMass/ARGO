@@ -181,52 +181,48 @@ export const parseLinkedGenes = (data, methodOfLinkage: GeneLinkingMethod): AllL
     return uniqueAccessions
 }
 
-export const pushClosestGenes = (closestGenes: ClosestGenetocCRE, linkedGenes: AllLinkedGenes): AllLinkedGenes => {
-    // Iterate over each closest gene
+export const parseClosestGenes = (closestGenes: ClosestGenetocCRE): AllLinkedGenes => {
+    const linkedGenes: AllLinkedGenes = [];
+
+    // Group by accession
+    const accessionMap = new Map<string, { name: string; geneId: string; linkedBy: GeneLinkingMethod }[]>();
+
     for (const closestGene of closestGenes) {
-        const closestGeneName = closestGene.gene.name;
-        const closestGeneId = closestGene.gene.geneid;
         const accession = closestGene.ccre;
+        const closestGeneName = closestGene.gene?.name;
+        const closestGeneId = closestGene.gene?.geneid;
 
-        // Find the matching accession in linkedGenes
-        const linkedAccession = linkedGenes.find((linked) => linked.accession === accession);
+        if (!accession || !closestGeneName || !closestGeneId) continue;
 
-        if (linkedAccession) {
-            // Find the matching gene in the linked genes
-            const existingGene = linkedAccession.genes.find(
-                (gene) => gene.name === closestGeneName && gene.geneId === closestGeneId
-            );
+        if (!accessionMap.has(accession)) {
+            accessionMap.set(accession, []);
+        }
 
-            if (existingGene) {
-                // Add "distance" to the linkedBy array if not already present
-                if (!existingGene.linkedBy.includes("distance")) {
-                    existingGene.linkedBy = ("distance");
-                }
-            } else {
-                // Add a new gene with "distance" as the linkedBy method
-                linkedAccession.genes.push({
-                    name: closestGeneName,
-                    geneId: closestGeneId,
-                    linkedBy: "distance",
-                });
-            }
-        } else {
-            // If no matching accession exists, add a new accession with the gene
-            linkedGenes.push({
-                accession: accession,
-                genes: [
-                    {
-                        name: closestGeneName,
-                        geneId: closestGeneId,
-                        linkedBy: "distance",
-                    },
-                ],
+        const genesList = accessionMap.get(accession)!;
+
+        // Only add if not already present
+        const alreadyExists = genesList.some(
+            g => g.geneId === closestGeneId || g.name === closestGeneName
+        );
+
+        if (!alreadyExists) {
+            genesList.push({
+                name: closestGeneName,
+                geneId: closestGeneId,
+                linkedBy: "distance" as GeneLinkingMethod,
             });
         }
     }
 
+    accessionMap.forEach((genes, accession) => {
+        linkedGenes.push({
+            accession,
+            genes,
+        });
+    });
+
     return linkedGenes;
-}
+};
 
 export const filterOrthologGenes = (orthoGenes: GeneOrthologQueryQuery, allGenes: AllLinkedGenes): AllLinkedGenes => {
     const orthologs = orthoGenes.geneOrthologQuery; // List of ortholog genes

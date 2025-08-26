@@ -39,7 +39,7 @@ export const SPECIFICITY_QUERY = gql(`
 }
   `)
 
-export const CLOSEST_LINKED_QUERY = gql(`
+export const CLOSEST_QUERY = gql(`
   query closestAndLinked($accessions: [String]!){
   closestGenetocCRE(ccre: $accessions) {
     ccre
@@ -57,17 +57,6 @@ export const CLOSEST_LINKED_QUERY = gql(`
       start
     }
   }
-  linkedGenesQuery(assembly: "grch38", accession: $accessions) {
-      accession  
-      p_val
-      gene
-      geneid
-      genetype
-      method
-      score
-      displayname
-      assay
-    }
 }
   `)
 
