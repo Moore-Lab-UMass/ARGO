@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { GeneAccordianProps, GeneLinkingMethod } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid2, IconButton, MenuItem, Modal, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import CloseIcon from '@mui/icons-material/Close';
+import { LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
+import { useQuery } from "@apollo/client";
 
 const GeneFilters: React.FC<GeneAccordianProps> = ({
     geneFilterVariables,
@@ -12,6 +14,22 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     handleAccordionChange
 }) => {
     const [open, setOpen] = useState(false);
+
+    const { data } = useQuery(LINKED_GENES_CELL_TYPES_QUERY, {
+        variables: {
+            biosample_value: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.map(b => b.name) : []
+        },
+        skip: !geneFilterVariables.selectedBiosample,
+    });
+
+    const availableMethods: Set<GeneLinkingMethod> = useMemo(() => {
+        if (!data) return;
+        const methods = new Set<GeneLinkingMethod>();
+        data.getLinkedGenesCelltypesByAssay.forEach((item) => {
+            methods.add(item.assay.replace("-", "_") as GeneLinkingMethod);
+        });
+        return methods;
+    }, [data]);
 
     //change assays and availible assays depending on if there is a biosample selected or not
     const handleSelectedBiosample = (biosample) => {
@@ -73,59 +91,60 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 disabled={!geneFilterVariables.useGenes}
                             >
                                 <Typography>Method of Linkage</Typography>
-                                <Tooltip
-                                    title={
-                                        geneFilterVariables.selectedBiosample === null
-                                            ? "Select a biosample to include other gene linking methods"
-                                            : ""
-                                    }
-                                    disableHoverListener={geneFilterVariables.selectedBiosample !== null}
-                                    placement="top"
+                                <Select
+                                    value={geneFilterVariables.methodOfLinkage}
+                                    onChange={(event) => {
+                                        updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
+                                    }}
+                                    size="small"
                                 >
-                                    <Select
-                                        value={geneFilterVariables.methodOfLinkage}
-                                        onChange={(event) => {
-                                            updateGeneFilter("methodOfLinkage", event.target.value as GeneLinkingMethod)
-                                        }}
-                                        size="small"
-                                    >
-                                        <MenuItem value="distance">Distance</MenuItem>
-                                        <MenuItem value="Intact_HiC" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            Intact Hi-C Loops
-                                        </MenuItem>
+                                    {/* Distance is always available, no tooltip needed */}
+                                    <MenuItem value="distance">Distance</MenuItem>
+                                    {/* Helper for tooltip logic */}
+                                    {[
+                                        { value: "Intact_HiC", label: "Intact Hi-C Loops" },
+                                        { value: "CTCF_ChIAPET", label: "CTCF ChIA-PET Interactions" },
+                                        { value: "RNAPII_ChIAPET", label: "RNAPII ChIA-PET Interactions" },
+                                        { value: "CRISPRi_FlowFISH", label: "CRISPRi-FlowFISH" },
+                                        { value: "eQTLs", label: "eQTLs" },
+                                        { value: "ABCD", label: "ABC (DNase Only)" },
+                                        { value: "ABCF", label: "ABC (Full)" },
+                                        { value: "EPIraction", label: "EPIraction" },
+                                        { value: "GraphRegLR", label: "GraphRegLR" },
+                                        { value: "rE2GD", label: "rE2G (DNase Only)" },
+                                        { value: "rE2GE", label: "rE2G (Extended)" },
+                                    ].map((item) => {
+                                        const isBiosampleNull = geneFilterVariables.selectedBiosample === null;
+                                        const isDisabled = !availableMethods?.has(item.value as GeneLinkingMethod);
 
-                                        <MenuItem value="CTCF_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            CTCF ChIA-PET Interactions
-                                        </MenuItem>
-                                        <MenuItem value="RNAPII_ChIAPET" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            RNAPII ChIA-PET Interactions
-                                        </MenuItem>
-                                        <MenuItem value="CRISPRi_FlowFISH" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            CRISPRi-FlowFISH
-                                        </MenuItem>
-                                        <MenuItem value="eQTLs" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            eQTLs
-                                        </MenuItem>
-                                        <MenuItem value="ABCD" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            ABC (DNase Only)
-                                        </MenuItem>
-                                        <MenuItem value="ABCF" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            ABC (Full)
-                                        </MenuItem>
-                                        <MenuItem value="EPIraction" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            EPIraction
-                                        </MenuItem>
-                                        <MenuItem value="GraphRegLR" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            GraphRegLR
-                                        </MenuItem>
-                                        <MenuItem value="rE2GD" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            rE2G (DNase Only)
-                                        </MenuItem>
-                                        <MenuItem value="rE2GE" disabled={geneFilterVariables.selectedBiosample === null}>
-                                            rE2G (Extended)
-                                        </MenuItem>
-                                    </Select>
-                                </Tooltip>
+                                        let tooltip = "";
+                                        if (isBiosampleNull) {
+                                            tooltip = "Select a biosample to include other gene linking methods";
+                                        } else if (isDisabled) {
+                                            tooltip = "Gene linking method not available in selected biosample";
+                                        }
+
+                                        const menuItem = (
+                                            <MenuItem
+                                                key={item.value}
+                                                value={item.value}
+                                                disabled={isDisabled}
+                                                style={isDisabled ? { pointerEvents: "none" } : {}}
+                                            >
+                                                {item.label}
+                                            </MenuItem>
+                                        );
+
+                                        // Only wrap in Tooltip if there is a tooltip message
+                                        return tooltip ? (
+                                            <Tooltip key={item.value} title={tooltip} placement="right" arrow>
+                                                <span>{menuItem}</span>
+                                            </Tooltip>
+                                        ) : (
+                                            menuItem
+                                        );
+                                    })}
+                                </Select>
                             </FormControl>
                         </Grid2>
                         <Grid2 size={6}>
@@ -170,10 +189,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                     </Stack>
                                 </Paper>
                             )}
-                            <Button 
-                                variant="outlined" 
-                                fullWidth 
-                                sx={{height: "40px"}}
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                sx={{ height: "40px" }}
                                 onClick={() => setOpen(true)}
                             >
                                 Within a Biosample

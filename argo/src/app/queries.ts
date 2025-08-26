@@ -203,4 +203,45 @@ query bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_l
 }
 `)
 
+export const LINKED_GENES_CELL_TYPES_QUERY = gql(`
+  query GetLinkedGenesCelltypesByAssay($assay: [String], $method: [String], $biosample_value:[String]){
+  getLinkedGenesCelltypesByAssay(assay: $assay, method: $method,
+    biosample_value: $biosample_value ) {          
+    displayname
+    tissue
+    assay
+    biosample_value
+    celltype  
+  }
+}
+  `)
+
+  export const LINKED_GENES_QUERY = gql(`
+    query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]! ){
+  linkedGenesQuery(assembly: $assembly,    
+    celltype: $celltype,
+    assaytype:$assaytype,
+    accession: $accession
+    ) {
+      accession  
+      p_val
+      gene
+      geneid
+    biosample_value
+      genetype
+      method
+      grnaid
+      effectsize
+      assay      
+      experiment_accession
+      tissue
+      variantid
+      source
+      slope
+      score
+      displayname
+    }
+}
+    `)
+
 
