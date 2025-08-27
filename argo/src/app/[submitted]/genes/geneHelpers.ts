@@ -1,8 +1,20 @@
-import { AllLinkedGenes, CCREs, ClosestGenetocCRE, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../types";
+import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../types";
 import { GeneOrthologQueryQuery, GeneSpecificityQuery, Test_GeneEXpBiosampleQueryQuery } from "../../../graphql/__generated__/graphql";
 
+type ComputationalGenes = {
+    __typename?: "ComputationalGeneLinks";
+    geneid: string;
+    genetype: string;
+    method: string;
+    celltype: string;
+    score: number;
+    methodregion: string;
+    fileaccession: string;
+    gene: string;
+}[]
+
 export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs, geneSpecificity: GeneSpecificityQuery, geneFilterVariables: GeneFilterState): GeneTableRow[] => {
-    
+
     const updatedAllGenes: AllLinkedGenes = allGenes.map((gene) => ({
         ...gene,
         genes: gene.genes.map((geneEntry) => {
@@ -50,7 +62,7 @@ export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs
                 expressionSpecificity = { geneName: maxGene.geneName, score: maxGene.score, linkedBy: maxGene.linkedBy };
             } else {
                 const avgScore =
-                specificityScores.reduce((sum, { score }) => sum + score, 0) / specificityScores.length;
+                    specificityScores.reduce((sum, { score }) => sum + score, 0) / specificityScores.length;
                 expressionSpecificity = { geneName: "Average", score: avgScore, linkedBy: specificityScores[0].linkedBy };
             }
         }
@@ -181,6 +193,62 @@ export const parseLinkedGenes = (data, methodOfLinkage: GeneLinkingMethod): AllL
     return uniqueAccessions
 }
 
+export const parseComputationalGenes = (
+    computationalGenes: ComputationalGenes,
+    methodOfLinkage: ComputationalMethod,
+    accessions: CCREs
+): AllLinkedGenes => {
+    const linkedGenes: AllLinkedGenes = [];
+    const accessionMap = new Map<string, { name: string; geneId: string; linkedBy: GeneLinkingMethod }[]>();
+
+    computationalGenes.forEach((gene) => {
+        const [chr, startStr, endStr] = gene.methodregion.split("_");
+        const start = parseInt(startStr, 10);
+        const end = parseInt(endStr, 10);
+
+        const matchingAccession = accessions.find(
+            (acc) =>
+                acc.chr.toString() === chr &&
+                acc.start === start &&
+                acc.end === end
+        )?.accession;
+
+        // Skip if no accession was found
+        if (!matchingAccession) return;
+
+        const geneName = gene.gene;
+        const geneId = gene.geneid;
+
+        if (!accessionMap.has(matchingAccession)) {
+            accessionMap.set(matchingAccession, []);
+        }
+
+        const genesList = accessionMap.get(matchingAccession)!;
+
+        // Only add if not already present
+        const alreadyExists = genesList.some(
+            (g) => g.geneId === geneId || g.name === geneName
+        );
+
+        if (!alreadyExists) {
+            genesList.push({
+                name: geneName,
+                geneId,
+                linkedBy: methodOfLinkage,
+            });
+        }
+    });
+
+    accessionMap.forEach((genes, accession) => {
+        linkedGenes.push({
+            accession,
+            genes,
+        });
+    });
+
+    return linkedGenes;
+};
+
 export const parseClosestGenes = (closestGenes: ClosestGenetocCRE): AllLinkedGenes => {
     const linkedGenes: AllLinkedGenes = [];
 
@@ -245,7 +313,7 @@ export const filterOrthologGenes = (orthoGenes: GeneOrthologQueryQuery, allGenes
 }
 
 export const generateGeneRanks = (geneRows: GeneTableRow[]): RankedRegions => {
-    
+
     // Assign ranks based on expression specificity
     const expressionSpecificityRankedRows = (() => {
         const sortedRows = [...geneRows].sort((a, b) => b.expressionSpecificity.score - a.expressionSpecificity.score);

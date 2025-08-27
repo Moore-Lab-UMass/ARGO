@@ -205,6 +205,31 @@ export const LINKED_GENES_CELL_TYPES_QUERY = gql(`
 }
   `)
 
+export const COMPUTATIONAL_CELL_TYPES_QUERY = gql(`
+  query getCompuLinkedGenesCelltypesQuery($method: [String],$biosample_value: [String]){
+	getCompuLinkedGenesCelltypes(method: $method, biosample_value: $biosample_value ) {
+    
+    method
+    biosample_value
+  }
+}
+  `)
+
+export const COMPUTATIONAL_LNKED_GENES_QUERY = gql(`
+  query ComputationalGeneLinks($accession: [String]!, $biosample_value: [String], $method: [String]){
+    ComputationalGeneLinksQuery(accession: $accession, biosample_value:$biosample_value, method: $method){
+      gene: genename
+      geneid
+      genetype
+      method
+      celltype
+      score
+      methodregion
+      fileaccession
+    }
+  }
+  `)
+
   export const LINKED_GENES_QUERY = gql(`
     query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]! ){
   linkedGenesQuery(assembly: $assembly,    

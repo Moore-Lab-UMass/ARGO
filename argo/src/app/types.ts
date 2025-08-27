@@ -92,7 +92,7 @@ export type Alignment =
     "100-vert-phyloP" |
     "100-vert-phastCons"
 
-export type ComputationalMethod = "ABCD" | "ABCF" | "EPIraction" | "GraphRegLR" | "rE2GD" | "rE2GE"
+export type ComputationalMethod = "ABC_(DNase_only)" | "ABC_(full)" | "EPIraction" | "GraphRegLR" | "rE2G_(DNase_only)" | "rE2G_(extended)"
 
 export type GeneLinkingMethod = "distance" | "eQTLs" | "Intact_HiC" | "CRISPRi_FlowFISH" | "CTCF_ChIAPET" | "RNAPII_ChIAPET" | ComputationalMethod
 

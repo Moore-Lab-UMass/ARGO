@@ -4,7 +4,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormCo
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import CloseIcon from '@mui/icons-material/Close';
-import { LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
+import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
 import { useQuery } from "@apollo/client";
 
 const GeneFilters: React.FC<GeneAccordianProps> = ({
@@ -22,14 +22,24 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         skip: !geneFilterVariables.selectedBiosample,
     });
 
+    const { data: computationalData } = useQuery(COMPUTATIONAL_CELL_TYPES_QUERY, {
+        variables: {
+            biosample_value: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.map(b => b.name) : []
+        },
+        skip: !geneFilterVariables.selectedBiosample,
+    });
+
     const availableMethods: Set<GeneLinkingMethod> = useMemo(() => {
-        if (!data) return;
+        if (!data && !computationalData) return;
         const methods = new Set<GeneLinkingMethod>();
-        data.getLinkedGenesCelltypesByAssay.forEach((item) => {
+        data?.getLinkedGenesCelltypesByAssay.forEach((item) => {
             methods.add(item.assay.replace("-", "_") as GeneLinkingMethod);
         });
+        computationalData?.getCompuLinkedGenesCelltypes.forEach((item) => {
+            methods.add(item.method as GeneLinkingMethod);
+        });
         return methods;
-    }, [data]);
+    }, [computationalData, data]);
 
     //change assays and availible assays depending on if there is a biosample selected or not
     const handleSelectedBiosample = (biosample) => {
@@ -107,12 +117,12 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                         { value: "RNAPII_ChIAPET", label: "RNAPII ChIA-PET Interactions" },
                                         { value: "CRISPRi_FlowFISH", label: "CRISPRi-FlowFISH" },
                                         { value: "eQTLs", label: "eQTLs" },
-                                        { value: "ABCD", label: "ABC (DNase Only)" },
-                                        { value: "ABCF", label: "ABC (Full)" },
+                                        { value: "ABC_(DNase_only)", label: "ABC (DNase Only)" },
+                                        { value: "ABC_(full)", label: "ABC (Full)" },
                                         { value: "EPIraction", label: "EPIraction" },
                                         { value: "GraphRegLR", label: "GraphRegLR" },
-                                        { value: "rE2GD", label: "rE2G (DNase Only)" },
-                                        { value: "rE2GE", label: "rE2G (Extended)" },
+                                        { value: "rE2G_(DNase_only)", label: "rE2G (DNase Only)" },
+                                        { value: "rE2G_(extended)", label: "rE2G (Extended)" },
                                     ].map((item) => {
                                         const isBiosampleNull = geneFilterVariables.selectedBiosample === null;
                                         const isDisabled = !availableMethods?.has(item.value as GeneLinkingMethod);
