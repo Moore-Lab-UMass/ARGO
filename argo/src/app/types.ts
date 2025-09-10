@@ -1,4 +1,4 @@
-import { RegistryBiosample } from "./_biosampleTables/types"
+import { RegistryBiosample, RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type ZScores = {
     accession: string
@@ -129,13 +129,7 @@ export type GeneFilterState = {
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
     selectedBiosample: RegistryBiosample | null;
-    linkageBiosample: Biosample | null;
-}
-
-export type Biosample = {
-    name: string;
-    ontology?: string;
-    displayname?: string;
+    linkageBiosample: RegistryBiosamplePlusRNA | null;
 }
 
 type UpdateSequenceFilter = <K extends keyof SequenceFilterState>(

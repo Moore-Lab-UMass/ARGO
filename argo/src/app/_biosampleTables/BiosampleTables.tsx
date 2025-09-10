@@ -23,9 +23,12 @@ export const BiosampleTables = <
   preFilterBiosamples = () => true,
   fetchBiosamplesWith = ["dnase", "h3k4me3", "h3k27ac", "ctcf", "atac"],
   showCheckboxes,
-  showRNAseq = false as HasRNASeq,
+  hasRNASeq = false as HasRNASeq,
+  showRNAseq = false,
   showDownloads,
-  slotProps
+  showAssays = false,
+  slotProps,
+  additionalCellTypes
 }: BiosampleTablesProps<HasRNASeq, AllowMultiSelect>) => {
   const [sampleTypeFilter, setSampleTypeFilter] = useState<SampleTypeCheckboxes>({
     "Cell Line": true,
@@ -75,7 +78,7 @@ export const BiosampleTables = <
       variables: {
         assembly: assembly.toLowerCase() as ("grch38" | "mm10")
       },
-      skip: !showRNAseq,
+      skip: !hasRNASeq,
       fetchPolicy: "cache-first"
     }
   )
@@ -84,31 +87,53 @@ export const BiosampleTables = <
    * All biosamples which pass the prefilter, with RNA-seq attached if requested
    */
   const unfilteredBiosamples: { [key: string]: BiosampleData<HasRNASeq>[] } = useMemo(() => {
-    if ((biosampleData && (data_rnaseq || !showRNAseq))) {
-      const groupedBiosamples: { [key: string]: BiosampleData<HasRNASeq>[] } = {}
+    if (biosampleData && (data_rnaseq || !hasRNASeq)) {
+      const groupedBiosamples: { [key: string]: BiosampleData<HasRNASeq>[] } = {};
+
+      // step 1: build from query
       biosampleData.ccREBiosampleQuery.biosamples
-        //Add rna seq data if displaying
         .map((biosample) => {
-          if (showRNAseq) {
+          if (hasRNASeq) {
             return {
               ...biosample,
-              rnaseq: data_rnaseq.rnaSeqQuery.map((sample) => sample.biosample).some(sampleName => biosample.name === sampleName)
-            }
-          } else return biosample
+              rnaseq: data_rnaseq.rnaSeqQuery
+                .map((sample) => sample.biosample)
+                .some((sampleName) => biosample.name === sampleName),
+            };
+          } else return biosample;
         })
-        //prefilter using user-defined function. Default is () => true
         .filter(preFilterBiosamples)
-        //iterate through and put into tissue categories
         .forEach((biosample) => {
-          //If tissue hasn't been cataloged yet, define an entry for it
           if (!groupedBiosamples[biosample.ontology]) {
             groupedBiosamples[biosample.ontology] = [];
           }
-          groupedBiosamples[biosample.ontology].push(biosample as BiosampleData<HasRNASeq>)
-        })
-      return groupedBiosamples
-    } else return {}
-  }, [biosampleData, data_rnaseq, preFilterBiosamples, showRNAseq])
+          groupedBiosamples[biosample.ontology].push(
+            biosample as BiosampleData<HasRNASeq>
+          );
+        });
+
+      // step 2: ensure additionalCellTypes are included
+      additionalCellTypes?.forEach((extra) => {
+        // already present?
+        const alreadyPresent = Object.values(groupedBiosamples)
+          .flat()
+          .some((b) => b.name === extra.name);
+
+        if (!alreadyPresent) {
+          if (!groupedBiosamples[extra.ontology]) {
+            groupedBiosamples[extra.ontology] = [];
+          }
+          groupedBiosamples[extra.ontology].push({
+            ...extra,
+          } as BiosampleData<HasRNASeq>);
+        }
+      });
+
+      return groupedBiosamples;
+    }
+    return {};
+  }, [biosampleData, data_rnaseq, hasRNASeq, preFilterBiosamples, additionalCellTypes]);
+
 
   /**
    * Biosamples filtered by sample/collection/lifeStage/rna-seq/global search
@@ -158,12 +183,13 @@ export const BiosampleTables = <
           </Tooltip>
         ),
       },
-      {
-        header: "Assays",
-        value: (row) => +!!row.dnase + +!!row.atac + +!!row.ctcf + +!!row.h3k27ac + +!!row.h3k4me3,
-        render: (row) => <AssayWheel row={row} />,
-      }
     ]
+
+    if (showAssays) colsToSpread.push({
+      header: "Assays",
+      value: (row) => +!!row.dnase + +!!row.atac + +!!row.ctcf + +!!row.h3k27ac + +!!row.h3k4me3,
+      render: (row) => <AssayWheel row={row} />,
+    })
 
     if (showRNAseq) colsToSpread.push({
       header: "RNA-Seq",
@@ -327,11 +353,10 @@ export const BiosampleTables = <
                   }}
                   columns={columns}
                   rows={biosamples}
-                  dense
                   itemsPerPage={5}
                   searchable
                   highlighted={selectedSamples}
-                  sortColumn={1}
+                  sortColumn={0}
                   onRowClick={handleRowClick}
                 />
               </AccordionDetails>
@@ -340,7 +365,7 @@ export const BiosampleTables = <
         })
     )
 
-  }, [showCheckboxes, showRNAseq, showDownloads, loadingBiosamples, loading_rnaseq, errorBiosamples, error_rnaseq, filteredBiosamples, selectedSamples, onChange, allowMultiSelect, unfilteredBiosamples, pageStates])
+  }, [showAssays, showRNAseq, showDownloads, loadingBiosamples, loading_rnaseq, errorBiosamples, error_rnaseq, filteredBiosamples, onChange, allowMultiSelect, selectedSamples, showCheckboxes, unfilteredBiosamples, pageStates])
 
   const filtersActive: boolean = useMemo(() => {
     return mustHaveRnaSeq

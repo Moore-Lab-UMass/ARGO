@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Biosample, ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../types";
+import { ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Modal, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
-import { RegistryBiosample } from "../../_biosampleTables/types";
+import { RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -27,7 +27,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     const [open, setOpen] = useState(false);
     const [linkageBiosampleOpen, setLinkageBiosampleOpen] = useState(false);
     const [methodOfLinkage, setMethodOfLinkage] = useState<GeneLinkingMethod>(geneFilterVariables.methodOfLinkage);
-    const [linkageBiosample, setLinkageBiosample] = useState<Biosample | null>(geneFilterVariables.linkageBiosample);
+    const [linkageBiosample, setLinkageBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.linkageBiosample);
     const [include, setInclude] = useState(false);
 
     const { data: cellTypes, loading: loadingCellTypes } = useQuery(
@@ -46,26 +46,59 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         }
     );
 
-    const availableCellTypes: Biosample[] = useMemo(() => {
+    const availableCellTypes: RegistryBiosamplePlusRNA[] = useMemo(() => {
         if (!cellTypes && !compuCellTypes) return [];
-        const biosamples = new Set<Biosample>();
+
+        const biosamples = new Map<string, RegistryBiosamplePlusRNA>();
+
         cellTypes?.getLinkedGenesCelltypesByAssay.forEach((item) => {
-            biosamples.add({
+            biosamples.set(item.biosample_value, {
                 name: item.biosample_value,
                 ontology: item.tissue,
-                displayname: item.celltype,
-            });
-        });
-        compuCellTypes?.getCompuLinkedGenesCelltypes.forEach((item) => {
-            biosamples.add({
-                name: item.biosample_value,
-                ontology: item.tissue,
-                displayname: "",
+                displayname: item.displayname,
+                lifeStage: "adult",      // fill with actual value if available
+                sampleType: "tissue",     // fill with actual value if available
+                dnase: null,
+                h3k4me3: null,
+                h3k27ac: null,
+                ctcf: null,
+                atac: null,
+                dnase_signal: null,
+                h3k4me3_signal: null,
+                h3k27ac_signal: null,
+                ctcf_signal: null,
+                atac_signal: null,
+                rnaseq: false, // default, update later if you have RNA-seq info
             });
         });
 
-        return Array.from(biosamples);
+        compuCellTypes?.getCompuLinkedGenesCelltypes.forEach((item) => {
+            if (!biosamples.has(item.biosample_value)) {
+                biosamples.set(item.biosample_value, {
+                    name: item.biosample_value,
+                    ontology: item.tissue,
+                    displayname: "",
+                    lifeStage: "",
+                    sampleType: "",
+                    dnase: null,
+                    h3k4me3: null,
+                    h3k27ac: null,
+                    ctcf: null,
+                    atac: null,
+                    dnase_signal: null,
+                    h3k4me3_signal: null,
+                    h3k27ac_signal: null,
+                    ctcf_signal: null,
+                    atac_signal: null,
+                    rnaseq: false,
+                });
+            }
+        });
+
+        return Array.from(biosamples.values());
     }, [compuCellTypes, cellTypes]);
+
+
 
     useEffect(() => {
         if (geneFilterVariables.methodOfLinkage === "distance" && geneFilterVariables.linkageBiosample) {
@@ -83,9 +116,9 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         setMethodOfLinkage(method);
     }
 
-    const handleLinkageBiosampleSubmit = (method: GeneLinkingMethod, cellType: Biosample) => {
-        if (include) {
-            updateGeneFilter("selectedBiosample", cellType as RegistryBiosample)
+    const handleLinkageBiosampleSubmit = (method: GeneLinkingMethod, cellType: RegistryBiosamplePlusRNA) => {
+        if (include && cellType.rnaseq) {
+            updateGeneFilter("selectedBiosample", cellType as RegistryBiosamplePlusRNA)
         }
         updateGeneFilter("linkageBiosample", cellType);
         updateGeneFilter("methodOfLinkage", method);
@@ -325,8 +358,8 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         selected={geneFilterVariables.selectedBiosample?.name}
                         onChange={(biosample) => handleSelectedBiosample(biosample)}
                         assembly={"GRCh38"}
-                        showRNAseq
-                        preFilterBiosamples={(biosample) => biosample.rnaseq}
+                        preFilterBiosamples={(biosample: RegistryBiosamplePlusRNA) => availableCellTypes.some((available) => available.name === biosample.name)}
+                        hasRNASeq
                     />
                 </Paper>
             </Modal>
@@ -373,18 +406,30 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                             selected={linkageBiosample?.name}
                             onChange={(biosample) => setLinkageBiosample(biosample)}
                             assembly={"GRCh38"}
-                            showRNAseq
                             preFilterBiosamples={(biosample) => availableCellTypes.some((available) => available.name === biosample.name)}
+                            hasRNASeq
+                            additionalCellTypes={availableCellTypes}
                         />
                     </Box>
                     <Stack width="100%" direction={"row"} spacing={1} alignItems={"center"} justifyContent={"flex-end"}>
                         <FormGroup>
-                            <FormControlLabel
-                                control={<Checkbox />}
-                                label="Include in Gene Expression Calculation"
-                                onChange={setInclude.bind(this, !include)}
-                                checked={include}
-                            />
+                            <Tooltip
+                                title={
+                                    !linkageBiosample || !linkageBiosample.rnaseq
+                                        ? "Selected Biosample does not have RNASeq Data and can not be used in Gene Expression Calculation"
+                                        : ""
+                                }
+                            >
+                                <span>
+                                    <FormControlLabel
+                                        control={<Checkbox />}
+                                        label="Include in Gene Expression Calculation"
+                                        onChange={setInclude.bind(this, !include)}
+                                        checked={(!linkageBiosample?.rnaseq) ? false : include}
+                                        disabled={!linkageBiosample || !linkageBiosample.rnaseq}
+                                    />
+                                </span>
+                            </Tooltip>
                         </FormGroup>
                         <Button
                         variant="contained"

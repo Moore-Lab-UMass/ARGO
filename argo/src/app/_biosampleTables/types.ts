@@ -78,10 +78,13 @@ export interface BiosampleTablesProps<
    * If true, table will display columns for assay signal files for each biosample
    */
   showDownloads?: boolean, //I feel like this is maybe more appropriate to be something that is user-defined. Allow them to add extra columns?
+  showAssays?: boolean,
   /**
    * If true, table will display column with check marks for biosamples with RNA seq data.
    */
-  showRNAseq?: HasRNASeq,
+  hasRNASeq?: HasRNASeq,
+  showRNAseq?: boolean,
+  additionalCellTypes?: BiosampleData<HasRNASeq>[]
   /**
    * Props spread into each slot inside, helpful for changing things such as width and height
    */
