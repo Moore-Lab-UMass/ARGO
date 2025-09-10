@@ -128,7 +128,14 @@ export type GeneFilterState = {
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
-    selectedBiosample: RegistryBiosample[] | null;
+    selectedBiosample: RegistryBiosample | null;
+    linkageBiosample: Biosample | null;
+}
+
+export type Biosample = {
+    name: string;
+    ontology?: string;
+    displayname?: string;
 }
 
 type UpdateSequenceFilter = <K extends keyof SequenceFilterState>(

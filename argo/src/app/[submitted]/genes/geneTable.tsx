@@ -52,7 +52,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
         variables: {
             accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
             assembly: "grch38",
-            celltype: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.map((sample) => sample.name) : [],
+            celltype: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.name : [],
             assaytype: geneFilterVariables.methodOfLinkage.replace("_", "-")
         },
         skip: !intersectingCcres || geneFilterVariables.methodOfLinkage === "distance" || computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
@@ -63,7 +63,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
     const { loading: loading_computational_genes, data: computationalGenesData, error: error_computational_genes } = useQuery(COMPUTATIONAL_LNKED_GENES_QUERY, {
         variables: {
             accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
-            biosample_value: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.map((sample) => sample.name) : [],
+            biosample_value: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.name : [],
             method: geneFilterVariables.methodOfLinkage
         },
         skip: !intersectingCcres || !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
@@ -139,7 +139,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
     const { loading: loading_gene_expression, data: geneExpression, error: error_gene_expression } = useQuery(GENE_EXP_QUERY, {
         variables: {
             genes: filteredGenes?.flatMap((entry) => entry.genes.map((gene) => gene.geneId.split('.')[0])),
-            biosample: geneFilterVariables.selectedBiosample?.map((sample) => sample.name),
+            biosample: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.name : [],
             aggregateBy: (geneFilterVariables.rankGeneExpBy === "avg" ? "AVERAGE" : "MAX") as AggregateByEnum
         },
         skip: filteredGenes === null,

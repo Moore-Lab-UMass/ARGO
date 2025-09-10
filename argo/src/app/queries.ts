@@ -206,10 +206,10 @@ export const LINKED_GENES_CELL_TYPES_QUERY = gql(`
   `)
 
 export const COMPUTATIONAL_CELL_TYPES_QUERY = gql(`
-  query getCompuLinkedGenesCelltypesQuery($method: [String],$biosample_value: [String]){
-	getCompuLinkedGenesCelltypes(method: $method, biosample_value: $biosample_value ) {
-    
+  query getCompuLinkedGenesCelltypesQuery($method: [String]){
+	getCompuLinkedGenesCelltypes(method: $method ) {    
     method
+    tissue
     biosample_value
   }
 }

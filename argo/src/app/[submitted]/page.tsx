@@ -6,7 +6,7 @@ import { DataTable, DataTableColumn } from "@weng-lab/ui-components"
 import { useLazyQuery } from "@apollo/client"
 import { client } from "../client"
 import { RankedRegions, ElementFilterState, SequenceFilterState, GeneFilterState, MainTableRow, CCREs, InputRegions, SubTableTitleProps, IsolatedRow, GeneTableRow, ElementTableRow, SequenceTableRow } from "../types"
-import Filters from "./filters"
+import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./filters"
 import { VerticalAlignTop, Cancel, InfoOutlined } from "@mui/icons-material"
 import { calculateAggregateRanks, matchRanks } from "../helpers"
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
@@ -49,73 +49,9 @@ export default function Argo() {
     const [page, setPage] = useState<number>(0);
 
     // Filter state variables
-    const [sequenceFilterVariables, setSequenceFilterVariables] = useState<SequenceFilterState>({
-        useConservation: true,
-        alignment: "241-mam-phyloP",
-        rankBy: "max",
-        useMotifs: true,
-        motifCatalog: "hocomoco",
-        motifQuality: {
-            a: true,
-            b: true,
-            c: true,
-            d: true
-        },
-        dataSource: {
-            p: true,
-            s: true,
-            m: true,
-            g: true,
-            i: true,
-            b: true
-        },
-        numOverlappingMotifs: true,
-        motifScoreDelta: true,
-        overlapsTFPeak: false,
-        tfPeakStrength: false
-    });
-
-    const [elementFilterVariables, setElementFilterVariables] = useState<ElementFilterState>({
-        usecCREs: true,
-        cCREAssembly: "GRCh38",
-        mustHaveOrtholog: false,
-        selectedBiosample: null,
-        assays: {
-            dnase: true,
-            atac: true,
-            ctcf: true,
-            h3k4me3: true,
-            h3k27ac: true,
-        },
-        rankBy: "avg",
-        availableAssays: {
-            dnase: true,
-            atac: true,
-            ctcf: true,
-            h3k4me3: true,
-            h3k27ac: true,
-        },
-        classes: {
-            CA: true,
-            "CA-CTCF": true,
-            "CA-H3K4me3": true,
-            "CA-TF": true,
-            dELS: true,
-            pELS: true,
-            PLS: true,
-            TF: true,
-        }
-    });
-
-    const [geneFilterVariables, setGeneFilterVariables] = useState<GeneFilterState>({
-        useGenes: true,
-        methodOfLinkage: "distance",
-        mustBeProteinCoding: false,
-        mustHaveOrtholog: false,
-        rankExpSpecBy: "max",
-        rankGeneExpBy: "max",
-        selectedBiosample: null,
-    });
+    const [sequenceFilterVariables, setSequenceFilterVariables] = useState<SequenceFilterState>(initialSequenceFilterState);
+    const [elementFilterVariables, setElementFilterVariables] = useState<ElementFilterState>(initialElementFilterState);
+    const [geneFilterVariables, setGeneFilterVariables] = useState<GeneFilterState>(initialGeneFilterState);
 
     //Run on first page load to decode the submitted regions and file name
     useEffect(() => {
