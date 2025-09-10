@@ -57,8 +57,8 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                 cellType: item.celltype,
                 ontology: item.tissue,
                 displayname: item.displayname,
-                lifeStage: "adult",      // fill with actual value if available
-                sampleType: "tissue",     // fill with actual value if available
+                lifeStage: "other",
+                sampleType: "other",
                 dnase: null,
                 h3k4me3: null,
                 h3k27ac: null,
@@ -78,10 +78,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                 biosamples.set(item.biosample_value, {
                     name: item.biosample_value,
                     ontology: item.tissue,
-                    cellType: "",
-                    displayname: "",
-                    lifeStage: "",
-                    sampleType: "",
+                    cellType: item.biosample_value,
+                    displayname: item.biosample_value,
+                    lifeStage: "other",
+                    sampleType: "other",
                     dnase: null,
                     h3k4me3: null,
                     h3k27ac: null,

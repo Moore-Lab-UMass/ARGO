@@ -113,11 +113,11 @@ export interface BiosampleTablesProps<
   }
 }
 
-export type SampleType = "Cell Line" | "Primary Cell" | "Tissue" | "Organoid" | "In Vitro Differentiated Cells"
+export type SampleType = "Cell Line" | "Primary Cell" | "Tissue" | "Organoid" | "In Vitro Differentiated Cells" | "Other"
 
 export type Collection = "Core Collection" | "Partial Collection" | "Ancillary Collection"
 
-export type LifeStage = "Embryo" | "Adult"
+export type LifeStage = "Embryo" | "Adult" | "Other"
 
 export type CheckboxType = SampleType | Collection | LifeStage
 

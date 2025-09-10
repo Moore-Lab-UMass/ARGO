@@ -36,6 +36,7 @@ export const BiosampleTables = <
     "Tissue": true,
     "Organoid": true,
     "In Vitro Differentiated Cells": true,
+    "Other" : true
   })
   const [collectionFilter, setCollectionFilter] = useState<CollectionCheckboxes>({
     "Core Collection": true,
@@ -44,7 +45,8 @@ export const BiosampleTables = <
   })
   const [lifeStageFilter, setLifeStageFilter] = useState<LifeStageCheckboxes>({
     "Embryo": true,
-    "Adult": true
+    "Adult": true,
+    "Other": true
   })
   const [mustHaveRnaSeq, setMustHaveRnaSeq] = useState<boolean>(false)
   const [searchString, setSearchString] = useState<string>("")
