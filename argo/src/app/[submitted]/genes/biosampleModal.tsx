@@ -44,11 +44,6 @@ const GenesModal: React.FC<ModalProps> = ({
                 >
                     <CloseIcon />
                 </IconButton>
-                <Typography variant="h4">
-                    Linked Genes found in {chromosome}:{start.toLocaleString()}-
-                    {end.toLocaleString()}
-                </Typography>
-                <br />
                 <br />
             </Paper>
         </Modal>
