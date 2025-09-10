@@ -25,6 +25,7 @@ export type RegistryBiosample = {
   h3k27ac_signal: string | null;
   ctcf_signal: string | null;
   atac_signal: string | null;
+  cellType: string;
 };
 
 /**

@@ -99,8 +99,12 @@ export const BiosampleTables = <
               rnaseq: data_rnaseq.rnaSeqQuery
                 .map((sample) => sample.biosample)
                 .some((sampleName) => biosample.name === sampleName),
+              cellType: additionalCellTypes?.find((sample) => sample.name === biosample.name)?.cellType
             };
-          } else return biosample;
+          } else return {
+            ...biosample,
+            cellType: additionalCellTypes?.find((sample) => sample.name === biosample.name)?.cellType
+          }
         })
         .filter(preFilterBiosamples)
         .forEach((biosample) => {

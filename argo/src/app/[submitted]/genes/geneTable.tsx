@@ -52,7 +52,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
         variables: {
             accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
             assembly: "grch38",
-            celltype: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.name : [],
+            celltype: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.cellType : [],
             assaytype: geneFilterVariables.methodOfLinkage.replace("_", "-")
         },
         skip: !intersectingCcres || geneFilterVariables.methodOfLinkage === "distance" || computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),

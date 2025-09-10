@@ -54,6 +54,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         cellTypes?.getLinkedGenesCelltypesByAssay.forEach((item) => {
             biosamples.set(item.biosample_value, {
                 name: item.biosample_value,
+                cellType: item.celltype,
                 ontology: item.tissue,
                 displayname: item.displayname,
                 lifeStage: "adult",      // fill with actual value if available
@@ -77,6 +78,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                 biosamples.set(item.biosample_value, {
                     name: item.biosample_value,
                     ontology: item.tissue,
+                    cellType: "",
                     displayname: "",
                     lifeStage: "",
                     sampleType: "",
