@@ -312,7 +312,7 @@ export const filterOrthologGenes = (orthoGenes: GeneOrthologQueryQuery, allGenes
     return (filteredGenes)
 }
 
-export const generateGeneRanks = (geneRows: GeneTableRow[]): RankedRegions => {
+export const generateGeneRanks = (geneRows: GeneTableRow[], rankLinkedBy: "most" | "least"): RankedRegions => {
 
     // Assign ranks based on expression specificity
     const expressionSpecificityRankedRows = (() => {
@@ -338,15 +338,42 @@ export const generateGeneRanks = (geneRows: GeneTableRow[]): RankedRegions => {
         });
     })();
 
+    // Rank by linkedGenes.length
+    const linkedGeneRankedRows = (() => {
+        const sortedRows = [...geneRows].sort((a, b) => {
+            const aLen = a.linkedGenes?.length ?? 0;
+            const bLen = b.linkedGenes?.length ?? 0;
+            return rankLinkedBy === "most" ? bLen - aLen : aLen - bLen;
+        });
+        
+        let rank = 1;
+        return sortedRows.map((row, index) => {
+            if (
+                index > 0 &&
+                (sortedRows[index].linkedGenes?.length ?? 0) !==
+                    (sortedRows[index - 1].linkedGenes?.length ?? 0)
+            ) {
+                rank = index + 1;
+            }
+            return { ...row, linkedGenesRank: rank };
+        });
+    })();
+
     // Merge ranks and calculate total rank
     const combinedRanks = expressionSpecificityRankedRows.map((row) => {
-        const rankedGenes = geneExpressionRankedRows.find(
-            (motifRow) => motifRow.regionID === row.regionID
+        const maxExpRank = geneExpressionRankedRows.find(
+            (r) => r.regionID === row.regionID
         )?.maxExpRank;
+
+        const linkedGenesRank = linkedGeneRankedRows.find(
+            (r) => r.regionID === row.regionID
+        )?.linkedGenesRank;
 
         return {
             ...row,
-            totalRank: row.specificityRank + (rankedGenes),
+            maxExpRank,
+            linkedGenesRank,
+            totalRank: row.specificityRank + (maxExpRank ?? 0) + (linkedGenesRank ?? 0),
         };
     });
 

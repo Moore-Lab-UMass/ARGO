@@ -270,11 +270,11 @@ export default function Argo() {
             return [];
         }
 
-        const rankedRegions = generateGeneRanks(geneRows)
+        const rankedRegions = generateGeneRanks(geneRows, geneFilterVariables.rankLinkedBy)
 
         return rankedRegions
 
-    }, [geneFilterVariables.useGenes, geneRows, inputRegions]);
+    }, [geneFilterVariables.rankLinkedBy, geneFilterVariables.useGenes, geneRows, inputRegions]);
 
     // All loading states for main table columns
     const loadingSequenceRanks = (sequenceRanks.length === 0 || loadingSequenceRows) && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs);

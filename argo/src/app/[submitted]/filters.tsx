@@ -45,7 +45,8 @@ export const initialGeneFilterState: GeneFilterState = {
     rankExpSpecBy: "max",
     rankGeneExpBy: "max",
     selectedBiosample: null,
-    linkageBiosample: null
+    linkageBiosample: null,
+    rankLinkedBy: "most"
 };
 
 const Filters: React.FC<FilterProps> = ({

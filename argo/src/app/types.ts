@@ -130,6 +130,7 @@ export type GeneFilterState = {
     rankGeneExpBy: "max" | "avg";
     selectedBiosample: RegistryBiosample | null;
     linkageBiosample: RegistryBiosamplePlusRNA | null;
+    rankLinkedBy: "most" | "least"
 }
 
 type UpdateSequenceFilter = <K extends keyof SequenceFilterState>(

@@ -100,8 +100,6 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         return Array.from(biosamples.values());
     }, [compuCellTypes, cellTypes]);
 
-
-
     useEffect(() => {
         if (geneFilterVariables.methodOfLinkage === "distance" && geneFilterVariables.linkageBiosample) {
             updateGeneFilter("linkageBiosample", null);
@@ -325,6 +323,25 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 value="avg"
                                 control={<Radio />}
                                 label="Average"
+                            />
+                        </RadioGroup>
+                    </FormControl>
+                    <FormControl disabled={!geneFilterVariables.useGenes}>
+                        <Typography sx={{ mt: 1 }}>Rank # of Linked Genes by</Typography>
+                        <RadioGroup
+                            row
+                            value={geneFilterVariables.rankLinkedBy}
+                            onChange={(event) => updateGeneFilter("rankLinkedBy", event.target.value as "most" | "least")}
+                        >
+                            <FormControlLabel
+                                value="most"
+                                control={<Radio />}
+                                label="Most"
+                            />
+                            <FormControlLabel
+                                value="least"
+                                control={<Radio />}
+                                label="Least"
                             />
                         </RadioGroup>
                     </FormControl>
