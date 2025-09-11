@@ -69,7 +69,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                 h3k27ac_signal: null,
                 ctcf_signal: null,
                 atac_signal: null,
-                rnaseq: false, // default, update later if you have RNA-seq info
+                rnaseq: false, //the celltypes that do not match the registry should not have rna seq data
             });
         });
 
@@ -125,7 +125,9 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         updateGeneFilter("linkageBiosample", cellType);
         updateGeneFilter("methodOfLinkage", method);
         setLinkageBiosampleOpen(false);
-        setLinkageBiosample(null);
+        if (method !== methodOfLinkage) {
+            setLinkageBiosample(null);
+        }
         setInclude(false);
     }
 
@@ -134,6 +136,12 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         setInclude(false);
         updateGeneFilter("linkageBiosample", null);
         updateGeneFilter("methodOfLinkage", "distance");
+    }
+
+    const handleLinkageBiosampleClose = () => {
+        setLinkageBiosampleOpen(false); 
+        setLinkageBiosample(null); 
+        setInclude(false);
     }
 
     const handleSelectedBiosample = (biosample) => {
@@ -220,7 +228,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </Select>
                     </FormControl>
                     {geneFilterVariables.linkageBiosample && (
-                        <Paper elevation={0} sx={{ width: "fit-content" }}>
+                        <Paper elevation={0} sx={{ width: "fit-content", cursor: "pointer" }} onClick={() => handleLinkageChange(methodOfLinkage)}>
                             <Stack
                                 borderRadius={1}
                                 direction={"row"}
@@ -238,7 +246,8 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                         geneFilterVariables.linkageBiosample.displayname}
                                 </Typography>
                                 <IconButton
-                                    onClick={() => { handleLinkageBiosampleDeslect() }}
+                                    sx={{zIndex: 10}}
+                                    onClick={(e) => { handleLinkageBiosampleDeslect(); e.stopPropagation() }}
                                 >
                                     <CancelRounded />
                                 </IconButton>
@@ -365,11 +374,11 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                     />
                 </Paper>
             </Modal>
-            <Modal open={linkageBiosampleOpen} onClose={() => { setLinkageBiosampleOpen(false); setLinkageBiosample(null); setInclude(false); }}>
+            <Modal open={linkageBiosampleOpen} onClose={() => handleLinkageBiosampleClose()}>
                 <Paper sx={style}>
                     <IconButton
                         aria-label="close"
-                        onClick={() => { setLinkageBiosampleOpen(false); setLinkageBiosample(null); setInclude(false); }}
+                        onClick={() => handleLinkageBiosampleClose()}
                         sx={{
                             position: "absolute",
                             top: 8,
