@@ -264,7 +264,7 @@ export default function Argo() {
                 chr: row.chr,
                 start: row.start,
                 end: row.end,
-                rank: -1, // Add rank of 0 to each row
+                rank: 0,
             }));
         } else if (geneRows.length === 0) {
             return [];
