@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
-import { RegistryBiosample, RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
+import {  RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -28,7 +28,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     const [linkageBiosampleOpen, setLinkageBiosampleOpen] = useState(false);
     const [methodOfLinkage, setMethodOfLinkage] = useState<GeneLinkingMethod>(geneFilterVariables.methodOfLinkage);
     const [linkageBiosample, setLinkageBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.linkageBiosample);
-    const [biosample, setBiosample] = useState<RegistryBiosample | null>(geneFilterVariables.selectedBiosample)
+    const [biosample, setBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.selectedBiosample)
     const [include, setInclude] = useState(false);
 
     const { data: cellTypes } = useQuery(

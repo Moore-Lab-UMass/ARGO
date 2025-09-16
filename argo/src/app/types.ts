@@ -1,4 +1,4 @@
-import { RegistryBiosample, RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
+import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type ZScores = {
     accession: string
@@ -114,7 +114,7 @@ export type ElementFilterState = {
     usecCREs: boolean;
     cCREAssembly: "GRCh38" | "mm10";
     mustHaveOrtholog: boolean;
-    selectedBiosample: RegistryBiosample | null;
+    selectedBiosample: RegistryBiosamplePlusRNA | null;
     assays: CCREAssays;
     rankBy: "avg" | "max";
     availableAssays: CCREAssays;
@@ -128,7 +128,7 @@ export type GeneFilterState = {
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
-    selectedBiosample: RegistryBiosample | null;
+    selectedBiosample: RegistryBiosamplePlusRNA | null;
     linkageBiosample: RegistryBiosamplePlusRNA | null;
     rankLinkedBy: "most" | "least"
 }
