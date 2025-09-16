@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, CircularProgress, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Modal, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Modal, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import CloseIcon from '@mui/icons-material/Close';
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
-import { RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
+import { RegistryBiosample, RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -28,9 +28,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     const [linkageBiosampleOpen, setLinkageBiosampleOpen] = useState(false);
     const [methodOfLinkage, setMethodOfLinkage] = useState<GeneLinkingMethod>(geneFilterVariables.methodOfLinkage);
     const [linkageBiosample, setLinkageBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.linkageBiosample);
+    const [biosample, setBiosample] = useState<RegistryBiosample | null>(geneFilterVariables.selectedBiosample)
     const [include, setInclude] = useState(false);
 
-    const { data: cellTypes, loading: loadingCellTypes } = useQuery(
+    const { data: cellTypes } = useQuery(
         LINKED_GENES_CELL_TYPES_QUERY,
         {
             variables: { assay: methodOfLinkage.replace("_", "-") },
@@ -38,7 +39,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         }
     );
 
-    const { data: compuCellTypes, loading: loadingCompuCellTypes } = useQuery(
+    const { data: compuCellTypes } = useQuery(
         COMPUTATIONAL_CELL_TYPES_QUERY,
         {
             variables: { method: [methodOfLinkage as ComputationalMethod] },
@@ -110,14 +111,16 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         if (method !== "distance") {
             setLinkageBiosampleOpen(true);
         } else {
-            updateGeneFilter("linkageBiosample", null);
             updateGeneFilter("methodOfLinkage", "distance");
         }
+        setLinkageBiosample(null);
+        updateGeneFilter("linkageBiosample", null);
         setMethodOfLinkage(method);
     }
 
     const handleLinkageBiosampleSubmit = (method: GeneLinkingMethod, cellType: RegistryBiosamplePlusRNA) => {
         if (include && cellType.rnaseq) {
+            setBiosample(cellType)
             updateGeneFilter("selectedBiosample", cellType as RegistryBiosamplePlusRNA)
         }
         updateGeneFilter("linkageBiosample", cellType);
@@ -137,9 +140,12 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     }
 
     const handleLinkageBiosampleClose = () => {
-        setLinkageBiosampleOpen(false); 
-        setLinkageBiosample(null); 
+        setLinkageBiosampleOpen(false);
+        setLinkageBiosample(null);
         setInclude(false);
+        if (!linkageBiosample) {
+            handleLinkageChange("distance")
+        }
     }
 
     const handleSelectedBiosample = (biosample) => {
@@ -148,6 +154,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     }
 
     const handleDeselectBiosample = () => {
+        setBiosample(null);
         updateGeneFilter("selectedBiosample", null);
     }
 
@@ -226,7 +233,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </Select>
                     </FormControl>
                     {geneFilterVariables.linkageBiosample && (
-                        <Paper elevation={0} sx={{ width: "fit-content", cursor: "pointer" }} onClick={() => handleLinkageChange(methodOfLinkage)}>
+                        <Paper elevation={0} sx={{ width: "fit-content", cursor: "pointer" }} onClick={() => { setLinkageBiosampleOpen(true); setLinkageBiosample(geneFilterVariables.linkageBiosample) }}>
                             <Stack
                                 borderRadius={1}
                                 direction={"row"}
@@ -244,7 +251,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                         geneFilterVariables.linkageBiosample.displayname}
                                 </Typography>
                                 <IconButton
-                                    sx={{zIndex: 10}}
+                                    sx={{ zIndex: 10 }}
                                     onClick={(e) => { handleLinkageBiosampleDeslect(); e.stopPropagation() }}
                                 >
                                     <CancelRounded />
@@ -382,13 +389,40 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         Filter Genes Through Biosamples
                     </Typography>
                     <br />
+                    <Box mb={2}>
+                        {biosample && (
+                            <Stack
+                                minWidth={"350px"}
+                                direction="row"
+                                alignItems={"center"}
+                                borderRadius={1}
+                                justifyContent={"space-between"}
+                                sx={{ backgroundColor: theme => theme.palette.secondary.main }}
+                                width={"fit-content"}
+                                paddingX={1}
+                            >
+                                <Typography><b>Selected: </b>{biosample.displayname}</Typography>
+                                <IconButton onClick={() => setBiosample(null)}>
+                                    <CancelRounded />
+                                </IconButton>
+                            </Stack>
+                        )}
+                    </Box>
                     <BiosampleTables
-                        selected={geneFilterVariables.selectedBiosample?.name}
-                        onChange={(biosample) => handleSelectedBiosample(biosample)}
+                        selected={biosample?.name}
+                        onChange={(biosample) => setBiosample(biosample)}
                         assembly={"GRCh38"}
-                        preFilterBiosamples={(biosample: RegistryBiosamplePlusRNA) => availableCellTypes.some((available) => available.name === biosample.name)}
+                        preFilterBiosamples={(biosample) => biosample.rnaseq}
                         hasRNASeq
                     />
+                    <Stack width={"100%"} alignItems={"flex-end"}>
+                        <Button
+                            variant="contained"
+                            onClick={() => handleSelectedBiosample(biosample)}
+                        >
+                            Submit
+                        </Button>
+                    </Stack>
                 </Paper>
             </Modal>
             <Modal open={linkageBiosampleOpen} onClose={() => handleLinkageBiosampleClose()}>
@@ -409,9 +443,6 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         Select Biosample for Linkage Method: {methodOfLinkage}
                     </Typography>
                     <br />
-                    {loadingCellTypes || loadingCompuCellTypes && (
-                        <CircularProgress />
-                    )}
                     <Box mb={2}>
                         {linkageBiosample && (
                             <Stack
@@ -460,11 +491,11 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                             </Tooltip>
                         </FormGroup>
                         <Button
-                        variant="contained"
-                        onClick={() => handleLinkageBiosampleSubmit(methodOfLinkage, linkageBiosample)}
-                    >
-                        Submit
-                    </Button>
+                            variant="contained"
+                            onClick={() => handleLinkageBiosampleSubmit(methodOfLinkage, linkageBiosample)}
+                        >
+                            Submit
+                        </Button>
                     </Stack>
                 </Paper>
             </Modal>
