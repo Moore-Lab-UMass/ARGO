@@ -5,6 +5,7 @@ import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
 import CloseIcon from '@mui/icons-material/Close';
+import BiotechIcon from '@mui/icons-material/Biotech';
 
 const ElementFilters: React.FC<ElementAccordianProps> = ({
     elementFilterVariables,
@@ -168,6 +169,17 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                         }
                     />
                     <Stack>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            sx={{ width: "fit-content" }}
+                            onClick={() => setOpen(true)}
+                            disabled={!elementFilterVariables.usecCREs}
+                            startIcon={<BiotechIcon />}
+
+                        >
+                            Within a Biosample
+                        </Button>
                         {elementFilterVariables.selectedBiosample && (
                             <Paper elevation={0} sx={{ width: "fit-content" }}>
                                 <Stack
@@ -194,14 +206,6 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                 </Stack>
                             </Paper>
                         )}
-                        <Button
-                            variant="outlined"
-                            sx={{ height: "40px", width: "50%" }}
-                            onClick={() => setOpen(true)}
-                            disabled={!elementFilterVariables.usecCREs}
-                        >
-                            Within a Biosample
-                        </Button>
                     </Stack>
                     <FormControl sx={{ mt: 1 }}>
                         <Typography>Include Classes</Typography>

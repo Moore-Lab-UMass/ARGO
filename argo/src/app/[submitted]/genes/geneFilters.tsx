@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
-import {  RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
+import { RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
