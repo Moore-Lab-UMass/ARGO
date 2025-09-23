@@ -211,6 +211,7 @@ export const COMPUTATIONAL_CELL_TYPES_QUERY = gql(`
     method
     tissue
     biosample_value
+    biosample_mapping
   }
 }
   `)

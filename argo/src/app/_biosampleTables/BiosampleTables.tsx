@@ -92,7 +92,7 @@ export const BiosampleTables = <
     if (biosampleData && (data_rnaseq || !hasRNASeq)) {
       const groupedBiosamples: { [key: string]: BiosampleData<HasRNASeq>[] } = {};
 
-      // step 1: build from query
+      // build from query
       biosampleData.ccREBiosampleQuery.biosamples
         .map((biosample) => {
           if (hasRNASeq) {
@@ -118,7 +118,7 @@ export const BiosampleTables = <
           );
         });
 
-      // step 2: ensure additionalCellTypes are included
+      //ensure additionalCellTypes are included
       additionalCellTypes?.forEach((extra) => {
         // already present?
         const alreadyPresent = Object.values(groupedBiosamples)
