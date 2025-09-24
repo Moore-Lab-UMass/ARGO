@@ -25,6 +25,7 @@ export type RegistryBiosample = {
   h3k27ac_signal: string | null;
   ctcf_signal: string | null;
   atac_signal: string | null;
+  cellType: string;
 };
 
 /**
@@ -78,10 +79,13 @@ export interface BiosampleTablesProps<
    * If true, table will display columns for assay signal files for each biosample
    */
   showDownloads?: boolean, //I feel like this is maybe more appropriate to be something that is user-defined. Allow them to add extra columns?
+  showAssays?: boolean,
   /**
    * If true, table will display column with check marks for biosamples with RNA seq data.
    */
-  showRNAseq?: HasRNASeq,
+  hasRNASeq?: HasRNASeq,
+  showRNAseq?: boolean,
+  additionalCellTypes?: BiosampleData<HasRNASeq>[]
   /**
    * Props spread into each slot inside, helpful for changing things such as width and height
    */
@@ -109,11 +113,11 @@ export interface BiosampleTablesProps<
   }
 }
 
-export type SampleType = "Cell Line" | "Primary Cell" | "Tissue" | "Organoid" | "In Vitro Differentiated Cells"
+export type SampleType = "Cell Line" | "Primary Cell" | "Tissue" | "Organoid" | "In Vitro Differentiated Cells" | "Other"
 
 export type Collection = "Core Collection" | "Partial Collection" | "Ancillary Collection"
 
-export type LifeStage = "Embryo" | "Adult"
+export type LifeStage = "Embryo" | "Adult" | "Other"
 
 export type CheckboxType = SampleType | Collection | LifeStage
 

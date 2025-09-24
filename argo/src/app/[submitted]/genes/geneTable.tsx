@@ -1,14 +1,23 @@
 import React, { useMemo, useState } from "react";
-import { AllLinkedGenes, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
+import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
 import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
 import { Skeleton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { client } from "../../client";
-import { CLOSEST_LINKED_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY } from "../../queries";
-import { parseLinkedGenes, pushClosestGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
+import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../queries";
+import { parseLinkedGenes, parseClosestGenes, parseComputationalGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { AggregateByEnum } from "../../../graphql/__generated__/graphql";
 import GeneLink from "../../_utility/GeneLink";
+
+const computationalMethods: ComputationalMethod[] = [
+    "ABC_(DNase_only)",
+    "ABC_(full)",
+    "EPIraction",
+    "GraphRegLR",
+    "rE2G_(DNase_only)",
+    "rE2G_(extended)"
+];
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,
@@ -30,41 +39,74 @@ const GeneTable: React.FC<GeneTableProps> = ({
     } | null>(null);
 
     //Query to get the closest gene to eah ccre
-    const { loading: loading_linked_genes, data: closestAndLinkedGenes, error: error_linked_genes } = useQuery(CLOSEST_LINKED_QUERY, {
+    const { loading: loading_closest_genes, data: closestGeneData, error: error_closest_genes } = useQuery(CLOSEST_QUERY, {
         variables: {
             accessions: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
         },
-        skip: !intersectingCcres,
+        skip: !intersectingCcres || geneFilterVariables.methodOfLinkage !== "distance",
+        client: client,
+        fetchPolicy: 'cache-first',
+    });
+
+    const { loading: loading_linked_genes, data: linkedGenesData, error: error_linked_genes } = useQuery(LINKED_GENES_QUERY, {
+        variables: {
+            accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
+            assembly: "grch38",
+            celltype: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.cellType : [],
+            assaytype: geneFilterVariables.methodOfLinkage.replace("_", "-")
+        },
+        skip: !intersectingCcres || geneFilterVariables.methodOfLinkage === "distance" || computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
+        client: client,
+        fetchPolicy: 'cache-first',
+    });
+
+    const { loading: loading_computational_genes, data: computationalGenesData, error: error_computational_genes } = useQuery(COMPUTATIONAL_LNKED_GENES_QUERY, {
+        variables: {
+            accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
+            biosample_value: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.name : [],
+            method: geneFilterVariables.methodOfLinkage
+        },
+        skip: !intersectingCcres || !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
         client: client,
         fetchPolicy: 'cache-first',
     });
 
     const filteredGenes = useMemo<AllLinkedGenes>(() => {
-        if (!intersectingCcres || !closestAndLinkedGenes) {
+        if (!intersectingCcres || (geneFilterVariables.methodOfLinkage === "distance" && !closestGeneData) || (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linkedGenesData) || (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !computationalGenesData)) {
             return [];
         }
 
-        const initialFilter = closestAndLinkedGenes.linkedGenesQuery.filter((gene) => gene.assay !== 'CRISPRi-FlowFISH' || (gene.assay === 'CRISPRi-FlowFISH' && gene.p_val < 0.05))
+        let linkedGenes: AllLinkedGenes = [];
 
-        //switch between protein coding and all linked genes
-        const filteredLinkedGenes = geneFilterVariables.mustBeProteinCoding ? initialFilter.filter((gene) => gene.genetype === "protein_coding")
-            : initialFilter
-        const linkedGenes = parseLinkedGenes(filteredLinkedGenes, geneFilterVariables.methodOfLinkage);
+        if (geneFilterVariables.methodOfLinkage === "distance") {
+            //switch between protein coding and all closest gene
+            let closestGenes = closestGeneData.closestGenetocCRE.filter((gene) => gene.gene.type === "ALL")
+            if (geneFilterVariables.mustBeProteinCoding) {
+                closestGenes = closestGeneData.closestGenetocCRE.filter((gene) => gene.gene.type === "PC")
+            }
+            linkedGenes = parseClosestGenes(closestGenes);
+        } else if (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod)) {
+            //switch between protein coding and all linked genes
+            const computationalGenes = geneFilterVariables.mustBeProteinCoding ? computationalGenesData?.ComputationalGeneLinksQuery.filter((gene) => gene.genetype === "protein_coding")
+            : computationalGenesData?.ComputationalGeneLinksQuery
 
-        //switch between protein coding and all closest gene
-        let closestGenes = closestAndLinkedGenes.closestGenetocCRE.filter((gene) => gene.gene.type === "ALL")
-        if (geneFilterVariables.mustBeProteinCoding) {
-            closestGenes = closestAndLinkedGenes.closestGenetocCRE.filter((gene) => gene.gene.type === "PC")
+            linkedGenes = parseComputationalGenes(computationalGenes, geneFilterVariables.methodOfLinkage as ComputationalMethod, intersectingCcres);
+        } else {
+            const initialFilter = linkedGenesData.linkedGenesQuery.filter((gene) => gene.assay !== 'CRISPRi-FlowFISH' || (gene.assay === 'CRISPRi-FlowFISH' && gene.p_val < 0.05))
+    
+            //switch between protein coding and all linked genes
+            const filteredLinkedGenes = geneFilterVariables.mustBeProteinCoding ? initialFilter.filter((gene) => gene.genetype === "protein_coding")
+                : initialFilter
+            linkedGenes = parseLinkedGenes(filteredLinkedGenes, geneFilterVariables.methodOfLinkage);
         }
 
-        const allGenes = geneFilterVariables.methodOfLinkage === "distance" ? pushClosestGenes(closestGenes, linkedGenes) : linkedGenes;
         const uniqueGeneNames = Array.from(
             new Set(
-                allGenes.flatMap((item) => item.genes.map((gene) => gene.name.trim()))
+                linkedGenes.flatMap((item) => item.genes.map((gene) => gene.name.trim()))
             )
         );
 
-        let filteringGenes = allGenes;
+        let filteringGenes = linkedGenes;
         if (geneFilterVariables.mustHaveOrtholog) {
             getOrthoGenes({
                 variables: {
@@ -75,21 +117,13 @@ const GeneTable: React.FC<GeneTableProps> = ({
                 fetchPolicy: 'cache-and-network',
             })
             if (orthoGenes) {
-                filteringGenes = filterOrthologGenes(orthoGenes, allGenes)
+                filteringGenes = filterOrthologGenes(orthoGenes, linkedGenes)
             }
         }
 
-        //filter out all unselected methods of linkage
-        const linkageFilter: AllLinkedGenes = filteringGenes
-            .map(accession => ({
-                accession: accession.accession,
-                genes: accession.genes.filter(gene => gene.linkedBy.length > 0)
-            }))
-            .filter(accession => accession.genes.length > 0);
+        return filteringGenes.length > 0 ? filteringGenes : null;
 
-        return linkageFilter.length > 0 ? linkageFilter : null;
-
-    }, [closestAndLinkedGenes, geneFilterVariables.methodOfLinkage, geneFilterVariables.mustBeProteinCoding, geneFilterVariables.mustHaveOrtholog, getOrthoGenes, intersectingCcres, orthoGenes])
+    }, [closestGeneData, computationalGenesData, geneFilterVariables.methodOfLinkage, geneFilterVariables.mustBeProteinCoding, geneFilterVariables.mustHaveOrtholog, getOrthoGenes, intersectingCcres, linkedGenesData, orthoGenes])
 
     const { loading: loading_gene_specificity, data: geneSpecificity } = useQuery(SPECIFICITY_QUERY, {
         variables: {
@@ -97,7 +131,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                 entry.genes.map((gene) => gene.geneId.split('.')[0])
             )
         },
-        skip: !closestAndLinkedGenes || closestAndLinkedGenes.closestGenetocCRE.length === 0 || filteredGenes === null,
+        skip: filteredGenes === null,
         client: client,
         fetchPolicy: 'cache-first',
     });
@@ -105,16 +139,16 @@ const GeneTable: React.FC<GeneTableProps> = ({
     const { loading: loading_gene_expression, data: geneExpression, error: error_gene_expression } = useQuery(GENE_EXP_QUERY, {
         variables: {
             genes: filteredGenes?.flatMap((entry) => entry.genes.map((gene) => gene.geneId.split('.')[0])),
-            biosample: geneFilterVariables.selectedBiosample?.map((sample) => sample.name),
+            biosample: geneFilterVariables.selectedBiosample ? geneFilterVariables.selectedBiosample.name : [],
             aggregateBy: (geneFilterVariables.rankGeneExpBy === "avg" ? "AVERAGE" : "MAX") as AggregateByEnum
         },
-        skip: !closestAndLinkedGenes || closestAndLinkedGenes.closestGenetocCRE.length === 0 || filteredGenes === null,
+        skip: filteredGenes === null,
         client: client,
         fetchPolicy: 'cache-first',
     });
 
     const geneRows = useMemo<GeneTableRow[]>(() => {
-        if (filteredGenes === null || error_gene_expression || error_linked_genes) {
+        if (filteredGenes === null || error_gene_expression || error_linked_genes || error_closest_genes || error_computational_genes) {
             return null
         }
         if (filteredGenes.length === 0) {
@@ -151,10 +185,10 @@ const GeneTable: React.FC<GeneTableProps> = ({
             return []
         }
 
-    }, [filteredGenes, error_gene_expression, error_linked_genes, geneSpecificity, intersectingCcres, geneFilterVariables, geneExpression]);
+    }, [filteredGenes, error_gene_expression, error_linked_genes, error_closest_genes, error_computational_genes, geneSpecificity, intersectingCcres, geneFilterVariables, geneExpression]);
 
     updateGeneRows(geneRows)
-    const loadingRows = loading_gene_expression || loading_gene_specificity || loading_linked_genes || loadingIntersect;
+    const loadingRows = loading_gene_expression || loading_gene_specificity || loading_closest_genes || loadingIntersect || loading_linked_genes || loading_computational_genes;
     updateLoadingGeneRows(loadingRows);
     
     //handle column changes for the Gene rank table

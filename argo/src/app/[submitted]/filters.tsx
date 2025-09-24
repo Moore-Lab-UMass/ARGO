@@ -9,7 +9,7 @@ import GeneFilters from './genes/geneFilters';
 import { Clear } from "@mui/icons-material";
 
 // Initial filter states
-const initialSequenceFilterState: SequenceFilterState = {
+export const initialSequenceFilterState: SequenceFilterState = {
     useConservation: true,
     alignment: "241-mam-phyloP",
     rankBy: "max",
@@ -23,7 +23,7 @@ const initialSequenceFilterState: SequenceFilterState = {
     tfPeakStrength: false
 };
 
-const initialElementFilterState: ElementFilterState = {
+export const initialElementFilterState: ElementFilterState = {
     usecCREs: true,
     cCREAssembly: "GRCh38",
     mustHaveOrtholog: false,
@@ -37,14 +37,16 @@ const initialElementFilterState: ElementFilterState = {
     }
 };
 
-const initialGeneFilterState: GeneFilterState = {
+export const initialGeneFilterState: GeneFilterState = {
     useGenes: true,
     methodOfLinkage: "distance",
     mustBeProteinCoding: false,
     mustHaveOrtholog: false,
     rankExpSpecBy: "max",
     rankGeneExpBy: "max",
-    selectedBiosample: null
+    selectedBiosample: null,
+    linkageBiosample: null,
+    rankLinkedBy: "most"
 };
 
 const Filters: React.FC<FilterProps> = ({

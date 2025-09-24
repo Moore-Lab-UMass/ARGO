@@ -1,4 +1,4 @@
-import { RegistryBiosample } from "./_biosampleTables/types"
+import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type ZScores = {
     accession: string
@@ -92,7 +92,7 @@ export type Alignment =
     "100-vert-phyloP" |
     "100-vert-phastCons"
 
-export type ComputationalMethod = "ABCD" | "ABCF" | "EPIraction" | "GraphRegLR" | "rE2GD" | "rE2GE"
+export type ComputationalMethod = "ABC_(DNase_only)" | "ABC_(full)" | "EPIraction" | "GraphRegLR" | "rE2G_(DNase_only)" | "rE2G_(extended)"
 
 export type GeneLinkingMethod = "distance" | "eQTLs" | "Intact_HiC" | "CRISPRi_FlowFISH" | "CTCF_ChIAPET" | "RNAPII_ChIAPET" | ComputationalMethod
 
@@ -114,7 +114,7 @@ export type ElementFilterState = {
     usecCREs: boolean;
     cCREAssembly: "GRCh38" | "mm10";
     mustHaveOrtholog: boolean;
-    selectedBiosample: RegistryBiosample | null;
+    selectedBiosample: RegistryBiosamplePlusRNA | null;
     assays: CCREAssays;
     rankBy: "avg" | "max";
     availableAssays: CCREAssays;
@@ -128,7 +128,9 @@ export type GeneFilterState = {
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
-    selectedBiosample: RegistryBiosample[] | null;
+    selectedBiosample: RegistryBiosamplePlusRNA | null;
+    linkageBiosample: RegistryBiosamplePlusRNA | null;
+    rankLinkedBy: "most" | "least"
 }
 
 type UpdateSequenceFilter = <K extends keyof SequenceFilterState>(

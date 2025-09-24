@@ -52,11 +52,16 @@ export const filterBiosamples = <HasRNASeq extends boolean>(
         passesType = true
       } else if (sampleTypeFilter["Organoid"] && biosample.sampleType === "organoid") {
         passesType = true
+      } else if (sampleTypeFilter["Other"] && biosample.sampleType === "other") {
+        passesType = true
       }
       let passesLifestage = false
       if (lifeStageFiler["Embryo"] && biosample.lifeStage === "embryonic") {
         passesLifestage = true
       } else if (lifeStageFiler["Adult"] && biosample.lifeStage === "adult") {
+        passesLifestage = true
+      }
+      else if (lifeStageFiler["Other"] && biosample.lifeStage === "other") {
         passesLifestage = true
       }
       //Assign to Ancillary as baseline

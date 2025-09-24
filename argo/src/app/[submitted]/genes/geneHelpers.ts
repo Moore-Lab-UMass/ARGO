@@ -1,8 +1,20 @@
-import { AllLinkedGenes, CCREs, ClosestGenetocCRE, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../types";
+import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../types";
 import { GeneOrthologQueryQuery, GeneSpecificityQuery, Test_GeneEXpBiosampleQueryQuery } from "../../../graphql/__generated__/graphql";
 
+type ComputationalGenes = {
+    __typename?: "ComputationalGeneLinks";
+    geneid: string;
+    genetype: string;
+    method: string;
+    celltype: string;
+    score: number;
+    methodregion: string;
+    fileaccession: string;
+    gene: string;
+}[]
+
 export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs, geneSpecificity: GeneSpecificityQuery, geneFilterVariables: GeneFilterState): GeneTableRow[] => {
-    
+
     const updatedAllGenes: AllLinkedGenes = allGenes.map((gene) => ({
         ...gene,
         genes: gene.genes.map((geneEntry) => {
@@ -50,7 +62,7 @@ export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs
                 expressionSpecificity = { geneName: maxGene.geneName, score: maxGene.score, linkedBy: maxGene.linkedBy };
             } else {
                 const avgScore =
-                specificityScores.reduce((sum, { score }) => sum + score, 0) / specificityScores.length;
+                    specificityScores.reduce((sum, { score }) => sum + score, 0) / specificityScores.length;
                 expressionSpecificity = { geneName: "Average", score: avgScore, linkedBy: specificityScores[0].linkedBy };
             }
         }
@@ -181,52 +193,104 @@ export const parseLinkedGenes = (data, methodOfLinkage: GeneLinkingMethod): AllL
     return uniqueAccessions
 }
 
-export const pushClosestGenes = (closestGenes: ClosestGenetocCRE, linkedGenes: AllLinkedGenes): AllLinkedGenes => {
-    // Iterate over each closest gene
+export const parseComputationalGenes = (
+    computationalGenes: ComputationalGenes,
+    methodOfLinkage: ComputationalMethod,
+    accessions: CCREs
+): AllLinkedGenes => {
+    const linkedGenes: AllLinkedGenes = [];
+    const accessionMap = new Map<string, { name: string; geneId: string; linkedBy: GeneLinkingMethod }[]>();
+
+    computationalGenes.forEach((gene) => {
+        const [chr, startStr, endStr] = gene.methodregion.split("_");
+        const start = parseInt(startStr, 10);
+        const end = parseInt(endStr, 10);
+
+        const matchingAccession = accessions.find(
+            (acc) =>
+                acc.chr.toString() === chr &&
+                acc.start === start &&
+                acc.end === end
+        )?.accession;
+
+        // Skip if no accession was found
+        if (!matchingAccession) return;
+
+        const geneName = gene.gene;
+        const geneId = gene.geneid;
+
+        if (!accessionMap.has(matchingAccession)) {
+            accessionMap.set(matchingAccession, []);
+        }
+
+        const genesList = accessionMap.get(matchingAccession)!;
+
+        // Only add if not already present
+        const alreadyExists = genesList.some(
+            (g) => g.geneId === geneId || g.name === geneName
+        );
+
+        if (!alreadyExists) {
+            genesList.push({
+                name: geneName,
+                geneId,
+                linkedBy: methodOfLinkage,
+            });
+        }
+    });
+
+    accessionMap.forEach((genes, accession) => {
+        linkedGenes.push({
+            accession,
+            genes,
+        });
+    });
+
+    return linkedGenes;
+};
+
+export const parseClosestGenes = (closestGenes: ClosestGenetocCRE): AllLinkedGenes => {
+    const linkedGenes: AllLinkedGenes = [];
+
+    // Group by accession
+    const accessionMap = new Map<string, { name: string; geneId: string; linkedBy: GeneLinkingMethod }[]>();
+
     for (const closestGene of closestGenes) {
-        const closestGeneName = closestGene.gene.name;
-        const closestGeneId = closestGene.gene.geneid;
         const accession = closestGene.ccre;
+        const closestGeneName = closestGene.gene?.name;
+        const closestGeneId = closestGene.gene?.geneid;
 
-        // Find the matching accession in linkedGenes
-        const linkedAccession = linkedGenes.find((linked) => linked.accession === accession);
+        if (!accession || !closestGeneName || !closestGeneId) continue;
 
-        if (linkedAccession) {
-            // Find the matching gene in the linked genes
-            const existingGene = linkedAccession.genes.find(
-                (gene) => gene.name === closestGeneName && gene.geneId === closestGeneId
-            );
+        if (!accessionMap.has(accession)) {
+            accessionMap.set(accession, []);
+        }
 
-            if (existingGene) {
-                // Add "distance" to the linkedBy array if not already present
-                if (!existingGene.linkedBy.includes("distance")) {
-                    existingGene.linkedBy = ("distance");
-                }
-            } else {
-                // Add a new gene with "distance" as the linkedBy method
-                linkedAccession.genes.push({
-                    name: closestGeneName,
-                    geneId: closestGeneId,
-                    linkedBy: "distance",
-                });
-            }
-        } else {
-            // If no matching accession exists, add a new accession with the gene
-            linkedGenes.push({
-                accession: accession,
-                genes: [
-                    {
-                        name: closestGeneName,
-                        geneId: closestGeneId,
-                        linkedBy: "distance",
-                    },
-                ],
+        const genesList = accessionMap.get(accession)!;
+
+        // Only add if not already present
+        const alreadyExists = genesList.some(
+            g => g.geneId === closestGeneId || g.name === closestGeneName
+        );
+
+        if (!alreadyExists) {
+            genesList.push({
+                name: closestGeneName,
+                geneId: closestGeneId,
+                linkedBy: "distance" as GeneLinkingMethod,
             });
         }
     }
 
+    accessionMap.forEach((genes, accession) => {
+        linkedGenes.push({
+            accession,
+            genes,
+        });
+    });
+
     return linkedGenes;
-}
+};
 
 export const filterOrthologGenes = (orthoGenes: GeneOrthologQueryQuery, allGenes: AllLinkedGenes): AllLinkedGenes => {
     const orthologs = orthoGenes.geneOrthologQuery; // List of ortholog genes
@@ -248,8 +312,8 @@ export const filterOrthologGenes = (orthoGenes: GeneOrthologQueryQuery, allGenes
     return (filteredGenes)
 }
 
-export const generateGeneRanks = (geneRows: GeneTableRow[]): RankedRegions => {
-    
+export const generateGeneRanks = (geneRows: GeneTableRow[], rankLinkedBy: "most" | "least"): RankedRegions => {
+
     // Assign ranks based on expression specificity
     const expressionSpecificityRankedRows = (() => {
         const sortedRows = [...geneRows].sort((a, b) => b.expressionSpecificity.score - a.expressionSpecificity.score);
@@ -274,15 +338,42 @@ export const generateGeneRanks = (geneRows: GeneTableRow[]): RankedRegions => {
         });
     })();
 
+    // Rank by linkedGenes.length
+    const linkedGeneRankedRows = (() => {
+        const sortedRows = [...geneRows].sort((a, b) => {
+            const aLen = a.linkedGenes?.length ?? 0;
+            const bLen = b.linkedGenes?.length ?? 0;
+            return rankLinkedBy === "most" ? bLen - aLen : aLen - bLen;
+        });
+        
+        let rank = 1;
+        return sortedRows.map((row, index) => {
+            if (
+                index > 0 &&
+                (sortedRows[index].linkedGenes?.length ?? 0) !==
+                    (sortedRows[index - 1].linkedGenes?.length ?? 0)
+            ) {
+                rank = index + 1;
+            }
+            return { ...row, linkedGenesRank: rank };
+        });
+    })();
+
     // Merge ranks and calculate total rank
     const combinedRanks = expressionSpecificityRankedRows.map((row) => {
-        const rankedGenes = geneExpressionRankedRows.find(
-            (motifRow) => motifRow.regionID === row.regionID
+        const maxExpRank = geneExpressionRankedRows.find(
+            (r) => r.regionID === row.regionID
         )?.maxExpRank;
+
+        const linkedGenesRank = linkedGeneRankedRows.find(
+            (r) => r.regionID === row.regionID
+        )?.linkedGenesRank;
 
         return {
             ...row,
-            totalRank: row.specificityRank + (rankedGenes),
+            maxExpRank,
+            linkedGenesRank,
+            totalRank: row.specificityRank + (maxExpRank ?? 0) + (linkedGenesRank ?? 0),
         };
     });
 

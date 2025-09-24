@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { CCREAssays, CCREClasses, ElementAccordianProps } from "../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Modal, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
 import BiosampleTables from "../../_biosampleTables/BiosampleTables";
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
+import CloseIcon from '@mui/icons-material/Close';
+import BiotechIcon from '@mui/icons-material/Biotech';
 
 const ElementFilters: React.FC<ElementAccordianProps> = ({
     elementFilterVariables,
@@ -11,6 +13,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
     isExpanded,
     handleAccordionChange
 }) => {
+    const [open, setOpen] = useState(false);
 
     //update a specific assay
     const toggleAssay = (assayName: keyof CCREAssays) => {
@@ -93,6 +96,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             ctcf: !!biosample.ctcf,
             atac: !!biosample.atac_signal,
         });
+        setOpen(false);
     }
 
     const handleDeselectBiosample = () => {
@@ -112,6 +116,16 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             atac: true,
         });
     }
+
+    const style = {
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 1000,
+        p: 4,
+    };
+
     return (
         <Accordion
             defaultExpanded
@@ -119,7 +133,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             disableGutters
             expanded={isExpanded('element')}
             onChange={handleAccordionChange('element')}
-            sx={{backgroundColor: "rgba(249, 248, 244, 1)"}}
+            sx={{ backgroundColor: "rgba(249, 248, 244, 1)" }}
         >
             <AccordionSummary expandIcon={<ExpandMore sx={{ color: isExpanded('element') ? '#030f98' : 'inherit' }} />}>
                 <Stack direction="row" spacing={1} alignItems={'center'}>
@@ -141,8 +155,8 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                 <FormControlLabel value="cCREs" control={<Checkbox onChange={() => updateElementFilter("usecCREs", !elementFilterVariables.usecCREs)} checked={elementFilterVariables.usecCREs} />} label="Overlapping cCREs" />
                 <Stack ml={2}>
                     <RadioGroup row value={elementFilterVariables.cCREAssembly} onChange={(event) => { updateElementFilter("cCREAssembly", event.target.value as "GRCh38" | "mm10"); handleDeselectBiosample() }}>
-                        <FormControlLabel value="GRCh38" control={<Radio />} label="GRCh38" disabled={!elementFilterVariables.usecCREs} />
-                        <FormControlLabel value="mm10" control={<Radio />} label="mm10" disabled={!elementFilterVariables.usecCREs} />
+                        <FormControlLabel sx={{ width: "auto" }} value="GRCh38" control={<Radio />} label="GRCh38" disabled={!elementFilterVariables.usecCREs} />
+                        <FormControlLabel sx={{ width: "auto" }} value="mm10" control={<Radio />} label="mm10" disabled={!elementFilterVariables.usecCREs} />
                     </RadioGroup>
                     <FormControlLabel
                         label="cCREs Must Have Mouse Ortholog"
@@ -154,46 +168,46 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                             />
                         }
                     />
-                    {elementFilterVariables.selectedBiosample && (
-                        <Paper elevation={0}>
-                            <Stack
-                                borderRadius={1}
-                                direction={"row"}
-                                spacing={3}
-                                sx={{ backgroundColor: theme => theme.palette.secondary.main }}
-                                alignItems={"center"}
-                            >
-                                <Typography
-                                    flexGrow={1}
-                                    sx={{ color: "#2C5BA0", pl: 1 }}
-                                >
-                                    {elementFilterVariables.selectedBiosample.ontology.charAt(0).toUpperCase() +
-                                        elementFilterVariables.selectedBiosample.ontology.slice(1) +
-                                        " - " +
-                                        elementFilterVariables.selectedBiosample.displayname}
-                                </Typography>
-                                <IconButton
-                                    onClick={() => { handleDeselectBiosample() }}
-                                    sx={{ m: 'auto', flexGrow: 0 }}
-                                >
-                                    <CancelRounded />
-                                </IconButton>
-                            </Stack>
-                        </Paper>
-                    )}
-                    <Accordion square disableGutters disabled={!elementFilterVariables.usecCREs}>
-                        <AccordionSummary expandIcon={<ExpandMore />}>
+                    <Stack>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            sx={{ width: "fit-content" }}
+                            onClick={() => setOpen(true)}
+                            disabled={!elementFilterVariables.usecCREs}
+                            startIcon={<BiotechIcon />}
+
+                        >
                             Within a Biosample
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <BiosampleTables
-                                selected={elementFilterVariables.selectedBiosample?.name}
-                                onChange={(biosample) => handleSelectedBiosample(biosample)}
-                                assembly={elementFilterVariables.cCREAssembly}
-                            />
-                        </AccordionDetails>
-                    </Accordion>
-                    <FormControl sx={{mt: 1}}>
+                        </Button>
+                        {elementFilterVariables.selectedBiosample && (
+                            <Paper elevation={0} sx={{ width: "fit-content" }}>
+                                <Stack
+                                    borderRadius={1}
+                                    direction={"row"}
+                                    justifyContent={"space-between"}
+                                    sx={{ backgroundColor: theme => theme.palette.secondary.main }}
+                                    alignItems={"center"}
+                                    width={"100%"}
+                                >
+                                    <Typography
+                                        sx={{ color: "#2C5BA0", pl: 1 }}
+                                    >
+                                        {elementFilterVariables.selectedBiosample.ontology.charAt(0).toUpperCase() +
+                                            elementFilterVariables.selectedBiosample.ontology.slice(1) +
+                                            " - " +
+                                            elementFilterVariables.selectedBiosample.displayname}
+                                    </Typography>
+                                    <IconButton
+                                        onClick={() => { handleDeselectBiosample() }}
+                                    >
+                                        <CancelRounded />
+                                    </IconButton>
+                                </Stack>
+                            </Paper>
+                        )}
+                    </Stack>
+                    <FormControl sx={{ mt: 1 }}>
                         <Typography>Include Classes</Typography>
                         <FormControlLabel
                             control={
@@ -357,7 +371,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                         </Grid>
                     </FormControl>
                 </Stack>
-                <FormControl sx={{ ml: 2, mt: 1}}>
+                <FormControl sx={{ ml: 2, mt: 1 }}>
                     <Typography>Rank cCREs With Matching Input Region By</Typography>
                     <RadioGroup
                         row
@@ -377,6 +391,31 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                     </RadioGroup>
                 </FormControl>
             </AccordionDetails>
+            <Modal open={open} onClose={() => setOpen(false)}>
+                <Paper sx={style}>
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setOpen(false)}
+                        sx={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                    <Typography variant="h4">
+                        Filter cCREs Through Biosamples
+                    </Typography>
+                    <br />
+                    <BiosampleTables
+                        selected={elementFilterVariables.selectedBiosample?.name}
+                        onChange={(biosample) => handleSelectedBiosample(biosample)}
+                        assembly={elementFilterVariables.cCREAssembly}
+                    />
+                </Paper>
+            </Modal>
         </Accordion>
     )
 }
