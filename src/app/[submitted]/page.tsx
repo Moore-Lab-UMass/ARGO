@@ -27,6 +27,7 @@ export default function Argo() {
     const [selected, setSelected] = useState<MainTableRow[]>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
+    
     //UI state variables
     const [drawerOpen, setDrawerOpen] = useState(true);
     const toggleDrawer = () => setDrawerOpen(!drawerOpen);
