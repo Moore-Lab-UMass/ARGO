@@ -20,8 +20,6 @@ import { BED_INTERSECT_QUERY } from "../queries"
 import { decodeRegions } from "../_utility/coding"
 import Link from "next/link"
 
-//TODO Change links out to screen
-
 export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
     const [regions, setRegions] = useState<InputRegions>([]);
