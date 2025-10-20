@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../types";
 import MotifsModal, { MotifProps } from "./motifModal";
-import { Tooltip, Typography, useTheme } from "@mui/material";
+import { Tooltip, Typography } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../queries";
@@ -24,8 +24,6 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         end: number;
         motifs: MotifProps[];
     } | null>(null);
-
-    const theme = useTheme();
 
     const urlMapping: { [key: string]: string } = {
         "241-mam-phyloP": "https://downloads.wenglab.org/241-mammalian-2020v2.bigWig",

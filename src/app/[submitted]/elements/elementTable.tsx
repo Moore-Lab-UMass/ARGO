@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../types";
-import { Link, Tooltip, useTheme } from "@mui/material";
+import { Link, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
@@ -16,7 +16,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
     updateElementRows,
     updateLoadingElementRows
 }) => {
-    const theme = useTheme();
 
     //query to get orthologous cCREs of the intersecting cCREs (also used in gene)
     const { loading: loading_ortho, data: orthoData, error: error_ortho } = useQuery(ORTHOLOG_QUERY, {

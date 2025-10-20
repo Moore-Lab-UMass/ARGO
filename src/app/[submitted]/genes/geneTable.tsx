@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
 import { GridColDef, Table } from "@weng-lab/ui-components";
-import { Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../queries";
@@ -28,7 +28,6 @@ const GeneTable: React.FC<GeneTableProps> = ({
     updateGeneRows,
     updateLoadingGeneRows
 }) => {
-    const theme = useTheme();
     const [getOrthoGenes, { data: orthoGenes }] = useLazyQuery(GENE_ORTHO_QUERY)
     const [modalData, setModalData] = useState<{
         open: boolean;
