@@ -5,10 +5,7 @@ import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
-import {
-    GridColDef,
-    Table,
-} from "@weng-lab/ui-components";
+import { GridColDef, Table } from "@weng-lab/ui-components";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
@@ -195,7 +192,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
         <Table
             key={Math.random()}
             columns={elementColumns}
-            rows={elementRows === null ? [] : isolatedRows ? isolatedRows.element : elementRows}
+            rows={elementRows === null ? [] : isolatedRows ?? elementRows}
             initialState={{
                 sorting: {
                     sortModel: Object.values(elementFilterVariables.assays).some(value => value) ? [{ field: "dnase", sort: "desc" }] : [{ field: "regionID", sort: "desc" }],
@@ -203,17 +200,9 @@ const ElementTable: React.FC<ElementTableProps> = ({
             }}
             loading={loadingRows}
             label={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" />}
-            // headerColor={{ backgroundColor: theme.palette.secondary.main as "#", textColor: "inherit" }}
             downloadFileName="ElementRanks.tsv"
             divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
             emptyTableFallback={"No Overlapping cCREs"}
-            slotProps={{
-                toolbar: {
-                    sx: {
-                        backgroundColor: theme.palette.secondary.light,
-                    },
-                },
-            }}
         />
     )
 }

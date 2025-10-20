@@ -280,7 +280,7 @@ export type GeneTableRow = {
     linkedGenes?: LinkedGenes
 }
 
-export type IsolatedRow = {
+export type IsolatedRows = {
     main: MainTableRow[];
     sequence: SequenceTableRow[];
     element: ElementTableRow[];
@@ -329,7 +329,7 @@ export type SequenceTableProps = {
     sequenceFilterVariables: SequenceFilterState;
     SubTableTitle: React.FC<SubTableTitleProps>;
     inputRegions: InputRegions;
-    isolatedRows: IsolatedRow;
+    isolatedRows: SequenceTableRow[];
     updateSequenceRows: (rows: SequenceTableRow[]) => void;
     updateLoadingSequenceRows: (loading: boolean) => void;
 }
@@ -339,7 +339,7 @@ export type ElementTableProps = {
     SubTableTitle: React.FC<SubTableTitleProps>;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
-    isolatedRows: IsolatedRow;
+    isolatedRows: ElementTableRow[];
     updateElementRows: (rows: ElementTableRow[]) => void;
     updateLoadingElementRows: (loading: boolean) => void;
 }
@@ -349,7 +349,7 @@ export type GeneTableProps = {
     SubTableTitle: React.FC<SubTableTitleProps>;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
-    isolatedRows: IsolatedRow;
+    isolatedRows: GeneTableRow[];
     updateGeneRows: (rows: GeneTableRow[]) => void;
     updateLoadingGeneRows: (loading: boolean) => void;
 }

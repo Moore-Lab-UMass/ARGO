@@ -1,13 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../types";
-import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
 import MotifsModal, { MotifProps } from "./motifModal";
-import { Skeleton, Tooltip, Typography, useTheme } from "@mui/material";
+import { Tooltip, Typography, useTheme } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../queries";
 import { calculateConservationScores, calculateMotifScores, getNumOverlappingMotifs } from "./sequenceHelpers";
 import Link from "next/link";
+import { GridColDef, Table } from "@weng-lab/ui-components";
 
 const SequenceTable: React.FC<SequenceTableProps> = ({
     sequenceFilterVariables,
@@ -55,17 +55,17 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         fetchPolicy: 'cache-first',
     });
 
-    const {loading: loading_motif_ranking, data: motifRankingScores, error: error_motif_ranking} = useQuery(MOTIF_RANKING_QUERY, {
+    const { loading: loading_motif_ranking, data: motifRankingScores, error: error_motif_ranking } = useQuery(MOTIF_RANKING_QUERY, {
         variables: {
             motifinputs:
-            inputRegions.map(region => ({
-                regionid: region.regionID.toString(),
-                start: region.start,
-                end: region.end,
-                chrom: region.chr,
-                alt: region.alt,
-                ref: region.ref
-            }))
+                inputRegions.map(region => ({
+                    regionid: region.regionID.toString(),
+                    start: region.start,
+                    end: region.end,
+                    chrom: region.chr,
+                    alt: region.alt,
+                    ref: region.ref
+                }))
         },
         skip: !sequenceFilterVariables.useMotifs,
         client: client,
@@ -88,7 +88,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         let filteredMotifs: MotifRanking = []
         if (motifRankingScores) {
             //filter through qualities and data sources
-            filteredMotifs =  motifRankingScores.motifranking.filter(motif => {
+            filteredMotifs = motifRankingScores.motifranking.filter(motif => {
                 const motifQuality = motif.motif.split(".").pop();
                 const motifDataSource = motif.motif.split(".")[3]
                 return sequenceFilterVariables.motifQuality[motifQuality.toLowerCase() as keyof MotifQuality] && motifDataSource.split("").some(letter => sequenceFilterVariables.dataSource[letter.toLowerCase() as keyof DataScource]);
@@ -122,8 +122,8 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                 inputRegion: region,
                 conservationScore: conservationRow ? conservationRow.conservationScore : -1000000,
                 motifScoreDelta: motifScoresRow?.motifScoreDelta,
-                referenceAllele: motifScoresRow ? motifScoresRow.referenceAllele : {sequence: region.ref},
-                alt: motifScoresRow ? motifScoresRow.alt : {sequence: region.alt},
+                referenceAllele: motifScoresRow ? motifScoresRow.referenceAllele : { sequence: region.ref },
+                alt: motifScoresRow ? motifScoresRow.alt : { sequence: region.alt },
                 motifID: motifScoresRow?.motifID,
                 numOverlappingMotifs: numOverlappingMotifsRow?.numOverlappingMotifs,
                 motifs: numOverlappingMotifsRow?.motifs
@@ -131,7 +131,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         })
 
         return mergedRows
-        
+
     }, [error_conservations_scores, error_motif_ranking, conservationScores, motifRankingScores, inputRegions, loading_conservation_scores, loading_motif_ranking, sequenceFilterVariables.numOverlappingMotifs, sequenceFilterVariables.rankBy, sequenceFilterVariables.motifQuality, sequenceFilterVariables.dataSource])
 
     updateSequenceRows(sequenceRows)
@@ -139,210 +139,224 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
     updateLoadingSequenceRows(loadingRows);
 
     //handle column changes for the Sequence rank table
-    const sequenceColumns: DataTableColumn<SequenceTableRow>[] = useMemo(() => {
+    const sequenceColumns: GridColDef<SequenceTableRow>[] = useMemo(() => {
+        const cols: GridColDef<SequenceTableRow>[] = [
+            {
+                field: "regionID",
+                headerName: "Region ID",
+            },
+        ];
 
-        const cols: DataTableColumn<SequenceTableRow>[] = [
-            { header: "Region ID", value: (row) => row.regionID },
-        ]
+        // Custom comparator to push N/A to bottom
+        const naSortComparator = (a: number | string, b: number | string) => {
+            const isANa = a === "N/A" || a == null;
+            const isBNa = b === "N/A" || b == null;
+            if (isANa && !isBNa) return 1;
+            if (!isANa && isBNa) return -1;
+            if (isANa && isBNa) return 0;
+            return Number(a) - Number(b);
+        };
 
+        // 🧬 Conservation score column (based on alignment)
         if (sequenceFilterVariables.useConservation) {
-            switch (sequenceFilterVariables.alignment) {
-                case "241-mam-phyloP":
-                    cols.push({ 
-                        header: "241-Mammal(phyloP) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A"
-                     });
-                    break;
-                case "447-mam-phyloP":
-                    cols.push({ 
-                        header: "447-Mammal(phyloP) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A"
-                    });
-                    break;
-                case "241-mam-phastCons":
-                    cols.push({ 
-                        header: "241-Mammal(phastCons) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                case "43-prim-phyloP":
-                    cols.push({ 
-                        header: "43-Primate(phyloP) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                case "43-prim-phastCons":
-                    cols.push({ 
-                        header: "43-Primate(phastCons) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                case "243-prim-phastCons":
-                    cols.push({ 
-                        header: "243-Primate(phastCons) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                case "100-vert-phyloP":
-                    cols.push({ 
-                        header: "100-Vertebrate(phyloP) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                case "100-vert-phastCons":
-                    cols.push({ 
-                        header: "100-Vertebrate(phastCons) Score", 
-                        value: (row) => row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A",
-                        render: (row) => row.conservationScore === -1000000 ? "N/A" : row.conservationScore || row.conservationScore === 0 ? row.conservationScore.toFixed(2) : "N/A" 
-                    });
-                    break;
-                default:
-                    break;
+            const labelMap: Record<string, string> = {
+                "241-mam-phyloP": "241-Mammal(phyloP)",
+                "447-mam-phyloP": "447-Mammal(phyloP)",
+                "241-mam-phastCons": "241-Mammal(phastCons)",
+                "43-prim-phyloP": "43-Primate(phyloP)",
+                "43-prim-phastCons": "43-Primate(phastCons)",
+                "243-prim-phastCons": "243-Primate(phastCons)",
+                "100-vert-phyloP": "100-Vertebrate(phyloP)",
+                "100-vert-phastCons": "100-Vertebrate(phastCons)",
+            };
+
+            const label = labelMap[sequenceFilterVariables.alignment];
+            if (label) {
+                cols.push({
+                    field: "conservationScore",
+                    headerName: `${label} Score`,
+                    renderCell: (params) => {
+                        const v = params.row.conservationScore;
+                        if (v === -1000000 || v == null) return "N/A";
+                        return typeof v === "number" ? v.toFixed(2) : "N/A";
+                    },
+                    sortComparator: naSortComparator,
+                });
             }
         }
-        if (sequenceFilterVariables.useMotifs) {
-            cols.push({
-                header: sequenceFilterVariables.motifScoreDelta ? "Reference Score" : "Reference",
-                value: (row) => row.referenceAllele ? sequenceFilterVariables.motifScoreDelta && row.referenceAllele.score ? row.referenceAllele.score : "N/A" : row.referenceAllele.sequence,
-                render: (row) => sequenceFilterVariables.motifScoreDelta ? (
-                    row.referenceAllele ? (
-                        <Tooltip
-                            title={
-                                <span>
-                                    {row.referenceAllele.sequence && (
-                                        <>
-                                            <strong>Allele:</strong> {row.referenceAllele.sequence.length > 5
-                                                ? `${row.referenceAllele.sequence.slice(0, 5)}...`
-                                                : row.referenceAllele.sequence}
-                                        </>
-                                    )}
-                                </span>
-                            }
-                            arrow
-                            placement="left"
-                        >
-                            <Typography fontSize={"14px"}>
-                                {row.referenceAllele.score ? Number(row.referenceAllele.score).toFixed(2) : "N/A"}
-                            </Typography>
-                        </Tooltip>
-                    ) : "N/A") : (
-                    row.referenceAllele.sequence.length > 5
-                        ? `${row.referenceAllele.sequence.slice(0, 5)}...`
-                        : row.referenceAllele.sequence
-                )
-            })
-            cols.push({
-                header: sequenceFilterVariables.motifScoreDelta ? "Alternate Score" : "Alternate",
-                value: (row) => row.alt ? sequenceFilterVariables.motifScoreDelta && row.alt.score ? row.alt.score : "N/A" : row.alt.sequence,
-                render: (row) =>  sequenceFilterVariables.motifScoreDelta ? (
-                    row.alt ? (
-                    <Tooltip
-                        title={
-                            <span>
-                                {row.alt.sequence && (
-                                    <>
-                                            <strong>Allele:</strong> {row.alt.sequence.length > 5
-                                                ? `${row.alt.sequence.slice(0, 5)}...`
-                                                : row.alt.sequence}
-                                    </>
-                                )}
-                            </span>
-                        }
-                        arrow
-                        placement="left"
-                    >
-                        <Typography fontSize={"14px"}>
-                            {row.alt.score ? row.alt.score?.toFixed(2) : "N/A"}
-                        </Typography>
-                    </Tooltip>
-                ) : "N/A") : (
-                        row.alt.sequence.length > 5
-                            ? `${row.alt.sequence.slice(0, 5)}...`
-                            : row.alt.sequence
-                )
-            })
-            if (sequenceFilterVariables.motifScoreDelta) { 
-                cols.push({ header: "Delta", value: (row) => row.motifScoreDelta || row.motifScoreDelta === 0 ? row.motifScoreDelta.toFixed(2) : "N/A" }) 
-                cols.push({
-                    header: "Motif ID",
-                    value: (row) => row.motifID ? row.motifID : "None",
-                    render: row => row.motifID ? (
-                        <Tooltip
-                            title={"Open Motif In HOCOMOCO"}
-                            arrow
-                            placement="left"
-                        >
-                            <Link
-                                href={`https://hocomoco12.autosome.org/motif/${row.motifID}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ color: "#030f98", textDecoration: "none" }}
-                            >
-                                {row.motifID}
-                            </Link>
-                        </Tooltip>
-                    ) : "None"
-                })
-            }
-            // if (sequenceFilterVariables.overlapsTFPeak) { cols.push({ header: "Overlaps TF Peak", value: (row) => "N/A" }) }
 
+        // 🧬 Motif columns
+        if (sequenceFilterVariables.useMotifs) {
+            const showScore = sequenceFilterVariables.motifScoreDelta;
+
+            // Reference column
+            cols.push({
+                field: "referenceAllele",
+                headerName: showScore ? "Reference Score" : "Reference",
+                sortComparator: naSortComparator,
+                renderCell: (params) => {
+                    const ref = params.row.referenceAllele;
+                    if (!ref) return "N/A";
+                    if (showScore) {
+                        return (
+                            <Tooltip
+                                title={
+                                    <span>
+                                        {ref.sequence && (
+                                            <>
+                                                <strong>Allele:</strong>{" "}
+                                                {ref.sequence.length > 5
+                                                    ? `${ref.sequence.slice(0, 5)}...`
+                                                    : ref.sequence}
+                                            </>
+                                        )}
+                                    </span>
+                                }
+                                arrow
+                                placement="left"
+                            >
+                                <Typography fontSize="14px">
+                                    {ref.score ? Number(ref.score).toFixed(2) : "N/A"}
+                                </Typography>
+                            </Tooltip>
+                        );
+                    }
+                    return ref.sequence.length > 5
+                        ? `${ref.sequence.slice(0, 5)}...`
+                        : ref.sequence;
+                },
+            });
+
+            // Alternate column
+            cols.push({
+                field: "alt",
+                headerName: showScore ? "Alternate Score" : "Alternate",
+                sortComparator: naSortComparator,
+                renderCell: (params) => {
+                    const alt = params.row.alt;
+                    if (!alt) return "N/A";
+                    if (showScore) {
+                        return (
+                            <Tooltip
+                                title={
+                                    <span>
+                                        {alt.sequence && (
+                                            <>
+                                                <strong>Allele:</strong>{" "}
+                                                {alt.sequence.length > 5
+                                                    ? `${alt.sequence.slice(0, 5)}...`
+                                                    : alt.sequence}
+                                            </>
+                                        )}
+                                    </span>
+                                }
+                                arrow
+                                placement="left"
+                            >
+                                <Typography fontSize="14px">
+                                    {alt.score ? alt.score.toFixed(2) : "N/A"}
+                                </Typography>
+                            </Tooltip>
+                        );
+                    }
+                    return alt.sequence.length > 5
+                        ? `${alt.sequence.slice(0, 5)}...`
+                        : alt.sequence;
+                },
+            });
+
+            // Delta column
+            if (sequenceFilterVariables.motifScoreDelta) {
+                cols.push({
+                    field: "motifScoreDelta",
+                    headerName: "Delta",
+                    renderCell: (params) => {
+                        const v = params.row.motifScoreDelta;
+                        return v || v === 0 ? v.toFixed(2) : "N/A";
+                    },
+                    sortComparator: naSortComparator,
+                });
+
+                // Motif ID column
+                cols.push({
+                    field: "motifID",
+                    headerName: "Motif ID",
+                    renderCell: (params) => {
+                        const id = params.row.motifID;
+                        return id ? (
+                            <Tooltip title="Open Motif In HOCOMOCO" arrow placement="left">
+                                <Link
+                                    href={`https://hocomoco12.autosome.org/motif/${id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ color: "#030f98", textDecoration: "none" }}
+                                >
+                                    {id}
+                                </Link>
+                            </Tooltip>
+                        ) : (
+                            "None"
+                        );
+                    },
+                });
+            }
+
+            // Overlapping motifs column
             if (sequenceFilterVariables.numOverlappingMotifs) {
                 cols.push({
-                    header: "# of Overlapping Motifs", value: (row) => row.numOverlappingMotifs,
-                    render: (row) => (
-                        <button
-                            style={{
-                                background: "none",
-                                border: "none",
-                                padding: 0,
-                                fontFamily: "arial, sans-serif",
-                                color: "#030f98",
-                                cursor: "pointer",
-                                outline: "none",
-                            }}
-                            onClick={() =>
-                                setModalData({
-                                    open: true,
-                                    chromosome: row.inputRegion.chr,
-                                    start: row.inputRegion.start,
-                                    end: row.inputRegion.end,
-                                    motifs: row.motifs
-                                })
-                            }
-                        >
-                            {row.numOverlappingMotifs}
-                        </button>
-                    )
-                })
+                    field: "numOverlappingMotifs",
+                    headerName: "# of Overlapping Motifs",
+                    renderCell: (params) => {
+                        const row = params.row;
+                        return (
+                            <button
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    padding: 0,
+                                    fontFamily: "arial, sans-serif",
+                                    color: "#030f98",
+                                    cursor: "pointer",
+                                    outline: "none",
+                                }}
+                                onClick={() =>
+                                    setModalData({
+                                        open: true,
+                                        chromosome: row.inputRegion.chr,
+                                        start: row.inputRegion.start,
+                                        end: row.inputRegion.end,
+                                        motifs: row.motifs,
+                                    })
+                                }
+                            >
+                                {row.numOverlappingMotifs}
+                            </button>
+                        );
+                    },
+                });
             }
         }
 
-        return cols
-
-    }, [sequenceFilterVariables])
+        return cols;
+    }, [sequenceFilterVariables, setModalData]);
 
     return (
         <>
-            {loadingRows ? <Skeleton width={"auto"} height={"440px"} variant="rounded" /> :
-                <DataTable
-                    key={Math.random()}
-                    columns={sequenceColumns}
-                    rows={isolatedRows ? isolatedRows.sequence : sequenceRows}
-                    sortColumn={sequenceFilterVariables.useConservation ? 1 : 3}
-                    itemsPerPage={5}
-                    searchable
-                    tableTitle={<SubTableTitle title="Sequence Details" table="sequence" />}
-                    headerColor={{ backgroundColor: theme.palette.secondary.main as "#", textColor: "inherit" }}
-                    downloadFileName="SequenceRanks.tsv"
-                />
-            }
+            <Table
+                key={Math.random()}
+                columns={sequenceColumns}
+                rows={isolatedRows ?? sequenceRows}
+                loading={loadingRows}
+                initialState={{
+                    sorting: {
+                        sortModel: sequenceFilterVariables.useConservation ? [{ field: "conservationScore", sort: "desc" }] : [{ field: "alt", sort: "desc" }],
+                    },
+                }}
+                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                label={<SubTableTitle title="Sequence Details" table="sequence" />}
+                downloadFileName="SequenceRanks.tsv"
+                emptyTableFallback={"No Sequence Scores"}
+            />
             {modalData && (
                 <MotifsModal
                     key={`${modalData?.chromosome}-${modalData?.start}-${modalData?.end}`}
