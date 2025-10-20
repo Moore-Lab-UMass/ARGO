@@ -43,12 +43,12 @@ const GeneLink = ({ geneName, assembly, typographyProps }: GeneLinkProps) => {
 
   const coordinates = dataCoords && dataCoords.gene.length > 0 && dataCoords.gene[0].coordinates
 
-  const geneExpressionLink = `/applets/gene-expression?assembly=${assembly}&gene=${geneName}`
+  const geneExpressionLink = `https://screen.wenglab.org/applets/gene-expression?assembly=${assembly}&gene=${geneName}`
 
   const searchLink: UrlObject = useMemo(() => {
     return coordinates ? (
       {
-        pathname: '/search',
+        pathname: 'https://screen.wenglab.org/search',
         query: {
           assembly,
           chromosome: coordinates.chromosome,

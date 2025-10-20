@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../types";
 import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
-import { Skeleton, useTheme } from "@mui/material";
+import { Link, Skeleton, Tooltip, useTheme } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
@@ -125,7 +125,24 @@ const ElementTable: React.FC<ElementTableProps> = ({
         const cols: DataTableColumn<ElementTableRow>[] = [
             { header: "Region ID", value: (row) => row.regionID },
             { header: "Class", value: (row) => row.class === "PLS" ? "Promoter" : row.class === "pELS" ? "Proximal Enhancer" : row.class === "dELS" ? "Distal Enhancer" : row.class },
-            { header: "Accession", value: (row) => row.accession },
+            {
+                header: "Accession", value: (row) => row.accession, render: (row) => (
+                    <Tooltip
+                        title={"Open cCRE In SCREEN"}
+                        arrow
+                        placement="left"
+                    >
+                        <Link
+                            href={`https://screen.wenglab.org/search?assembly=${elementFilterVariables.cCREAssembly}&chromosome=${row.chr}&start=${row.start}&end=${row.end}&accessions=${row.accession}&page=2`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "link", textDecoration: "none" }}
+                        >
+                            {row.accession}
+                        </Link>
+                    </Tooltip>
+                )
+            },
         ]
 
         if (elementFilterVariables.usecCREs) {
@@ -140,12 +157,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
         return cols
 
     }, [elementFilterVariables])
-
-    //open ccre details on ccre click
-    const handlecCREClick = (row) => {
-        window.open(`/search?assembly=${elementFilterVariables.cCREAssembly}&chromosome=${row.chr}&start=${row.start}&end=${row.end}&accessions=${row.accession}&page=2`, "_blank", "noopener,noreferrer")
-    }
-
     return (
         <>
             {loadingRows ? <Skeleton width={"auto"} height={"440px"} variant="rounded" /> :
@@ -157,7 +168,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
                     itemsPerPage={5}
                     searchable
                     tableTitle={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" />}
-                    onRowClick={handlecCREClick}
                     headerColor={{ backgroundColor: theme.palette.secondary.main as "#", textColor: "inherit" }}
                     downloadFileName="ElementRanks.tsv"
                 />

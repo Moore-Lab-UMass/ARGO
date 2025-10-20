@@ -101,7 +101,7 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
                         href={`https://hocomoco12.autosome.org/motif/${row.motifID}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: "#007bff", textDecoration: "none" }}
+                        style={{ color: "#030f98", textDecoration: "none" }}
                     >
                         {row.motifID}
                     </Link>
