@@ -148,16 +148,14 @@ export default function Argo() {
                         New Submission
                     </Button>
                 </Stack>
-                {inputRegions.length > 0 && (
-                    <Tables
-                        sequenceFilterVariables={sequenceFilterVariables}
-                        elementFilterVariables={elementFilterVariables}
-                        geneFilterVariables={geneFilterVariables}
-                        inputRegions={inputRegions}
-                        intersectingCcres={intersectingCcres}
-                        loadingIntersect={loadingIntersect}
-                    />
-                )}
+                <Tables
+                    sequenceFilterVariables={sequenceFilterVariables}
+                    elementFilterVariables={elementFilterVariables}
+                    geneFilterVariables={geneFilterVariables}
+                    inputRegions={inputRegions}
+                    intersectingCcres={intersectingCcres}
+                    loadingIntersect={loadingIntersect}
+                />
             </Box>
         </Box>
     )

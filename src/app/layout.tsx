@@ -6,6 +6,7 @@ import { CssBaseline, Stack, ThemeProvider } from "@mui/material"
 import theme from "./theme"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
 import Header from "./components/Header";
+import MuiXLicense from "./_utility/MuiXLicense";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
             </ThemeProvider>
           </AppRouterCacheProvider>
         </ApolloWrapper>
+        <MuiXLicense />
       </body>
     </html>
   );
