@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../types";
 import MotifsModal, { MotifProps } from "./motifModal";
 import { Tooltip, Typography } from "@mui/material";
@@ -11,7 +11,7 @@ import { GridColDef, Table } from "@weng-lab/ui-components";
 
 const SequenceTable: React.FC<SequenceTableProps> = ({
     sequenceFilterVariables,
-    SubTableTitle,
+    label,
     inputRegions,
     isolatedRows,
     updateSequenceRows,
@@ -132,9 +132,16 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
 
     }, [error_conservations_scores, error_motif_ranking, conservationScores, motifRankingScores, inputRegions, loading_conservation_scores, loading_motif_ranking, sequenceFilterVariables.numOverlappingMotifs, sequenceFilterVariables.rankBy, sequenceFilterVariables.motifQuality, sequenceFilterVariables.dataSource])
 
-    updateSequenceRows(sequenceRows)
+    useEffect(() => {
+        if (!sequenceRows) return
+        updateSequenceRows(sequenceRows)
+    }, [sequenceRows, updateSequenceRows])
+
     const loadingRows = loading_conservation_scores || loading_motif_ranking;
-    updateLoadingSequenceRows(loadingRows);
+
+    useEffect(() => {
+        updateLoadingSequenceRows(loadingRows);
+    }, [loadingRows, updateLoadingSequenceRows]);
 
     //handle column changes for the Sequence rank table
     const sequenceColumns: GridColDef<SequenceTableRow>[] = useMemo(() => {
@@ -351,7 +358,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                     },
                 }}
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
-                label={<SubTableTitle title="Sequence Details" table="sequence" />}
+                label={label}
                 downloadFileName="SequenceRanks.tsv"
                 emptyTableFallback={"No Sequence Scores"}
             />

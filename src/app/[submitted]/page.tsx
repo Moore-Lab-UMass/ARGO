@@ -1,14 +1,11 @@
 "use client"
 import React, { useEffect, useMemo } from "react"
 import { useState } from "react"
-import { Stack, Typography, Box, IconButton, Tooltip, Button } from "@mui/material"
-import { GRID_CHECKBOX_SELECTION_COL_DEF, GridRowSelectionModel, GridColDef, Table } from "@weng-lab/ui-components"
+import { Stack, Typography, Box, Button } from "@mui/material"
 import { useLazyQuery } from "@apollo/client"
 import { client } from "../client"
-import { RankedRegions, ElementFilterState, SequenceFilterState, GeneFilterState, MainTableRow, CCREs, InputRegions, SubTableTitleProps, IsolatedRows, GeneTableRow, ElementTableRow, SequenceTableRow } from "../types"
+import { RankedRegions, ElementFilterState, SequenceFilterState, GeneFilterState, MainTableRow, CCREs, InputRegions, IsolatedRows, GeneTableRow, ElementTableRow, SequenceTableRow } from "../types"
 import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./filters"
-import { VerticalAlignTop, InfoOutlined } from "@mui/icons-material"
-import { calculateAggregateRanks, matchRanks } from "../helpers"
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
 import SequenceTable from "./sequence/sequenceTable"
@@ -19,6 +16,8 @@ import { generateGeneRanks } from "./genes/geneHelpers"
 import { BED_INTERSECT_QUERY } from "../queries"
 import { decodeRegions } from "../_utility/coding"
 import Link from "next/link"
+import RankedRegionsTable from "./main/mainTable"
+import SubTableTitle from "../components/SubTableTitle"
 
 export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
@@ -27,7 +26,6 @@ export default function Argo() {
     const [selected, setSelected] = useState<MainTableRow[]>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
-    
     //UI state variables
     const [drawerOpen, setDrawerOpen] = useState(true);
     const toggleDrawer = () => setDrawerOpen(!drawerOpen);
@@ -87,31 +85,6 @@ export default function Argo() {
         }
     }, [regions, getIntersectingCcres]);
 
-    //update all rows and loading states
-    const updateSequenceRows = (rows: SequenceTableRow[]) => {
-        setSequenceRows(rows)
-    }
-
-    const updateLoadingSequenceRows = (loading: boolean) => {
-        setLoadingSequenceRows(loading)
-    }
-
-    const updateElementRows = (rows: ElementTableRow[]) => {
-        setElementRows(rows)
-    }
-
-    const updateLoadingElementRows = (loading: boolean) => {
-        setLoadingElementRows(loading)
-    }
-
-    const updateGeneRows = (rows: GeneTableRow[]) => {
-        setGeneRows(rows)
-    }
-
-    const updateLoadingGeneRows = (loading: boolean) => {
-        setLoadingGeneRows(loading)
-    }
-
     //update specific variable in sequence filters
     const updateSequenceFilter = (key: keyof SequenceFilterState, value: unknown) => {
         setSequenceFilterVariables((prevState) => ({
@@ -146,40 +119,6 @@ export default function Argo() {
 
         setTableOrder(newOrder);
     };
-
-    // snap sub table to top of the page
-    const bringTableToTop = (table: "sequence" | "elements" | "genes") => {
-        setTableOrder((prevOrder) => {
-            // Remove the table from its current position
-            const newOrder = prevOrder.filter((t) => t !== table);
-            // Prepend the table to the beginning of the array
-            return [table, ...newOrder];
-        });
-    };
-
-    //stylized title for the sequence,element, and gene data tables
-    const SubTableTitle: React.FC<SubTableTitleProps> = ({ title, table }) => (
-        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} width={"100%"}>
-            <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                <Typography
-                    variant="h5"
-                    noWrap
-                    component="div"
-                    sx={{
-                        display: { xs: 'none', sm: 'block' },
-                        fontWeight: 'normal',
-                    }}>
-                    {title}
-                </Typography>
-            </Stack>
-            <IconButton
-                onClick={() => bringTableToTop(table as "sequence" | "elements" | "genes")}
-                color="inherit"
-            >
-                <VerticalAlignTop color="inherit" />
-            </IconButton>
-        </Stack>
-    );
 
     //all ccres intersecting the user inputted regions
     const intersectingCcres: CCREs = useMemo(() => {
@@ -274,106 +213,7 @@ export default function Argo() {
     const loadingGeneRanks = (geneRanks.length === 0 || loadingGeneRows) && (geneFilterVariables.useGenes);
     const loadingMainRows = loadingSequenceRanks || loadingElementRanks || loadingGeneRanks;
 
-    //find the matching ranks for each input region and update the rows of the main table
-    const mainRows: MainTableRow[] = useMemo(() => {
-        if ((sequenceRanks.length === 0 && elementRanks.length === 0 && geneRanks.length === 0) || inputRegions.length === 0) return [];
 
-        const aggregateRanks = calculateAggregateRanks(inputRegions, sequenceRanks, elementRanks, geneRanks)
-        const updatedMainRows = matchRanks(inputRegions, sequenceRanks, elementRanks, geneRanks, aggregateRanks)
-
-        return updatedMainRows;
-    }, [elementRanks, geneRanks, inputRegions, sequenceRanks]);
-
-    //This is used to prevent sorting from happening when clicking on the header checkbox
-    const StopPropagationWrapper = (params) => (
-        <div id={"StopPropagationWrapper"} onClick={(e) => e.stopPropagation()}>
-            <GRID_CHECKBOX_SELECTION_COL_DEF.renderHeader {...params} />
-        </div>
-    );
-
-    //handle column changes for the main rank table
-    const mainColumns: GridColDef<MainTableRow>[] = useMemo(() => {
-        const cols: GridColDef<MainTableRow>[] = [
-            {
-                ...(GRID_CHECKBOX_SELECTION_COL_DEF as GridColDef<MainTableRow>), //Override checkbox column https://mui.com/x/react-data-grid/row-selection/#custom-checkbox-column
-                sortable: true,
-                hideable: false,
-                renderHeader: StopPropagationWrapper,
-            },
-            {
-                field: "regionID",
-                headerName: "Region ID",
-            },
-            {
-                field: "inputRegion",
-                headerName: "Input Region",
-                valueGetter: (_, row) => {
-                    const { chr, start, end } = row.inputRegion;
-                    return `${chr}: ${start}-${end}`;
-                },
-            },
-            {
-                field: "aggregateRank",
-                headerName: "Aggregate",
-            },
-        ];
-
-        const naSortComparator = (a: number | string, b: number | string) => {
-            // Handle "N/A" or 0 specially to put N/A at the bottom of the sort
-            const isANa = a === "N/A" || a === 0;
-            const isBNa = b === "N/A" || b === 0;
-
-            if (isANa && !isBNa) return 1;
-            if (!isANa && isBNa) return -1;
-            if (isANa && isBNa) return 0;
-
-            // Otherwise, normal numeric comparison
-            return Number(a) - Number(b);
-        };
-
-        if (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) {
-            cols.push({
-                field: "sequenceRank",
-                headerName: "Sequence",
-                sortComparator: naSortComparator,
-                renderCell: (params) =>
-                    params.row.elementRank === 0 ? "N/A" : params.row.elementRank,
-            });
-        }
-
-        if (elementFilterVariables.usecCREs) {
-            cols.push({
-                field: "elementRank",
-                headerName: "Element",
-                sortComparator: naSortComparator,
-                renderCell: (params) =>
-                    params.row.elementRank === 0 ? "N/A" : params.row.elementRank,
-            });
-        }
-
-        if (geneFilterVariables.useGenes) {
-            cols.push({
-                field: "geneRank",
-                headerName: "Gene",
-                sortComparator: naSortComparator,
-                renderCell: (params) =>
-                    params.row.geneRank === 0 ? "N/A" : params.row.geneRank,
-            });
-        }
-
-        return cols;
-    }, [
-        elementFilterVariables.usecCREs,
-        geneFilterVariables.useGenes,
-        sequenceFilterVariables.useConservation,
-        sequenceFilterVariables.useMotifs,
-    ]);
-
-    const handleRowSelectionModelChange = (ids: GridRowSelectionModel) => {
-        const newIds = Array.from(ids.ids);
-        const selectedRows = newIds.map((id) => mainRows.find((row) => row.regionID === id));
-        setSelected(selectedRows);
-    };
 
     //find all the region id's of the isolated row and pass them to the other tables
     const isolatedRows: IsolatedRows | null = useMemo(() => {
@@ -436,36 +276,19 @@ export default function Argo() {
                 </Stack>
                 {inputRegions.length > 0 && (
                     <>
-                        <Box mt="20px" id="123456">
-                            <Table
-                                key={JSON.stringify(inputRegions) + JSON.stringify(elementRanks) + JSON.stringify(sequenceRanks) + JSON.stringify(geneRanks)}
-                                columns={mainColumns}
-                                rows={mainRows}
-                                loading={loadingMainRows}
-                                initialState={{
-                                    sorting: {
-                                        sortModel: [{ field: "aggregateRank", sort: "desc" }],
-                                    },
-                                }}
-                                divHeight={{ height: loadingMainRows ? "440px" : "100%", maxHeight: "440px" }}
-                                label={
-                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} width={"100%"}>
-                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                            <Tooltip title="Select a row to isolate it" arrow placement="top-start">
-                                                <InfoOutlined fontSize="small" sx={{ cursor: "pointer" }} color="inherit" />
-                                            </Tooltip>
-                                            <Typography variant="h5">Ranked Regions</Typography>
-                                        </Stack>
-                                    </Stack>
-                                }
-                                checkboxSelection
-                                getRowId={(row) => row.regionID} //needed to match up data with the ids returned by onRowSelectionModelChange
-                                onRowSelectionModelChange={handleRowSelectionModelChange}
-                                rowSelectionModel={{ type: 'include', ids: new Set(selected.map((x) => x.regionID)) }}
-                                keepNonExistentRowsSelected // Needed to prevent clearing selections on changing filters
-                                downloadFileName="AggregateRanks.tsv"
-                            />
-                        </Box>
+                        <RankedRegionsTable
+                            inputRegions={inputRegions}
+                            sequenceRanks={sequenceRanks}
+                            elementRanks={elementRanks}
+                            geneRanks={geneRanks}
+                            loading={loadingMainRows}
+                            selected={selected}
+                            setSelected={setSelected}
+                            useCcres={elementFilterVariables.usecCREs}
+                            useConservation={sequenceFilterVariables.useConservation}
+                            useGenes={geneFilterVariables.useGenes}
+                            useMotifs={sequenceFilterVariables.useMotifs}
+                        />
 
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable droppableId="tables">
@@ -486,35 +309,35 @@ export default function Argo() {
                                                         {table === "sequence" && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) && (
                                                             <SequenceTable
                                                                 sequenceFilterVariables={sequenceFilterVariables}
-                                                                SubTableTitle={SubTableTitle}
+                                                                label={<SubTableTitle title="Sequence Details" table="sequence" setTableOrder={setTableOrder} />}
                                                                 inputRegions={inputRegions}
                                                                 isolatedRows={isolatedRows?.sequence}
-                                                                updateSequenceRows={updateSequenceRows}
-                                                                updateLoadingSequenceRows={updateLoadingSequenceRows}
+                                                                updateSequenceRows={setSequenceRows}
+                                                                updateLoadingSequenceRows={setLoadingSequenceRows}
                                                             />
                                                         )}
 
                                                         {table === "elements" && elementFilterVariables.usecCREs && (
                                                             <ElementTable
                                                                 elementFilterVariables={elementFilterVariables}
-                                                                SubTableTitle={SubTableTitle}
+                                                                label={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" setTableOrder={setTableOrder} />}
                                                                 intersectingCcres={intersectingCcres}
                                                                 loadingIntersect={loadingIntersect}
                                                                 isolatedRows={isolatedRows?.element}
-                                                                updateElementRows={updateElementRows}
-                                                                updateLoadingElementRows={updateLoadingElementRows}
+                                                                updateElementRows={setElementRows}
+                                                                updateLoadingElementRows={setLoadingElementRows}
                                                             />
                                                         )}
 
                                                         {table === "genes" && geneFilterVariables.useGenes && (
                                                             <GeneTable
                                                                 geneFilterVariables={geneFilterVariables}
-                                                                SubTableTitle={SubTableTitle}
+                                                                label={<SubTableTitle title="Gene Details" table="genes" setTableOrder={setTableOrder} />}
                                                                 intersectingCcres={intersectingCcres}
                                                                 loadingIntersect={loadingIntersect}
                                                                 isolatedRows={isolatedRows?.gene}
-                                                                updateGeneRows={updateGeneRows}
-                                                                updateLoadingGeneRows={updateLoadingGeneRows}
+                                                                updateGeneRows={setGeneRows}
+                                                                updateLoadingGeneRows={setLoadingGeneRows}
                                                             />
                                                         )}
                                                     </Box>

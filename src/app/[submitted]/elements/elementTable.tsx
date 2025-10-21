@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../types";
 import { Link, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
@@ -9,7 +9,7 @@ import { GridColDef, Table } from "@weng-lab/ui-components";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
-    SubTableTitle,
+    label,
     intersectingCcres,
     loadingIntersect,
     isolatedRows,
@@ -114,9 +114,16 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
     }, [allElementData, elementFilterVariables.cCREAssembly, elementFilterVariables.classes, elementFilterVariables.mustHaveOrtholog, loading_ortho, loading_scores, orthoData, error_ortho, error_scores]);
 
-    updateElementRows(elementRows)
+    useEffect(() => {
+        if (!elementRows) return
+        updateElementRows(elementRows)
+    }, [elementRows, updateElementRows])
+
     const loadingRows = loading_ortho || loading_scores || loadingIntersect;
-    updateLoadingElementRows(loadingRows);
+
+    useEffect(() => {
+        updateLoadingElementRows(loadingRows);
+    }, [loadingRows, updateLoadingElementRows]);
 
     //handle column changes for the Element rank table
     const elementColumns: GridColDef<ElementTableRow>[] = useMemo(() => {
@@ -198,7 +205,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 },
             }}
             loading={loadingRows}
-            label={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" />}
+            label={label}
             downloadFileName="ElementRanks.tsv"
             divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
             emptyTableFallback={"No Overlapping cCREs"}

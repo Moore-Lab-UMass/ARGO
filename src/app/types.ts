@@ -1,3 +1,4 @@
+import { ReactElement } from "react"
 import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type ZScores = {
@@ -187,11 +188,6 @@ export type UploadProps = {
     onRegionsConfigured: (regions: GenomicRegion[]) => void;
 }
 
-export type SubTableTitleProps = {
-    title: string;
-    table: string;
-};
-
 export type AllLinkedGenes = {
     accession: string;
     genes: {
@@ -327,7 +323,7 @@ export type TomtomMatchQueryData = {
 
 export type SequenceTableProps = {
     sequenceFilterVariables: SequenceFilterState;
-    SubTableTitle: React.FC<SubTableTitleProps>;
+    label: ReactElement;
     inputRegions: InputRegions;
     isolatedRows: SequenceTableRow[];
     updateSequenceRows: (rows: SequenceTableRow[]) => void;
@@ -336,7 +332,7 @@ export type SequenceTableProps = {
 
 export type ElementTableProps = {
     elementFilterVariables: ElementFilterState;
-    SubTableTitle: React.FC<SubTableTitleProps>;
+    label: ReactElement;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
     isolatedRows: ElementTableRow[];
@@ -346,7 +342,7 @@ export type ElementTableProps = {
 
 export type GeneTableProps = {
     geneFilterVariables: GeneFilterState;
-    SubTableTitle: React.FC<SubTableTitleProps>;
+    label: ReactElement;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
     isolatedRows: GeneTableRow[];
