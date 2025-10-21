@@ -1,15 +1,15 @@
 "use client"
 import React, { useEffect, useMemo } from "react"
 import { useState } from "react"
-import { Stack, Typography, Box, Button } from "@mui/material"
+import { Box, Stack } from "@mui/material"
 import { useLazyQuery } from "@apollo/client"
 import { client } from "../client"
 import { ElementFilterState, SequenceFilterState, GeneFilterState, CCREs, InputRegions } from "../types"
 import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./Filters"
 import { BED_INTERSECT_QUERY } from "../queries"
 import { decodeRegions } from "../_utility/coding"
-import Link from "next/link"
 import Tables from "./tables/Tables"
+import SubmissionHeader from "../components/SubmissionHeader"
 
 export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
@@ -117,7 +117,7 @@ export default function Argo() {
     }, [inputRegions, intersectArray]);
 
     return (
-        <Box display="flex">
+        <Stack direction={"row"} height={"100%"}>
             <Filters
                 sequenceFilterVariables={sequenceFilterVariables}
                 elementFilterVariables={elementFilterVariables}
@@ -129,25 +129,16 @@ export default function Argo() {
                 toggleDrawer={toggleDrawer}
             />
             <Box
-                ml={drawerOpen ? { xs: '300px', sm: '300px', md: '300px', lg: '25vw' } : 0}
-                padding={3}
-                flexGrow={1}
-                height={"100%"}
-                zIndex={1}
+                sx={{
+                    flexGrow: 1,
+                    height: "100%",
+                    ml: { lg: drawerOpen ? "25vw" : 0, xs: 0 },
+                    minWidth: 0,
+                    padding: 3,
+                    zIndex: 1,
+                }}
             >
-                <Stack direction={"row"} justifyContent={"space-between"} alignItems="center">
-                    <Stack direction="row" spacing={2} alignItems="center" sx={{ backgroundColor: theme => theme.palette.secondary.main, padding: 1 }} borderRadius={1}>
-                        <Typography mb={1} variant="h6">
-                            Uploaded:
-                        </Typography>
-                        <Typography>
-                            {fileName}
-                        </Typography>
-                    </Stack>
-                    <Button variant="outlined" LinkComponent={Link} href="/" sx={{ height: "48px" }}>
-                        New Submission
-                    </Button>
-                </Stack>
+                <SubmissionHeader fileName={fileName} />
                 <Tables
                     sequenceFilterVariables={sequenceFilterVariables}
                     elementFilterVariables={elementFilterVariables}
@@ -157,6 +148,6 @@ export default function Argo() {
                     loadingIntersect={loadingIntersect}
                 />
             </Box>
-        </Box>
+        </Stack>
     )
 }

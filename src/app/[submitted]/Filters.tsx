@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../types';
-import { Box, Drawer, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SequenceFilters from './tables/sequence/SequenceFilters';
 import ElementFilters from './tables/elements/ElementFilters';
 import GeneFilters from './tables/genes/GeneFilters';
 import { Clear } from "@mui/icons-material";
+import theme from '../theme';
 
 // Initial filter states
 export const initialSequenceFilterState: SequenceFilterState = {
@@ -113,7 +114,7 @@ const Filters: React.FC<FilterProps> = ({
                 anchor="left"
                 open={drawerOpen}
                 onClose={toggleDrawer}
-                variant="persistent"
+                variant={useMediaQuery(theme.breakpoints.up('lg')) ? 'persistent' : 'temporary'}
                 sx={{
                     '& .MuiDrawer-paper': {
                         width: '25vw',
@@ -124,7 +125,6 @@ const Filters: React.FC<FilterProps> = ({
                     }
                 }}
             >
-
                 <Stack direction={"row"} justifyContent={"space-between"} padding={1} sx={{ borderBottom: "1px solid #ddd" }}>
                     <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }} alignContent={"center"}>Filters</Typography>
                     {filtersChanged && (
