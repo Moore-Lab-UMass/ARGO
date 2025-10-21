@@ -1,13 +1,13 @@
 "use client"
 import React, { useEffect, useMemo } from "react"
 import { useState } from "react"
-import { Stack, Typography, Box, CircularProgress, IconButton, Tooltip, Skeleton, Button } from "@mui/material"
-import { DataTable, DataTableColumn } from "@weng-lab/ui-components"
+import { Stack, Typography, Box, IconButton, Tooltip, Button } from "@mui/material"
+import { GRID_CHECKBOX_SELECTION_COL_DEF, GridRowSelectionModel, GridColDef, Table } from "@weng-lab/ui-components"
 import { useLazyQuery } from "@apollo/client"
 import { client } from "../client"
-import { RankedRegions, ElementFilterState, SequenceFilterState, GeneFilterState, MainTableRow, CCREs, InputRegions, SubTableTitleProps, IsolatedRow, GeneTableRow, ElementTableRow, SequenceTableRow } from "../types"
+import { RankedRegions, ElementFilterState, SequenceFilterState, GeneFilterState, MainTableRow, CCREs, InputRegions, SubTableTitleProps, IsolatedRows, GeneTableRow, ElementTableRow, SequenceTableRow } from "../types"
 import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./filters"
-import { VerticalAlignTop, Cancel, InfoOutlined } from "@mui/icons-material"
+import { VerticalAlignTop, InfoOutlined } from "@mui/icons-material"
 import { calculateAggregateRanks, matchRanks } from "../helpers"
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
@@ -24,8 +24,10 @@ export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
     const [regions, setRegions] = useState<InputRegions>([]);
     const [inputRegions, setInputRegions] = useState<InputRegions>([]);
+    const [selected, setSelected] = useState<MainTableRow[]>([]);
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
+    
     //UI state variables
     const [drawerOpen, setDrawerOpen] = useState(true);
     const toggleDrawer = () => setDrawerOpen(!drawerOpen);
@@ -38,13 +40,10 @@ export default function Argo() {
     const [sequenceRows, setSequenceRows] = useState<SequenceTableRow[]>([])
     const [elementRows, setElementRows] = useState<ElementTableRow[]>([])
     const [geneRows, setGeneRows] = useState<GeneTableRow[]>([])
-    const [isolatedRowID, setIsolatedRowID] = useState<number | string>(null);
 
     const [loadingSequenceRows, setLoadingSequenceRows] = useState<boolean>(true);
     const [loadingElementRows, setLoadingElementRows] = useState<boolean>(true);
     const [loadingGeneRows, setLoadingGeneRows] = useState<boolean>(true);
-
-    const [page, setPage] = useState<number>(0);
 
     // Filter state variables
     const [sequenceFilterVariables, setSequenceFilterVariables] = useState<SequenceFilterState>(initialSequenceFilterState);
@@ -68,8 +67,8 @@ export default function Argo() {
 
     //Query the intersecting ccres based on the user inputed regions
     useEffect(() => {
-    if (regions && regions.length > 0) {
-      setInputRegions(regions);
+        if (regions && regions.length > 0) {
+            setInputRegions(regions);
             const user_ccres = regions.map(region => [
                 region.chr,
                 region.start.toString(),
@@ -86,7 +85,7 @@ export default function Argo() {
         } else {
             setInputRegions([]);
         }
-  }, [regions, getIntersectingCcres]);
+    }, [regions, getIntersectingCcres]);
 
     //update all rows and loading states
     const updateSequenceRows = (rows: SequenceTableRow[]) => {
@@ -157,11 +156,6 @@ export default function Argo() {
             return [table, ...newOrder];
         });
     };
-
-    //isolate a specific rowID
-    const isolateRow = (row: MainTableRow) => {
-        setIsolatedRowID(row.regionID)
-    }
 
     //stylized title for the sequence,element, and gene data tables
     const SubTableTitle: React.FC<SubTableTitleProps> = ({ title, table }) => (
@@ -290,72 +284,123 @@ export default function Argo() {
         return updatedMainRows;
     }, [elementRanks, geneRanks, inputRegions, sequenceRanks]);
 
-    //handle column changes for the main rank table
-    const mainColumns: DataTableColumn<MainTableRow>[] = useMemo(() => {
+    //This is used to prevent sorting from happening when clicking on the header checkbox
+    const StopPropagationWrapper = (params) => (
+        <div id={"StopPropagationWrapper"} onClick={(e) => e.stopPropagation()}>
+            <GRID_CHECKBOX_SELECTION_COL_DEF.renderHeader {...params} />
+        </div>
+    );
 
-        const cols: DataTableColumn<MainTableRow>[] = [
-            { header: "Region ID", value: (row) => row.regionID },
-            { header: "Input Region", value: (row) => `${row.inputRegion.chr}: ${row.inputRegion.start}-${row.inputRegion.end}`, sort: (a, b) => a.inputRegion.start - b.inputRegion.start },
-            { header: "Aggregate", value: (row) => row.aggregateRank, render: (row) => loadingMainRows ? <CircularProgress size={10} /> : row.aggregateRank }
-        ]
+    //handle column changes for the main rank table
+    const mainColumns: GridColDef<MainTableRow>[] = useMemo(() => {
+        const cols: GridColDef<MainTableRow>[] = [
+            {
+                ...(GRID_CHECKBOX_SELECTION_COL_DEF as GridColDef<MainTableRow>), //Override checkbox column https://mui.com/x/react-data-grid/row-selection/#custom-checkbox-column
+                sortable: true,
+                hideable: false,
+                renderHeader: StopPropagationWrapper,
+            },
+            {
+                field: "regionID",
+                headerName: "Region ID",
+            },
+            {
+                field: "inputRegion",
+                headerName: "Input Region",
+                valueGetter: (_, row) => {
+                    const { chr, start, end } = row.inputRegion;
+                    return `${chr}: ${start}-${end}`;
+                },
+            },
+            {
+                field: "aggregateRank",
+                headerName: "Aggregate",
+            },
+        ];
+
+        const naSortComparator = (a: number | string, b: number | string) => {
+            // Handle "N/A" or 0 specially to put N/A at the bottom of the sort
+            const isANa = a === "N/A" || a === 0;
+            const isBNa = b === "N/A" || b === 0;
+
+            if (isANa && !isBNa) return 1;
+            if (!isANa && isBNa) return -1;
+            if (isANa && isBNa) return 0;
+
+            // Otherwise, normal numeric comparison
+            return Number(a) - Number(b);
+        };
 
         if (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) {
             cols.push({
-                header: "Sequence",
-                value: (row) => row.sequenceRank,
-                render: (row) => loadingSequenceRanks ? <CircularProgress size={10} /> : row.sequenceRank
-            })
+                field: "sequenceRank",
+                headerName: "Sequence",
+                sortComparator: naSortComparator,
+                renderCell: (params) =>
+                    params.row.elementRank === 0 ? "N/A" : params.row.elementRank,
+            });
         }
+
         if (elementFilterVariables.usecCREs) {
             cols.push({
-                header: "Element",
-                value: (row) => row.elementRank === 0 ? "N/A" : row.elementRank,
-                sort: (a, b) => {
-                    const rankA = a.elementRank
-                    const rankB = b.elementRank
-
-                    if (rankA === 0) return 1;
-                    if (rankB === 0) return -1;
-                    return rankA - rankB;
-                },
-                render: (row) => loadingElementRanks ? <CircularProgress size={10} /> : row.elementRank === 0 ? "N/A" : row.elementRank
-            })
+                field: "elementRank",
+                headerName: "Element",
+                sortComparator: naSortComparator,
+                renderCell: (params) =>
+                    params.row.elementRank === 0 ? "N/A" : params.row.elementRank,
+            });
         }
+
         if (geneFilterVariables.useGenes) {
             cols.push({
-                header: "Gene",
-                value: (row) => row.geneRank === 0 ? "N/A" : row.geneRank,
-                sort: (a, b) => {
-                    const rankA = a.geneRank
-                    const rankB = b.geneRank
-
-                    if (rankA === 0) return 1;
-                    if (rankB === 0) return -1;
-                    return rankA - rankB;
-                },
-                render: (row) => loadingGeneRanks ? <CircularProgress size={10} /> : row.geneRank === 0 ? "N/A" : row.geneRank
-            })
+                field: "geneRank",
+                headerName: "Gene",
+                sortComparator: naSortComparator,
+                renderCell: (params) =>
+                    params.row.geneRank === 0 ? "N/A" : params.row.geneRank,
+            });
         }
 
-        return cols
+        return cols;
+    }, [
+        elementFilterVariables.usecCREs,
+        geneFilterVariables.useGenes,
+        sequenceFilterVariables.useConservation,
+        sequenceFilterVariables.useMotifs,
+    ]);
 
-    }, [elementFilterVariables.usecCREs, geneFilterVariables.useGenes, loadingElementRanks, loadingGeneRanks, loadingMainRows, loadingSequenceRanks, sequenceFilterVariables.useConservation, sequenceFilterVariables.useMotifs])
+    const handleRowSelectionModelChange = (ids: GridRowSelectionModel) => {
+        const newIds = Array.from(ids.ids);
+        const selectedRows = newIds.map((id) => mainRows.find((row) => row.regionID === id));
+        setSelected(selectedRows);
+    };
 
     //find all the region id's of the isolated row and pass them to the other tables
-    const isolatedRows: IsolatedRow = useMemo(() => {
-        if (isolatedRowID === null) return null;
-        const mainIsolate = mainRows.filter((row) => row.regionID === isolatedRowID)
-        const sequenceIsolate = sequenceRows?.filter((row) => row.regionID === isolatedRowID)
-        const elementIsolate = elementRows?.filter((row) => row.regionID === isolatedRowID)
-        const geneIsolate = geneRows?.filter((row) => row.regionID === isolatedRowID)
+    const isolatedRows: IsolatedRows | null = useMemo(() => {
+        if (selected.length === 0) return null;
+
+        const sequenceIsolates =
+            sequenceRows?.filter(seqRow =>
+                selected.some(sel => sel.regionID === seqRow.regionID)
+            ) ?? [];
+
+        const elementIsolates =
+            elementRows?.filter(elRow =>
+                selected.some(sel => sel.regionID === elRow.regionID)
+            ) ?? [];
+
+        const geneIsolates =
+            geneRows?.filter(gRow =>
+                selected.some(sel => sel.regionID === gRow.regionID)
+            ) ?? [];
 
         return {
-            main: mainIsolate,
-            sequence: sequenceIsolate,
-            element: elementIsolate,
-            gene: geneIsolate,
+            main: selected,
+            sequence: sequenceIsolates,
+            element: elementIsolates,
+            gene: geneIsolates,
         };
-    }, [isolatedRowID, sequenceRows, elementRows, geneRows, mainRows])
+    }, [selected, sequenceRows, elementRows, geneRows]);
 
     return (
         <Box display="flex">
@@ -376,7 +421,7 @@ export default function Argo() {
                 height={"100%"}
                 zIndex={1}
             >
-                <Stack direction={"row"} justifyContent={"space-between"}  alignItems="center">
+                <Stack direction={"row"} justifyContent={"space-between"} alignItems="center">
                     <Stack direction="row" spacing={2} alignItems="center" sx={{ backgroundColor: theme => theme.palette.secondary.main, padding: 1 }} borderRadius={1}>
                         <Typography mb={1} variant="h6">
                             Uploaded:
@@ -385,56 +430,41 @@ export default function Argo() {
                             {fileName}
                         </Typography>
                     </Stack>
-                    <Button variant="outlined" LinkComponent={Link} href="/" sx={{height: "48px"}}>
+                    <Button variant="outlined" LinkComponent={Link} href="/" sx={{ height: "48px" }}>
                         New Submission
                     </Button>
                 </Stack>
                 {inputRegions.length > 0 && (
                     <>
                         <Box mt="20px" id="123456">
-                            {mainRows.length === 0 ? <Skeleton width={"auto"} height={"440px"} variant="rounded" /> :
-                                <DataTable
-                                    key={JSON.stringify(inputRegions) + JSON.stringify(elementRanks) + JSON.stringify(sequenceRanks) + JSON.stringify(geneRanks)}
-                                    columns={mainColumns}
-                                    rows={mainRows}
-                                    sortDescending
-                                    sortColumn={2}
-                                    itemsPerPage={5}
-                                    page={page}
-                                    searchable
-                                    onDisplayedRowsChange={(newPage) => {
-                                        setPage(newPage)
-                                    }}
-                                    tableTitle={
-                                        <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} width={"100%"}>
-                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                                <Tooltip title="Select a row to isolate it" arrow placement="top-start">
-                                                    <InfoOutlined fontSize="small" sx={{ cursor: "pointer" }} color="inherit" />
-                                                </Tooltip>
-                                                <Typography variant="h5">Ranked Regions</Typography>
-                                                {isolatedRowID &&
-                                                    <Stack
-                                                        borderRadius={1}
-                                                        direction={"row"}
-                                                        spacing={1}
-                                                        sx={{ backgroundColor: theme => theme.palette.secondary.main, padding: 1 }}
-                                                        alignItems={"center"}
-                                                        justifyContent={"space-between"}
-                                                    >
-                                                        <Typography>Isolated RegionID: {" "} {isolatedRowID}</Typography>
-                                                        <IconButton color="primary" onClick={() => setIsolatedRowID(null)}>
-                                                            <Cancel />
-                                                        </IconButton>
-                                                    </Stack>
-                                                }
-                                            </Stack>
+                            <Table
+                                key={JSON.stringify(inputRegions) + JSON.stringify(elementRanks) + JSON.stringify(sequenceRanks) + JSON.stringify(geneRanks)}
+                                columns={mainColumns}
+                                rows={mainRows}
+                                loading={loadingMainRows}
+                                initialState={{
+                                    sorting: {
+                                        sortModel: [{ field: "aggregateRank", sort: "desc" }],
+                                    },
+                                }}
+                                divHeight={{ height: loadingMainRows ? "440px" : "100%", maxHeight: "440px" }}
+                                label={
+                                    <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} width={"100%"}>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Tooltip title="Select a row to isolate it" arrow placement="top-start">
+                                                <InfoOutlined fontSize="small" sx={{ cursor: "pointer" }} color="inherit" />
+                                            </Tooltip>
+                                            <Typography variant="h5">Ranked Regions</Typography>
                                         </Stack>
-                                    }
-                                    onRowClick={isolateRow}
-                                    highlighted={isolatedRowID ? isolatedRows.main : []}
-                                    downloadFileName="AggregateRanks.tsv"
-                                />
-                            }
+                                    </Stack>
+                                }
+                                checkboxSelection
+                                getRowId={(row) => row.regionID} //needed to match up data with the ids returned by onRowSelectionModelChange
+                                onRowSelectionModelChange={handleRowSelectionModelChange}
+                                rowSelectionModel={{ type: 'include', ids: new Set(selected.map((x) => x.regionID)) }}
+                                keepNonExistentRowsSelected // Needed to prevent clearing selections on changing filters
+                                downloadFileName="AggregateRanks.tsv"
+                            />
                         </Box>
 
                         <DragDropContext onDragEnd={onDragEnd}>
@@ -458,7 +488,7 @@ export default function Argo() {
                                                                 sequenceFilterVariables={sequenceFilterVariables}
                                                                 SubTableTitle={SubTableTitle}
                                                                 inputRegions={inputRegions}
-                                                                isolatedRows={isolatedRows}
+                                                                isolatedRows={isolatedRows?.sequence}
                                                                 updateSequenceRows={updateSequenceRows}
                                                                 updateLoadingSequenceRows={updateLoadingSequenceRows}
                                                             />
@@ -470,7 +500,7 @@ export default function Argo() {
                                                                 SubTableTitle={SubTableTitle}
                                                                 intersectingCcres={intersectingCcres}
                                                                 loadingIntersect={loadingIntersect}
-                                                                isolatedRows={isolatedRows}
+                                                                isolatedRows={isolatedRows?.element}
                                                                 updateElementRows={updateElementRows}
                                                                 updateLoadingElementRows={updateLoadingElementRows}
                                                             />
@@ -482,7 +512,7 @@ export default function Argo() {
                                                                 SubTableTitle={SubTableTitle}
                                                                 intersectingCcres={intersectingCcres}
                                                                 loadingIntersect={loadingIntersect}
-                                                                isolatedRows={isolatedRows}
+                                                                isolatedRows={isolatedRows?.gene}
                                                                 updateGeneRows={updateGeneRows}
                                                                 updateLoadingGeneRows={updateLoadingGeneRows}
                                                             />

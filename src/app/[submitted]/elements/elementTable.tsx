@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../types";
-import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
-import { Link, Skeleton, Tooltip, useTheme } from "@mui/material";
+import { Link, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
+import { GridColDef, Table } from "@weng-lab/ui-components";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
@@ -16,7 +16,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
     updateElementRows,
     updateLoadingElementRows
 }) => {
-    const theme = useTheme();
 
     //query to get orthologous cCREs of the intersecting cCREs (also used in gene)
     const { loading: loading_ortho, data: orthoData, error: error_ortho } = useQuery(ORTHOLOG_QUERY, {
@@ -84,9 +83,9 @@ const ElementTable: React.FC<ElementTableProps> = ({
     // Filter cCREs based on class and ortholog
     const elementRows: ElementTableRow[] = useMemo(() => {
         if (error_ortho || error_scores)
-        if (allElementData.length === 0 || loading_scores || loading_ortho) {
-            return [];
-        }
+            if (allElementData.length === 0 || loading_scores || loading_ortho) {
+                return [];
+            }
         let data = allElementData;
         //filter through ortholog
         if (elementFilterVariables.mustHaveOrtholog && orthoData && elementFilterVariables.cCREAssembly !== "mm10") {
@@ -118,62 +117,92 @@ const ElementTable: React.FC<ElementTableProps> = ({
     updateElementRows(elementRows)
     const loadingRows = loading_ortho || loading_scores || loadingIntersect;
     updateLoadingElementRows(loadingRows);
-    
-    //handle column changes for the Element rank table
-    const elementColumns: DataTableColumn<ElementTableRow>[] = useMemo(() => {
 
-        const cols: DataTableColumn<ElementTableRow>[] = [
-            { header: "Region ID", value: (row) => row.regionID },
-            { header: "Class", value: (row) => row.class === "PLS" ? "Promoter" : row.class === "pELS" ? "Proximal Enhancer" : row.class === "dELS" ? "Distal Enhancer" : row.class },
+    //handle column changes for the Element rank table
+    const elementColumns: GridColDef<ElementTableRow>[] = useMemo(() => {
+        const cols: GridColDef<ElementTableRow>[] = [
             {
-                header: "Accession", value: (row) => row.accession, render: (row) => (
-                    <Tooltip
-                        title={"Open cCRE In SCREEN"}
-                        arrow
-                        placement="left"
-                    >
+                field: "regionID",
+                headerName: "Region ID",
+            },
+            {
+                field: "class",
+                headerName: "Class",
+                valueGetter: (_, row) => {
+                    const c = row.class;
+                    if (c === "PLS") return "Promoter";
+                    if (c === "pELS") return "Proximal Enhancer";
+                    if (c === "dELS") return "Distal Enhancer";
+                    return c;
+                },
+            },
+            {
+                field: "accession",
+                headerName: "Accession",
+                renderCell: (params) => (
+                    <Tooltip title="Open cCRE In SCREEN" arrow placement="left">
                         <Link
-                            href={`https://screen.wenglab.org/search?assembly=${elementFilterVariables.cCREAssembly}&chromosome=${row.chr}&start=${row.start}&end=${row.end}&accessions=${row.accession}&page=2`}
+                            href={`https://screen.wenglab.org/search?assembly=${elementFilterVariables.cCREAssembly}&chromosome=${params.row.chr}&start=${params.row.start}&end=${params.row.end}&accessions=${params.row.accession}&page=2`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ color: "link", textDecoration: "none" }}
+                            underline="none"
                         >
-                            {row.accession}
+                            {params.row.accession}
                         </Link>
                     </Tooltip>
-                )
+                ),
             },
-        ]
+        ];
 
         if (elementFilterVariables.usecCREs) {
-            if (elementFilterVariables.mustHaveOrtholog && elementFilterVariables.cCREAssembly !== "mm10") { cols.push({ header: "Orthologous Accesion", value: (row) => row.ortholog }) }
-            if (elementFilterVariables.assays.dnase) { cols.push({ header: "DNase", value: (row) => row.dnase !== null ? row.dnase.toFixed(2) : null }) }
-            if (elementFilterVariables.assays.h3k4me3) { cols.push({ header: "H3K4me3", value: (row) => row.h3k4me3 !== null ? row.h3k4me3.toFixed(2) : null }) }
-            if (elementFilterVariables.assays.h3k27ac) { cols.push({ header: "H3K27ac", value: (row) => row.h3k27ac !== null ? row.h3k27ac.toFixed(2) : null }) }
-            if (elementFilterVariables.assays.ctcf) { cols.push({ header: "CTCF", value: (row) => row.ctcf !== null ? row.ctcf.toFixed(2) : null }) }
-            if (elementFilterVariables.assays.atac) { cols.push({ header: "ATAC", value: (row) => row.atac !== null ? row.atac.toFixed(2) : null }) }
-        }
-
-        return cols
-
-    }, [elementFilterVariables])
-    return (
-        <>
-            {loadingRows ? <Skeleton width={"auto"} height={"440px"} variant="rounded" /> :
-                <DataTable
-                    key={Math.random()}
-                    columns={elementColumns}
-                    rows={elementRows === null ? [] : isolatedRows ? isolatedRows.element : elementRows}
-                    sortColumn={Object.values(elementFilterVariables.assays).some(value => value) ? 3 : 0}
-                    itemsPerPage={5}
-                    searchable
-                    tableTitle={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" />}
-                    headerColor={{ backgroundColor: theme.palette.secondary.main as "#", textColor: "inherit" }}
-                    downloadFileName="ElementRanks.tsv"
-                />
+            if (
+                elementFilterVariables.mustHaveOrtholog &&
+                elementFilterVariables.cCREAssembly !== "mm10"
+            ) {
+                cols.push({
+                    field: "ortholog",
+                    headerName: "Orthologous Accession",
+                });
             }
 
-        </>
+            const assays = elementFilterVariables.assays;
+            const addAssayCol = (key: keyof ElementTableRow, label: string) => {
+                cols.push({
+                    field: key,
+                    headerName: label,
+                    valueGetter: (_, row) => {
+                        const val = row[key];
+                        return typeof val === "number" && val !== null ? val.toFixed(2) : val;
+                    },
+                });
+            };
+
+            if (assays.dnase) addAssayCol("dnase", "DNase");
+            if (assays.h3k4me3) addAssayCol("h3k4me3", "H3K4me3");
+            if (assays.h3k27ac) addAssayCol("h3k27ac", "H3K27ac");
+            if (assays.ctcf) addAssayCol("ctcf", "CTCF");
+            if (assays.atac) addAssayCol("atac", "ATAC");
+        }
+
+        return cols;
+    }, [elementFilterVariables]);
+
+    return (
+        <Table
+            key={Math.random()}
+            columns={elementColumns}
+            rows={elementRows === null ? [] : isolatedRows ?? elementRows}
+            initialState={{
+                sorting: {
+                    sortModel: Object.values(elementFilterVariables.assays).some(value => value) ? [{ field: "dnase", sort: "desc" }] : [{ field: "regionID", sort: "desc" }],
+                },
+            }}
+            loading={loadingRows}
+            label={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" />}
+            downloadFileName="ElementRanks.tsv"
+            divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+            emptyTableFallback={"No Overlapping cCREs"}
+        />
     )
 }
 export default ElementTable;

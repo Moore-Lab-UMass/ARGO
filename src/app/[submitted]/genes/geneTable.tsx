@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
-import { DataTable, DataTableColumn } from "@weng-lab/ui-components";
-import { Skeleton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { GridColDef, Table } from "@weng-lab/ui-components";
+import { Stack, Tooltip, Typography } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { client } from "../../client";
 import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../queries";
@@ -28,7 +28,6 @@ const GeneTable: React.FC<GeneTableProps> = ({
     updateGeneRows,
     updateLoadingGeneRows
 }) => {
-    const theme = useTheme();
     const [getOrthoGenes, { data: orthoGenes }] = useLazyQuery(GENE_ORTHO_QUERY)
     const [modalData, setModalData] = useState<{
         open: boolean;
@@ -88,12 +87,12 @@ const GeneTable: React.FC<GeneTableProps> = ({
         } else if (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod)) {
             //switch between protein coding and all linked genes
             const computationalGenes = geneFilterVariables.mustBeProteinCoding ? computationalGenesData?.ComputationalGeneLinksQuery.filter((gene) => gene.genetype === "protein_coding")
-            : computationalGenesData?.ComputationalGeneLinksQuery
+                : computationalGenesData?.ComputationalGeneLinksQuery
 
             linkedGenes = parseComputationalGenes(computationalGenes, geneFilterVariables.methodOfLinkage as ComputationalMethod, intersectingCcres);
         } else {
             const initialFilter = linkedGenesData.linkedGenesQuery.filter((gene) => gene.assay !== 'CRISPRi-FlowFISH' || (gene.assay === 'CRISPRi-FlowFISH' && gene.p_val < 0.05))
-    
+
             //switch between protein coding and all linked genes
             const filteredLinkedGenes = geneFilterVariables.mustBeProteinCoding ? initialFilter.filter((gene) => gene.genetype === "protein_coding")
                 : initialFilter
@@ -190,123 +189,144 @@ const GeneTable: React.FC<GeneTableProps> = ({
     updateGeneRows(geneRows)
     const loadingRows = loading_gene_expression || loading_gene_specificity || loading_closest_genes || loadingIntersect || loading_linked_genes || loading_computational_genes;
     updateLoadingGeneRows(loadingRows);
-    
-    //handle column changes for the Gene rank table
-    const geneColumns: DataTableColumn<GeneTableRow>[] = useMemo(() => {
 
-        const cols: DataTableColumn<GeneTableRow>[] = [
-            { header: "Region ID", value: (row) => row.regionID },
-        ]
+    //handle column changes for the Gene rank table
+    const geneColumns: GridColDef<GeneTableRow>[] = useMemo(() => {
+        const cols: GridColDef<GeneTableRow>[] = [
+            {
+                field: "regionID",
+                headerName: "Region ID",
+                valueGetter: (_, row) => row.regionID,
+            },
+        ];
 
         if (geneFilterVariables.useGenes) {
-            cols.push({ header: "Gene Expression", value: (row) => row.geneExpression.score, tooltip: "TPM",
-                render: (row) =>
-                    row.geneExpression?.geneName !== "Average" ? (
-                        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+            cols.push({
+                field: "geneExpression",
+                headerName: "Gene Expression",
+                description: "TPM",
+                sortable: true,
+                valueGetter: (_, row) => row.geneExpression?.score ?? null,
+                renderCell: (params) => {
+                    const row = params.row;
+                    if (!row.geneExpression) return "N/A";
+                    const { score, geneName, linkedBy } = row.geneExpression;
+
+                    return geneName !== "Average" ? (
+                        <Stack direction="row" alignItems="center" spacing={1}>
                             <Tooltip
                                 title={
-                                    <span>
-                                        {row.geneExpression.linkedBy && (
-                                            <>
-                                                <strong>Linked By:</strong> {row.geneExpression.linkedBy}
-                                            </>
-                                        )}
-                                    </span>
+                                    linkedBy ? (
+                                        <span>
+                                            <strong>Linked By:</strong> {linkedBy}
+                                        </span>
+                                    ) : (
+                                        ""
+                                    )
                                 }
                                 arrow
                                 placement="left"
                             >
-                                <Typography fontSize={"14px"}>
-                                    {row.geneExpression.score.toFixed(2)}
-                                </Typography>
+                                <Typography fontSize="14px">{score.toFixed(2)}</Typography>
                             </Tooltip>
-                            <GeneLink assembly="GRCh38" geneName={row.geneExpression.geneName.trim()} />
+                            <GeneLink assembly="GRCh38" geneName={geneName.trim()} />
                         </Stack>
-                    ) : row.geneExpression ? (
-                        row.geneExpression.score.toFixed(2)
-                    ) :
-                    (
-                        "N/A"
-                    ),
-             })
-            cols.push({ header: "Expression Specificity", value: (row) => row.expressionSpecificity.score,
-                render: (row) =>
-                    row.expressionSpecificity?.geneName !== "Average" ? (
-                        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    ) : (
+                        <Typography fontSize="14px">{score.toFixed(2)}</Typography>
+                    );
+                },
+            });
+
+            cols.push({
+                field: "expressionSpecificity",
+                headerName: "Expression Specificity",
+                sortable: true,
+                valueGetter: (_, row) => row.expressionSpecificity?.score ?? null,
+                renderCell: (params) => {
+                    const row = params.row;
+                    if (!row.expressionSpecificity) return "N/A";
+                    const { score, geneName, linkedBy } = row.expressionSpecificity;
+
+                    return geneName !== "Average" ? (
+                        <Stack direction="row" alignItems="center" spacing={1}>
                             <Tooltip
                                 title={
-                                    <span>
-                                        {row.expressionSpecificity.linkedBy && (
-                                            <>
-                                                <strong>Linked By:</strong> {row.expressionSpecificity.linkedBy}
-                                            </>
-                                        )}
-                                    </span>
+                                    linkedBy ? (
+                                        <span>
+                                            <strong>Linked By:</strong> {linkedBy}
+                                        </span>
+                                    ) : (
+                                        ""
+                                    )
                                 }
                                 arrow
                                 placement="left"
                             >
-                                <Typography fontSize={"14px"}>
-                                    {row.expressionSpecificity.score.toFixed(2)}
-                                </Typography>
+                                <Typography fontSize="14px">{score.toFixed(2)}</Typography>
                             </Tooltip>
-                            <GeneLink assembly="GRCh38" geneName={row.expressionSpecificity.geneName.trim()} />
+                            <GeneLink assembly="GRCh38" geneName={geneName.trim()} />
                         </Stack>
-                    ) :row.expressionSpecificity ? (
-                        row.expressionSpecificity.score.toFixed(2)
-                    ) :
-                    (
-                        "N/A"
-                    ),
-             })
-             cols.push({
-                header: "# of Linked Genes", value: (row) => row.linkedGenes.length,
-                render: (row) => (
-                    <button
-                        style={{
-                            background: "none",
-                            border: "none",
-                            padding: 0,
-                            fontFamily: "arial, sans-serif",
-                            color: "#030f98",
-                            cursor: "pointer",
-                            outline: "none",
-                        }}
-                        onClick={() =>
-                            setModalData({
-                                open: true,
-                                chromosome: row.inputRegion.chr,
-                                start: row.inputRegion.start,
-                                end: row.inputRegion.end,
-                                genes: row.linkedGenes
-                            })
-                        }
-                    >
-                        {row.linkedGenes.length}
-                    </button>
-                )
-            })
+                    ) : (
+                        <Typography fontSize="14px">{score.toFixed(2)}</Typography>
+                    );
+                },
+            });
+
+            cols.push({
+                field: "linkedGenes",
+                headerName: "# of Linked Genes",
+                sortable: true,
+                valueGetter: (_, row) => row.linkedGenes?.length ?? 0,
+                renderCell: (params) => {
+                    const row = params.row;
+                    return (
+                        <button
+                            style={{
+                                background: "none",
+                                border: "none",
+                                padding: 0,
+                                fontFamily: "arial, sans-serif",
+                                color: "#030f98",
+                                cursor: "pointer",
+                                outline: "none",
+                            }}
+                            onClick={() =>
+                                setModalData({
+                                    open: true,
+                                    chromosome: row.inputRegion.chr,
+                                    start: row.inputRegion.start,
+                                    end: row.inputRegion.end,
+                                    genes: row.linkedGenes,
+                                })
+                            }
+                        >
+                            {row.linkedGenes?.length ?? 0}
+                        </button>
+                    );
+                },
+            });
         }
 
-        return cols
-
-    }, [geneFilterVariables])
+        return cols;
+    }, [geneFilterVariables]);
 
     return (
         <>
-            {loadingRows ? <Skeleton width={"auto"} height={"440px"} variant="rounded" /> :
-                <DataTable
-                    key={Math.random()}
-                    columns={geneColumns}
-                    rows={geneRows === null ? [] : isolatedRows ? isolatedRows.gene : geneRows}
-                    sortColumn={1}
-                    itemsPerPage={5}
-                    searchable
-                    tableTitle={<SubTableTitle title="Gene Details" table="genes" />}
-                    headerColor={{ backgroundColor: theme.palette.secondary.main as "#", textColor: "inherit" }}
-                    downloadFileName="GeneRanks.tsv"
-                />
-            }
+            <Table
+                key={Math.random()}
+                columns={geneColumns}
+                rows={geneRows === null ? [] : isolatedRows ?? geneRows}
+                loading={loadingRows}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: "geneExpression", sort: "desc" }],
+                    },
+                }}
+                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                label={<SubTableTitle title="Gene Details" table="genes" />}
+                downloadFileName="GeneRanks.tsv"
+                emptyTableFallback={"No Gene Information"}
+            />
             {modalData && (
                 <GenesModal
                     key={`${modalData?.chromosome}-${modalData?.start}-${modalData?.end}`}
