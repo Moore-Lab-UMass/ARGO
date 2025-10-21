@@ -6,15 +6,16 @@ import { client } from "../../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
 import { GridColDef, Table } from "@weng-lab/ui-components";
+import TableToTop from "../../../components/TableToTop";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
-    label,
     intersectingCcres,
     loadingIntersect,
     isolatedRows,
     updateElementRows,
-    updateLoadingElementRows
+    updateLoadingElementRows,
+    setTableOrder
 }) => {
 
     //query to get orthologous cCREs of the intersecting cCREs (also used in gene)
@@ -194,6 +195,12 @@ const ElementTable: React.FC<ElementTableProps> = ({
         return cols;
     }, [elementFilterVariables]);
 
+    const ToolBarIcon = useMemo(() => {
+        return (
+            <TableToTop table="elements" setTableOrder={setTableOrder} />
+        )
+    }, [setTableOrder])
+
     return (
         <Table
             key={Math.random()}
@@ -205,10 +212,11 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 },
             }}
             loading={loadingRows}
-            label={label}
+            label={"Element Details (Overlapping cCREs)"}
             downloadFileName="ElementRanks.tsv"
             divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
             emptyTableFallback={"No Overlapping cCREs"}
+            toolbarSlot={ToolBarIcon}
         />
     )
 }

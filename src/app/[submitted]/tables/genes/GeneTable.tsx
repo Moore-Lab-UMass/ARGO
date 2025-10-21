@@ -9,6 +9,7 @@ import { parseLinkedGenes, parseClosestGenes, parseComputationalGenes, filterOrt
 import GenesModal from "./linkedGenesModal";
 import { AggregateByEnum } from "../../../../graphql/__generated__/graphql";
 import GeneLink from "../../../components/GeneLink";
+import TableToTop from "../../../components/TableToTop";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -21,12 +22,12 @@ const computationalMethods: ComputationalMethod[] = [
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,
-    label,
     intersectingCcres,
     loadingIntersect,
     isolatedRows,
     updateGeneRows,
-    updateLoadingGeneRows
+    updateLoadingGeneRows,
+    setTableOrder
 }) => {
     const [getOrthoGenes, { data: orthoGenes }] = useLazyQuery(GENE_ORTHO_QUERY)
     const [modalData, setModalData] = useState<{
@@ -317,6 +318,12 @@ const GeneTable: React.FC<GeneTableProps> = ({
         return cols;
     }, [geneFilterVariables]);
 
+    const ToolBarIcon = useMemo(() => {
+        return (
+            <TableToTop table="genes" setTableOrder={setTableOrder} />
+        )
+    }, [setTableOrder])
+
     return (
         <>
             <Table
@@ -330,9 +337,10 @@ const GeneTable: React.FC<GeneTableProps> = ({
                     },
                 }}
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
-                label={label}
+                label={"Gene Details"}
                 downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Gene Information"}
+                toolbarSlot={ToolBarIcon}
             />
             {modalData && (
                 <GenesModal

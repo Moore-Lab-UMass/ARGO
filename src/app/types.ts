@@ -1,5 +1,7 @@
-import { ReactElement } from "react"
+import { Dispatch, SetStateAction } from "react"
 import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
+
+export type Table = "sequence" | "elements" | "genes"
 
 export type ZScores = {
     accession: string
@@ -323,31 +325,31 @@ export type TomtomMatchQueryData = {
 
 export type SequenceTableProps = {
     sequenceFilterVariables: SequenceFilterState;
-    label: ReactElement;
     inputRegions: InputRegions;
     isolatedRows: SequenceTableRow[];
     updateSequenceRows: (rows: SequenceTableRow[]) => void;
     updateLoadingSequenceRows: (loading: boolean) => void;
+    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
 }
 
 export type ElementTableProps = {
     elementFilterVariables: ElementFilterState;
-    label: ReactElement;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
     isolatedRows: ElementTableRow[];
     updateElementRows: (rows: ElementTableRow[]) => void;
     updateLoadingElementRows: (loading: boolean) => void;
+    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
 }
 
 export type GeneTableProps = {
     geneFilterVariables: GeneFilterState;
-    label: ReactElement;
     intersectingCcres: CCREs;
     loadingIntersect: boolean;
     isolatedRows: GeneTableRow[];
     updateGeneRows: (rows: GeneTableRow[]) => void;
     updateLoadingGeneRows: (loading: boolean) => void;
+    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
 }
 
 export type ClosestGenetocCRE = {
