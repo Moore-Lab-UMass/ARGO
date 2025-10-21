@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../../types";
-import MotifsModal, { MotifProps } from "./tempMotifModal";
+import MotifsModal, { MotifProps } from "./MotifModal";
 import { Tooltip, Typography } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../../client";

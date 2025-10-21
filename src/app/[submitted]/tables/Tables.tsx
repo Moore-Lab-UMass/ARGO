@@ -1,9 +1,9 @@
 import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow } from "../../types";
-import SequenceTable from "./sequence/tempSequenceTable"
-import ElementTable from "./elements/tempElementTable"
-import GeneTable from "./genes/tempGeneTable"
+import SequenceTable from "./sequence/SequenceTable"
+import ElementTable from "./elements/ElementTable"
+import GeneTable from "./genes/GeneTable"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import RankedRegionsTable from "./main/tempMainTable"
+import RankedRegionsTable from "./main/MainTable"
 import SubTableTitle from "../../components/SubTableTitle"
 import { useMemo, useState } from "react";
 import { Box } from "@mui/material";

@@ -5,7 +5,7 @@ import { ApolloWrapper } from "./_utility/apolloprovider";
 import { CssBaseline, Stack, ThemeProvider } from "@mui/material"
 import theme from "./theme"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
-import Header from "./components/tempHeader";
+import Header from "./components/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
