@@ -137,12 +137,6 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
     return (
         <Box mt="20px" id="123456">
             <Table
-                key={
-                    JSON.stringify(inputRegions) +
-                    JSON.stringify(elementRanks) +
-                    JSON.stringify(sequenceRanks) +
-                    JSON.stringify(geneRanks)
-                }
                 columns={mainColumns}
                 rows={mainRows}
                 loading={loading}
@@ -156,23 +150,14 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
                     maxHeight: "440px",
                 }}
                 label={
-                    <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        width="100%"
-                    >
+                    <Tooltip title="Select a row to isolate it" arrow placement="top-start">
                         <Stack direction="row" spacing={1} alignItems="center">
-                            <Tooltip title="Select a row to isolate it" arrow placement="top-start">
-                                <InfoOutlined
-                                    fontSize="small"
-                                    sx={{ cursor: "pointer" }}
-                                    color="inherit"
-                                />
-                            </Tooltip>
-                            <Typography variant="h5">Ranked Regions</Typography>
+                            <InfoOutlined
+                                fontSize="small"
+                            />
+                            <Typography>Ranked Regions</Typography>
                         </Stack>
-                    </Stack>
+                    </Tooltip>
                 }
                 checkboxSelection
                 getRowId={(row) => row.regionID}

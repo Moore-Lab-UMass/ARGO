@@ -8,14 +8,15 @@ import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../queries";
 import { calculateConservationScores, calculateMotifScores, getNumOverlappingMotifs } from "./sequenceHelpers";
 import Link from "next/link";
 import { GridColDef, Table } from "@weng-lab/ui-components";
+import TableToTop from "../../../components/TableToTop";
 
 const SequenceTable: React.FC<SequenceTableProps> = ({
     sequenceFilterVariables,
-    label,
     inputRegions,
     isolatedRows,
     updateSequenceRows,
-    updateLoadingSequenceRows
+    updateLoadingSequenceRows,
+    setTableOrder
 }) => {
     const [modalData, setModalData] = useState<{
         open: boolean;
@@ -345,6 +346,12 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         return cols;
     }, [sequenceFilterVariables, setModalData]);
 
+    const ToolBarIcon = useMemo(() => {
+        return (
+            <TableToTop table="sequence" setTableOrder={setTableOrder} />
+        )
+    }, [setTableOrder])
+
     return (
         <>
             <Table
@@ -358,9 +365,10 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                     },
                 }}
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
-                label={label}
+                label={"Sequence Details"}
                 downloadFileName="SequenceRanks.tsv"
                 emptyTableFallback={"No Sequence Scores"}
+                toolbarSlot={ToolBarIcon}
             />
             {modalData && (
                 <MotifsModal

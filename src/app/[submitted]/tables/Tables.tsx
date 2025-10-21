@@ -1,10 +1,9 @@
-import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow } from "../../types";
+import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow, Table } from "../../types";
 import SequenceTable from "./sequence/SequenceTable"
 import ElementTable from "./elements/ElementTable"
 import GeneTable from "./genes/GeneTable"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import RankedRegionsTable from "./main/MainTable"
-import SubTableTitle from "../../components/SubTableTitle"
 import { useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
@@ -38,7 +37,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
     const [loadingElementRows, setLoadingElementRows] = useState<boolean>(true);
     const [loadingGeneRows, setLoadingGeneRows] = useState<boolean>(true);
 
-    const [tableOrder, setTableOrder] = useState<("sequence" | "elements" | "genes")[]>([
+    const [tableOrder, setTableOrder] = useState<Table[]>([
         "sequence",
         "elements",
         "genes",
@@ -146,7 +145,6 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
         };
     }, [selected, sequenceRows, elementRows, geneRows]);
 
-
     return (
         <>
             <RankedRegionsTable
@@ -181,7 +179,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "sequence" && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) && (
                                                 <SequenceTable
                                                     sequenceFilterVariables={sequenceFilterVariables}
-                                                    label={<SubTableTitle title="Sequence Details" table="sequence" setTableOrder={setTableOrder} />}
+                                                    setTableOrder={setTableOrder}
                                                     inputRegions={inputRegions}
                                                     isolatedRows={isolatedRows?.sequence}
                                                     updateSequenceRows={setSequenceRows}
@@ -192,7 +190,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "elements" && elementFilterVariables.usecCREs && (
                                                 <ElementTable
                                                     elementFilterVariables={elementFilterVariables}
-                                                    label={<SubTableTitle title="Element Details (Overlapping cCREs)" table="elements" setTableOrder={setTableOrder} />}
+                                                    setTableOrder={setTableOrder}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.element}
@@ -204,7 +202,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "genes" && geneFilterVariables.useGenes && (
                                                 <GeneTable
                                                     geneFilterVariables={geneFilterVariables}
-                                                    label={<SubTableTitle title="Gene Details" table="genes" setTableOrder={setTableOrder} />}
+                                                    setTableOrder={setTableOrder}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.gene}
