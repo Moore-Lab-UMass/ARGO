@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../../types";
-import { Link, Tooltip } from "@mui/material";
+import { Link, Stack, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
-import { GridColDef, Table } from "@weng-lab/ui-components";
+import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import TableToTop from "../../../components/TableToTop";
+import { ProportionsBar } from "@weng-lab/visualization";
+import { GROUP_COLOR_MAP } from "../../../_utility/colors";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
@@ -128,6 +130,38 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
     //handle column changes for the Element rank table
     const elementColumns: GridColDef<ElementTableRow>[] = useMemo(() => {
+
+        const classificationFormatting: Partial<GridColDef> = {
+            renderCell: (params: GridRenderCellParams) => {
+                const group = params.value as string;
+                if (!group) return null;
+
+                let mapValue = GROUP_COLOR_MAP.get(group);
+
+                if (!mapValue) {
+                    for (const [, value] of GROUP_COLOR_MAP.entries()) {
+                        const [label] = value.split(":");
+                        if (label === group) {
+                            mapValue = value;
+                            break;
+                        }
+                    }
+                }
+
+                const [label, color] = mapValue
+                    ? mapValue.split(":")
+                    : ["Unknown", "black"];
+
+                const textColor = group === "InActive" ? "gray" : color;
+
+                return (
+                    <span style={{ color: textColor }}>
+                        <strong>{label}</strong>
+                    </span>
+                );
+            },
+        };
+
         const cols: GridColDef<ElementTableRow>[] = [
             {
                 field: "regionID",
@@ -143,6 +177,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                     if (c === "dELS") return "Distal Enhancer";
                     return c;
                 },
+                ...classificationFormatting
             },
             {
                 field: "accession",
@@ -193,7 +228,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
         }
 
         return cols;
-    }, [elementFilterVariables]);
+    }, [elementFilterVariables.assays, elementFilterVariables.cCREAssembly, elementFilterVariables.mustHaveOrtholog, elementFilterVariables.usecCREs]);
 
     const ToolBarIcon = useMemo(() => {
         return (
@@ -201,23 +236,47 @@ const ElementTable: React.FC<ElementTableProps> = ({
         )
     }, [setTableOrder])
 
+    const classProportions = useMemo(() => {
+        if (!elementRows || elementRows.length === 0) return {};
+
+        const counts: Record<string, number> = {};
+        for (const row of elementRows) {
+            const cls = row.class;
+            counts[cls] = (counts[cls] ?? 0) + 1;
+        }
+
+        return counts;
+    }, [elementRows]);
+
+
     return (
-        <Table
-            key={Math.random()}
-            columns={elementColumns}
-            rows={elementRows === null ? [] : isolatedRows ?? elementRows}
-            initialState={{
-                sorting: {
-                    sortModel: Object.values(elementFilterVariables.assays).some(value => value) ? [{ field: "dnase", sort: "desc" }] : [{ field: "regionID", sort: "desc" }],
-                },
-            }}
-            loading={loadingRows}
-            label={"Element Details (Overlapping cCREs)"}
-            downloadFileName="ElementRanks.tsv"
-            divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
-            emptyTableFallback={"No Overlapping cCREs"}
-            toolbarSlot={ToolBarIcon}
-        />
+        <Stack spacing={1}>
+            <ProportionsBar 
+                data={classProportions} 
+                loading={loadingRows} 
+                tooltipTitle="cCRE Classification Proportions"
+                getColor={(key) => GROUP_COLOR_MAP.get(key).split(":")[1] ?? "black"}
+                formatLabel={(key) => GROUP_COLOR_MAP.get(key).split(":")[0] ?? key}
+                sortDescending
+            />
+            <Table
+                key={Math.random()}
+                columns={elementColumns}
+                rows={elementRows === null ? [] : isolatedRows ?? elementRows}
+                initialState={{
+                    sorting: {
+                        sortModel: Object.values(elementFilterVariables.assays).some(value => value) ? [{ field: "dnase", sort: "desc" }] : [{ field: "regionID", sort: "desc" }],
+                    },
+                }}
+                loading={loadingRows}
+                label={"Element Details (Overlapping cCREs)"}
+                downloadFileName="ElementRanks.tsv"
+                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                emptyTableFallback={"No Overlapping cCREs"}
+                toolbarSlot={ToolBarIcon}
+            />
+        </Stack>
     )
 }
+
 export default ElementTable;
