@@ -137,12 +137,6 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
     return (
         <Box mt="20px" id="123456">
             <Table
-                key={
-                    JSON.stringify(inputRegions) +
-                    JSON.stringify(elementRanks) +
-                    JSON.stringify(sequenceRanks) +
-                    JSON.stringify(geneRanks)
-                }
                 columns={mainColumns}
                 rows={mainRows}
                 loading={loading}

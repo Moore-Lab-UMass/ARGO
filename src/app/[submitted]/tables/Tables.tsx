@@ -145,7 +145,6 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
         };
     }, [selected, sequenceRows, elementRows, geneRows]);
 
-
     return (
         <>
             <RankedRegionsTable
