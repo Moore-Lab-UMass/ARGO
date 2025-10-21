@@ -2,7 +2,7 @@
 "use client";
 import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
-import ArgoUpload from "./argoUpload";
+import ArgoUpload from "./components/tempArgoUpload";
 
 export default function Home() {
   return (

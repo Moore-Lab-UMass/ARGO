@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo } from "react";
-import { ElementTableProps, ElementTableRow } from "../../types";
+import { ElementTableProps, ElementTableRow } from "../../../types";
 import { Link, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { client } from "../../client";
-import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../queries";
+import { client } from "../../../client";
+import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
 import { GridColDef, Table } from "@weng-lab/ui-components";
 

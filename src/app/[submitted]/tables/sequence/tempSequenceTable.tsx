@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../types";
-import MotifsModal, { MotifProps } from "./motifModal";
+import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../../types";
+import MotifsModal, { MotifProps } from "./tempMotifModal";
 import { Tooltip, Typography } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { client } from "../../client";
-import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../queries";
+import { client } from "../../../client";
+import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../queries";
 import { calculateConservationScores, calculateMotifScores, getNumOverlappingMotifs } from "./sequenceHelpers";
 import Link from "next/link";
 import { GridColDef, Table } from "@weng-lab/ui-components";

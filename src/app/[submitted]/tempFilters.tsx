@@ -3,9 +3,9 @@ import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilter
 import { Box, Drawer, IconButton, Stack, Typography } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import FilterListIcon from '@mui/icons-material/FilterList';
-import SequenceFilters from './sequence/sequenceFilters';
-import ElementFilters from './elements/elementFilters';
-import GeneFilters from './genes/geneFilters';
+import SequenceFilters from './tables/sequence/tempSequenceFilters';
+import ElementFilters from './tables/elements/tempElementFilters';
+import GeneFilters from './tables/genes/tempGeneFilters';
 import { Clear } from "@mui/icons-material";
 
 // Initial filter states

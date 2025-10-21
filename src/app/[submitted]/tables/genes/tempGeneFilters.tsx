@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../types";
+import { ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Modal, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
-import BiosampleTables from "../../_biosampleTables/BiosampleTables";
+import BiosampleTables from "../../../_biosampleTables/BiosampleTables";
 import CloseIcon from '@mui/icons-material/Close';
-import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../queries";
+import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../../queries";
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
-import { RegistryBiosamplePlusRNA } from "../../_biosampleTables/types";
+import { RegistryBiosamplePlusRNA } from "../../../_biosampleTables/types";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
