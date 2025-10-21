@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControl, FormControlLabel, FormGroup, MenuItem, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import React from "react";
 import { ExpandMore, InfoOutlined } from "@mui/icons-material"
-import { Alignment, DataScource, MotifQuality, SequenceAccordianProps } from "../../types";
+import { Alignment, DataScource, MotifQuality, SequenceAccordianProps } from "../../../types";
 import Grid from "@mui/material/Grid2"
 
 const SequenceFilters: React.FC<SequenceAccordianProps> = ({

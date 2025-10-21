@@ -1,4 +1,4 @@
-import { InputRegions, MainTableRow, RankedRegions } from "./types";
+import { InputRegions, MainTableRow, RankedRegions } from "../../../types";
 
 // calculate the aggregate rank for each input region
 export const calculateAggregateRanks = (inputRegions: InputRegions, sequenceRanks: RankedRegions, elementRanks: RankedRegions, geneRanks: RankedRegions): RankedRegions => {

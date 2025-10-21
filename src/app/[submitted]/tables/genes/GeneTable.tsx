@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from "react";
-import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../types";
+import React, { useEffect, useMemo, useState } from "react";
+import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../types";
 import { GridColDef, Table } from "@weng-lab/ui-components";
 import { Stack, Tooltip, Typography } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { client } from "../../client";
-import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../queries";
+import { client } from "../../../client";
+import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../../queries";
 import { parseLinkedGenes, parseClosestGenes, parseComputationalGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
-import { AggregateByEnum } from "../../../graphql/__generated__/graphql";
-import GeneLink from "../../_utility/GeneLink";
+import { AggregateByEnum } from "../../../../graphql/__generated__/graphql";
+import GeneLink from "../../../components/GeneLink";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -21,7 +21,7 @@ const computationalMethods: ComputationalMethod[] = [
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,
-    SubTableTitle,
+    label,
     intersectingCcres,
     loadingIntersect,
     isolatedRows,
@@ -186,9 +186,16 @@ const GeneTable: React.FC<GeneTableProps> = ({
 
     }, [filteredGenes, error_gene_expression, error_linked_genes, error_closest_genes, error_computational_genes, geneSpecificity, intersectingCcres, geneFilterVariables, geneExpression]);
 
-    updateGeneRows(geneRows)
+    useEffect(() => {
+        if (!geneRows) return
+        updateGeneRows(geneRows)
+    }, [geneRows, updateGeneRows])
+
     const loadingRows = loading_gene_expression || loading_gene_specificity || loading_closest_genes || loadingIntersect || loading_linked_genes || loading_computational_genes;
-    updateLoadingGeneRows(loadingRows);
+
+    useEffect(() => {
+        updateLoadingGeneRows(loadingRows);
+    }, [loadingRows, updateLoadingGeneRows]);
 
     //handle column changes for the Gene rank table
     const geneColumns: GridColDef<GeneTableRow>[] = useMemo(() => {
@@ -323,7 +330,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                     },
                 }}
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
-                label={<SubTableTitle title="Gene Details" table="genes" />}
+                label={label}
                 downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Gene Information"}
             />

@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { LinkComponent } from "./_utility/LinkComponent";
+import { LinkComponent } from "./LinkComponent";
 
 export type PageInfo = {
     pageName: string,
