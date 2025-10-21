@@ -45,6 +45,7 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
 
         const aggregateRanks = calculateAggregateRanks(inputRegions, sequenceRanks, elementRanks, geneRanks)
         const updatedMainRows = matchRanks(inputRegions, sequenceRanks, elementRanks, geneRanks, aggregateRanks)
+        console.log(updatedMainRows)
 
         return updatedMainRows;
     }, [elementRanks, geneRanks, inputRegions, sequenceRanks]);
@@ -102,7 +103,7 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
                 headerName: "Sequence",
                 sortComparator: naSortComparator,
                 renderCell: (params) =>
-                    params.row.elementRank === 0 ? "N/A" : params.row.elementRank,
+                    params.row.sequenceRank === 0 ? "N/A" : params.row.sequenceRank,
             });
         }
 
