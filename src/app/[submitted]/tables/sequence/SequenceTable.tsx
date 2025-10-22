@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../../types";
 import MotifsModal, { MotifProps } from "./MotifModal";
-import { Tooltip, Typography } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
 import { useQuery } from "@apollo/client";
 import { client } from "../../../client";
 import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../queries";
@@ -9,6 +9,9 @@ import { calculateConservationScores, calculateMotifScores, getNumOverlappingMot
 import Link from "next/link";
 import { GridColDef, Table } from "@weng-lab/ui-components";
 import TableToTop from "../../../components/TableToTop";
+import { ProportionsBar } from "@weng-lab/visualization";
+import { DATA_SOURCE_COLOR_MAP, QUALITY_COLOR_MAP } from "../../../_utility/colors";
+import Grid from "@mui/material/Grid2"
 
 const SequenceTable: React.FC<SequenceTableProps> = ({
     sequenceFilterVariables,
@@ -71,8 +74,10 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         fetchPolicy: 'cache-first',
     })
 
+    const errorSequence = error_conservations_scores || error_motif_ranking;
+
     const sequenceRows: SequenceTableRow[] = useMemo(() => {
-        if (error_conservations_scores || error_motif_ranking) {
+        if (errorSequence) {
             return null;
         }
         if ((!conservationScores && !motifRankingScores) || inputRegions.length === 0 || loading_conservation_scores || loading_motif_ranking) {
@@ -88,7 +93,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         if (motifRankingScores) {
             //filter through qualities and data sources
             filteredMotifs = motifRankingScores.motifranking.filter(motif => {
-                const motifQuality = motif.motif.split(".").pop();
+                const motifQuality = motif.motif.split(".").pop()
                 const motifDataSource = motif.motif.split(".")[3]
                 return sequenceFilterVariables.motifQuality[motifQuality.toLowerCase() as keyof MotifQuality] && motifDataSource.split("").some(letter => sequenceFilterVariables.dataSource[letter.toLowerCase() as keyof DataScource]);
             }).map(motif => ({
@@ -131,7 +136,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
 
         return mergedRows
 
-    }, [error_conservations_scores, error_motif_ranking, conservationScores, motifRankingScores, inputRegions, loading_conservation_scores, loading_motif_ranking, sequenceFilterVariables.numOverlappingMotifs, sequenceFilterVariables.rankBy, sequenceFilterVariables.motifQuality, sequenceFilterVariables.dataSource])
+    }, [errorSequence, conservationScores, motifRankingScores, inputRegions, loading_conservation_scores, loading_motif_ranking, sequenceFilterVariables.numOverlappingMotifs, sequenceFilterVariables.rankBy, sequenceFilterVariables.motifQuality, sequenceFilterVariables.dataSource])
 
     useEffect(() => {
         if (!sequenceRows) return
@@ -352,8 +357,66 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         )
     }, [setTableOrder])
 
+    const dataSourceProportions = useMemo(() => {
+        if (!sequenceRows || sequenceRows.length === 0) return {};
+
+        const counts: Record<string, number> = {};
+
+        for (const row of sequenceRows) {
+            const motif = row.motifID;
+            const motifDataSource = motif.split(".")[3];
+            const chars = motifDataSource.split("");
+
+            for (const char of chars) {
+                counts[char] = (counts[char] ?? 0) + 1;
+            }
+        }
+
+        return counts;
+    }, [sequenceRows]);
+
+    const qualityProportions = useMemo(() => {
+        if (!sequenceRows || sequenceRows.length === 0) return {};
+
+        const counts: Record<string, number> = {};
+        for (const row of sequenceRows) {
+            const motif = row.motifID;
+            const motifQuality = motif.split(".").pop();
+
+            counts[motifQuality] = (counts[motifQuality] ?? 0) + 1;
+        }
+
+        return counts;
+    }, [sequenceRows]);
+
     return (
-        <>
+        <Stack spacing={1}>
+            {(sequenceRows?.length > 0 || loadingRows) && (
+                <Grid container spacing={2}>
+                    <Grid size={6}>
+                        <ProportionsBar
+                            data={qualityProportions}
+                            loading={loadingRows}
+                            tooltipTitle="Motif Quality Proportions"
+                            getColor={(key) => QUALITY_COLOR_MAP.get(key).split(":")[1] ?? "black"}
+                            formatLabel={(key) => QUALITY_COLOR_MAP.get(key)?.split(":")[0] ? `${QUALITY_COLOR_MAP.get(key)?.split(":")[0]} (${key})` : key}
+                            sortDescending
+                            label="Motif Quality Proportions"
+                        />
+                    </Grid>
+                    <Grid size={6}>
+                        <ProportionsBar
+                            data={dataSourceProportions}
+                            loading={loadingRows}
+                            tooltipTitle="Data Source Proportions"
+                            getColor={(key) => DATA_SOURCE_COLOR_MAP.get(key)?.split(":")[1] ?? "black"}
+                            formatLabel={(key) => DATA_SOURCE_COLOR_MAP.get(key)?.split(":")[0] ? `${DATA_SOURCE_COLOR_MAP.get(key)?.split(":")[0]} (${key})` : key}
+                            sortDescending
+                            label="Data Source Proportions"
+                        />
+                    </Grid>
+                </Grid>
+            )}
             <Table
                 key={Math.random()}
                 columns={sequenceColumns}
@@ -369,6 +432,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                 downloadFileName="SequenceRanks.tsv"
                 emptyTableFallback={"No Sequence Scores"}
                 toolbarSlot={ToolBarIcon}
+                error={errorSequence ? true : false}
             />
             {modalData && (
                 <MotifsModal
@@ -383,7 +447,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                     motifs={modalData?.motifs || []}
                 />
             )}
-        </>
+        </Stack>
 
     )
 }

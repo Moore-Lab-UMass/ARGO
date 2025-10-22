@@ -147,8 +147,10 @@ const GeneTable: React.FC<GeneTableProps> = ({
         fetchPolicy: 'cache-first',
     });
 
+    const errorGenes = error_gene_expression || error_linked_genes || error_closest_genes || error_computational_genes
+
     const geneRows = useMemo<GeneTableRow[]>(() => {
-        if (filteredGenes === null || error_gene_expression || error_linked_genes || error_closest_genes || error_computational_genes) {
+        if (filteredGenes === null || errorGenes) {
             return null
         }
         if (filteredGenes.length === 0) {
@@ -185,7 +187,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
             return []
         }
 
-    }, [filteredGenes, error_gene_expression, error_linked_genes, error_closest_genes, error_computational_genes, geneSpecificity, intersectingCcres, geneFilterVariables, geneExpression]);
+    }, [filteredGenes, errorGenes, geneSpecificity, intersectingCcres, geneFilterVariables, geneExpression]);
 
     useEffect(() => {
         if (!geneRows) return
@@ -341,6 +343,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                 downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Gene Information"}
                 toolbarSlot={ToolBarIcon}
+                error={errorGenes ? true : false}
             />
             {modalData && (
                 <GenesModal

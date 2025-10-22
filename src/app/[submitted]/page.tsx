@@ -138,7 +138,7 @@ export default function Argo() {
                     zIndex: 1,
                 }}
             >
-                <SubmissionHeader fileName={fileName} />
+                <SubmissionHeader fileName={fileName} drawerOpen={drawerOpen} toggleDrawer={toggleDrawer}/>
                 <Tables
                     sequenceFilterVariables={sequenceFilterVariables}
                     elementFilterVariables={elementFilterVariables}

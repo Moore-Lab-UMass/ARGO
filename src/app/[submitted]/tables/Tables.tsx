@@ -113,9 +113,9 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
     }, [geneFilterVariables.rankLinkedBy, geneFilterVariables.useGenes, geneRows, inputRegions]);
 
     // All loading states for main table columns
-    const loadingSequenceRanks = (sequenceRanks.length === 0 || loadingSequenceRows) && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs);
-    const loadingElementRanks = (elementRanks.length === 0 || loadingElementRows) && (elementFilterVariables.usecCREs);
-    const loadingGeneRanks = (geneRanks.length === 0 || loadingGeneRows) && (geneFilterVariables.useGenes);
+    const loadingSequenceRanks = (loadingSequenceRows) && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs);
+    const loadingElementRanks = (loadingElementRows) && (elementFilterVariables.usecCREs);
+    const loadingGeneRanks = (loadingGeneRows) && (geneFilterVariables.useGenes);
     const loadingMainRows = loadingSequenceRanks || loadingElementRanks || loadingGeneRanks;
 
     //find all the region id's of the isolated row and pass them to the other tables

@@ -83,9 +83,11 @@ const ElementTable: React.FC<ElementTableProps> = ({
         }
     }, [zScoreData, intersectingCcres, elementFilterVariables.cCREAssembly, elementFilterVariables.selectedBiosample, orthoData]);
 
+    const errorElements = error_ortho || error_scores
+
     // Filter cCREs based on class and ortholog
     const elementRows: ElementTableRow[] = useMemo(() => {
-        if (error_ortho || error_scores)
+        if (errorElements)
             if (allElementData.length === 0 || loading_scores || loading_ortho) {
                 return [];
             }
@@ -115,7 +117,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
         return filteredClasses;
 
-    }, [allElementData, elementFilterVariables.cCREAssembly, elementFilterVariables.classes, elementFilterVariables.mustHaveOrtholog, loading_ortho, loading_scores, orthoData, error_ortho, error_scores]);
+    }, [errorElements, allElementData, loading_scores, loading_ortho, elementFilterVariables.mustHaveOrtholog, elementFilterVariables.cCREAssembly, elementFilterVariables.classes, orthoData]);
 
     useEffect(() => {
         if (!elementRows) return
@@ -248,17 +250,19 @@ const ElementTable: React.FC<ElementTableProps> = ({
         return counts;
     }, [elementRows]);
 
-
     return (
         <Stack spacing={1}>
-            <ProportionsBar 
-                data={classProportions} 
-                loading={loadingRows} 
-                tooltipTitle="cCRE Classification Proportions"
-                getColor={(key) => GROUP_COLOR_MAP.get(key).split(":")[1] ?? "black"}
-                formatLabel={(key) => GROUP_COLOR_MAP.get(key).split(":")[0] ?? key}
-                sortDescending
-            />
+            {(elementRows?.length > 0 || loadingRows) && (
+                <ProportionsBar
+                    data={classProportions}
+                    loading={loadingRows}
+                    tooltipTitle="cCRE Classification Proportions"
+                    getColor={(key) => GROUP_COLOR_MAP.get(key).split(":")[1] ?? "black"}
+                    formatLabel={(key) => GROUP_COLOR_MAP.get(key).split(":")[0] ?? key}
+                    sortDescending
+                    label="cCRE Classification Proportions"
+                />
+            )}
             <Table
                 key={Math.random()}
                 columns={elementColumns}
@@ -274,6 +278,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
                 emptyTableFallback={"No Overlapping cCREs"}
                 toolbarSlot={ToolBarIcon}
+                error={errorElements ? true : false}
             />
         </Stack>
     )

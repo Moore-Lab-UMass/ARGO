@@ -45,7 +45,6 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
 
         const aggregateRanks = calculateAggregateRanks(inputRegions, sequenceRanks, elementRanks, geneRanks)
         const updatedMainRows = matchRanks(inputRegions, sequenceRanks, elementRanks, geneRanks, aggregateRanks)
-        console.log(updatedMainRows)
 
         return updatedMainRows;
     }, [elementRanks, geneRanks, inputRegions, sequenceRanks]);

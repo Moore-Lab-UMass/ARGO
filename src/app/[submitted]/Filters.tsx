@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../types';
 import { Box, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
-import FilterListIcon from '@mui/icons-material/FilterList';
 import SequenceFilters from './tables/sequence/SequenceFilters';
 import ElementFilters from './tables/elements/ElementFilters';
 import GeneFilters from './tables/genes/GeneFilters';
@@ -99,17 +98,11 @@ const Filters: React.FC<FilterProps> = ({
 
 
     return (
-        <div>
-            {!drawerOpen && (
-                <Box alignItems={"flex-start"} padding={2}>
-                    <IconButton
-                        onClick={toggleDrawer}
-                        color="primary"
-                    >
-                        <FilterListIcon />
-                    </IconButton>
-                </Box>
-            )}
+        <Box
+            sx={{
+                display: drawerOpen ? "block" : "contents",
+            }}
+        >
             <Drawer
                 anchor="left"
                 open={drawerOpen}
@@ -117,7 +110,7 @@ const Filters: React.FC<FilterProps> = ({
                 variant={useMediaQuery(theme.breakpoints.up('lg')) ? 'persistent' : 'temporary'}
                 sx={{
                     '& .MuiDrawer-paper': {
-                        width: '25vw',
+                        width: drawerOpen ? '25vw' : 0,
                         top: theme => `${theme.mixins.toolbar.minHeight}px`,
                         zIndex: 0,
                         minWidth: 300,
@@ -169,7 +162,7 @@ const Filters: React.FC<FilterProps> = ({
                     />
                 </Box>
             </Drawer>
-        </div>
+        </Box>
     );
 };
 
