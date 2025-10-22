@@ -33,7 +33,7 @@ const SubmissionHeader: React.FC<SubmissionHeaderProps> = ({ fileName, drawerOpe
                     }}
                     borderRadius={1}
                 >
-                    <Typography>Uploaded:</Typography>
+                    <Typography><b>Uploaded:</b></Typography>
                     <Typography>{fileName}</Typography>
                 </Stack>
             </Stack>
