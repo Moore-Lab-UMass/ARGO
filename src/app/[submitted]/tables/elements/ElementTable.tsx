@@ -157,8 +157,12 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 const textColor = group === "InActive" ? "gray" : color;
 
                 return (
-                    <span style={{ color: textColor }}>
-                        <strong>{label}</strong>
+                    <span
+                        style={{
+                            color: textColor,
+                            fontWeight: "bold",
+                        }}>
+                        {label}
                     </span>
                 );
             },
@@ -278,6 +282,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
                 emptyTableFallback={"No Overlapping cCREs"}
                 toolbarSlot={ToolBarIcon}
+                toolbarStyle={{backgroundColor: "#e7eef8"}}
                 error={errorElements ? true : false}
             />
         </Stack>

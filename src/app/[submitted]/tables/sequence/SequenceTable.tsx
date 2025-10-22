@@ -432,6 +432,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                 downloadFileName="SequenceRanks.tsv"
                 emptyTableFallback={"No Sequence Scores"}
                 toolbarSlot={ToolBarIcon}
+                toolbarStyle={{backgroundColor: "#e7eef8"}}
                 error={errorSequence ? true : false}
             />
             {modalData && (

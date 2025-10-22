@@ -343,6 +343,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
                 downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Gene Information"}
                 toolbarSlot={ToolBarIcon}
+                toolbarStyle={{backgroundColor: "#e7eef8"}}
                 error={errorGenes ? true : false}
             />
             {modalData && (
