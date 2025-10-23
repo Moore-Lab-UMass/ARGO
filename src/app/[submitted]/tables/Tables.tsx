@@ -9,6 +9,7 @@ import { Box } from "@mui/material";
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
 import { generateGeneRanks } from "./genes/geneHelpers"
+import TableToTop from "../../components/TableToTop";
 
 export interface RankedRegionTablesContainerProps {
     sequenceFilterVariables: SequenceFilterState;
@@ -145,6 +146,12 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
         };
     }, [selected, sequenceRows, elementRows, geneRows]);
 
+    const ToolBarIcon = (table: Table) => {
+        return (
+            <TableToTop table={table} setTableOrder={setTableOrder} tableOrder={tableOrder} />
+        )
+    }
+
     return (
         <>
             <RankedRegionsTable
@@ -179,7 +186,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "sequence" && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) && (
                                                 <SequenceTable
                                                     sequenceFilterVariables={sequenceFilterVariables}
-                                                    setTableOrder={setTableOrder}
+                                                    ToolBarIcon={ToolBarIcon("sequence")}
                                                     inputRegions={inputRegions}
                                                     isolatedRows={isolatedRows?.sequence}
                                                     updateSequenceRows={setSequenceRows}
@@ -190,7 +197,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "elements" && elementFilterVariables.usecCREs && (
                                                 <ElementTable
                                                     elementFilterVariables={elementFilterVariables}
-                                                    setTableOrder={setTableOrder}
+                                                    ToolBarIcon={ToolBarIcon("elements")}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.element}
@@ -202,7 +209,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "genes" && geneFilterVariables.useGenes && (
                                                 <GeneTable
                                                     geneFilterVariables={geneFilterVariables}
-                                                    setTableOrder={setTableOrder}
+                                                    ToolBarIcon={ToolBarIcon("genes")}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.gene}

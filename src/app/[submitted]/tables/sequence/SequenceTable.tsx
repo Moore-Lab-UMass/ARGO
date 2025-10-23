@@ -8,7 +8,6 @@ import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../queries";
 import { calculateConservationScores, calculateMotifScores, getNumOverlappingMotifs } from "./sequenceHelpers";
 import Link from "next/link";
 import { GridColDef, Table } from "@weng-lab/ui-components";
-import TableToTop from "../../../components/TableToTop";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { DATA_SOURCE_COLOR_MAP, QUALITY_COLOR_MAP } from "../../../_utility/colors";
 import Grid from "@mui/material/Grid2"
@@ -19,7 +18,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
     isolatedRows,
     updateSequenceRows,
     updateLoadingSequenceRows,
-    setTableOrder
+    ToolBarIcon
 }) => {
     const [modalData, setModalData] = useState<{
         open: boolean;
@@ -350,12 +349,6 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
 
         return cols;
     }, [sequenceFilterVariables, setModalData]);
-
-    const ToolBarIcon = useMemo(() => {
-        return (
-            <TableToTop table="sequence" setTableOrder={setTableOrder} />
-        )
-    }, [setTableOrder])
 
     const dataSourceProportions = useMemo(() => {
         if (!sequenceRows || sequenceRows.length === 0) return {};

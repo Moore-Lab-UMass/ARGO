@@ -6,7 +6,6 @@ import { client } from "../../../client";
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
 import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
-import TableToTop from "../../../components/TableToTop";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { GROUP_COLOR_MAP } from "../../../_utility/colors";
 
@@ -17,7 +16,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
     isolatedRows,
     updateElementRows,
     updateLoadingElementRows,
-    setTableOrder
+    ToolBarIcon
 }) => {
 
     //query to get orthologous cCREs of the intersecting cCREs (also used in gene)
@@ -235,12 +234,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
         return cols;
     }, [elementFilterVariables.assays, elementFilterVariables.cCREAssembly, elementFilterVariables.mustHaveOrtholog, elementFilterVariables.usecCREs]);
-
-    const ToolBarIcon = useMemo(() => {
-        return (
-            <TableToTop table="elements" setTableOrder={setTableOrder} />
-        )
-    }, [setTableOrder])
 
     const classProportions = useMemo(() => {
         if (!elementRows || elementRows.length === 0) return {};

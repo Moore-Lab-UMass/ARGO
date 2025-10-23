@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react"
 import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type Table = "sequence" | "elements" | "genes"
@@ -329,7 +328,7 @@ export type SequenceTableProps = {
     isolatedRows: SequenceTableRow[];
     updateSequenceRows: (rows: SequenceTableRow[]) => void;
     updateLoadingSequenceRows: (loading: boolean) => void;
-    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
+    ToolBarIcon: React.JSX.Element
 }
 
 export type ElementTableProps = {
@@ -339,7 +338,7 @@ export type ElementTableProps = {
     isolatedRows: ElementTableRow[];
     updateElementRows: (rows: ElementTableRow[]) => void;
     updateLoadingElementRows: (loading: boolean) => void;
-    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
+    ToolBarIcon: React.JSX.Element
 }
 
 export type GeneTableProps = {
@@ -349,7 +348,7 @@ export type GeneTableProps = {
     isolatedRows: GeneTableRow[];
     updateGeneRows: (rows: GeneTableRow[]) => void;
     updateLoadingGeneRows: (loading: boolean) => void;
-    setTableOrder: Dispatch<SetStateAction<(Table)[]>>
+    ToolBarIcon: React.JSX.Element
 }
 
 export type ClosestGenetocCRE = {
