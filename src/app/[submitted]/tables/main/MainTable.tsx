@@ -1,9 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { InputRegions, MainTableRow, RankedRegions } from "../../../types";
-import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, Table } from "@weng-lab/ui-components";
+import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, GridSortDirection, GridSortModel, Table, useGridApiRef } from "@weng-lab/ui-components";
 import { calculateAggregateRanks, matchRanks } from "./helpers";
+import AutoSortSwitch from "../../../components/AutoSortSwitch";
 
 export interface RankedRegionsTableProps {
     inputRegions: InputRegions;
@@ -32,6 +33,7 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
     useCcres,
     useGenes
 }) => {
+    const [autoSort, setAutoSort] = useState<boolean>(true);
 
     const handleRowSelectionModelChange = (ids: GridRowSelectionModel) => {
         const newIds = Array.from(ids.ids);
@@ -46,7 +48,7 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
         const aggregateRanks = calculateAggregateRanks(inputRegions, sequenceRanks, elementRanks, geneRanks)
         const updatedMainRows = matchRanks(inputRegions, sequenceRanks, elementRanks, geneRanks, aggregateRanks)
 
-        return updatedMainRows;
+        return updatedMainRows.sort((a, b) => a.aggregateRank - b.aggregateRank);
     }, [elementRanks, geneRanks, inputRegions, sequenceRanks]);
 
     //This is used to prevent sorting from happening when clicking on the header checkbox
@@ -134,21 +136,50 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
         useMotifs,
     ]);
 
+    const apiRef = useGridApiRef();
+
+    const initialSort: GridSortModel = useMemo(() =>
+        [{ field: "aggregateRank", sort: "asc" as GridSortDirection }],
+        []);
+
+    const AutoSortToolbar = useMemo(() => {
+        return (
+            <AutoSortSwitch autoSort={autoSort} setAutoSort={setAutoSort} />
+        )
+    }, [autoSort])
+
+    // handle auto sorting 
+    useEffect(() => {
+        const api = apiRef?.current;
+
+        if (!api) return;
+        if (!autoSort) {
+            //reset sort if none selected
+            api.setSortModel(initialSort);
+            return;
+        }
+
+        //sort by checkboxes if some selected, otherwise sort by aggregate
+        api.setSortModel(selected?.length > 0 ? [{ field: "__check__", sort: "desc" }] : initialSort);
+    }, [apiRef, autoSort, initialSort, selected]);
+
     return (
         <Box mt="20px" id="123456">
             <Table
+                apiRef={apiRef}
                 columns={mainColumns}
                 rows={mainRows}
                 loading={loading}
                 initialState={{
                     sorting: {
-                        sortModel: [{ field: "aggregateRank", sort: "asc" }],
+                        sortModel: initialSort,
                     },
                 }}
                 divHeight={{
                     height: loading ? "440px" : "100%",
                     maxHeight: "440px",
                 }}
+                toolbarSlot={AutoSortToolbar}
                 label={
                     <Tooltip title="Select a row to isolate it" arrow placement="top-start">
                         <Stack direction="row" spacing={1} alignItems="center">
