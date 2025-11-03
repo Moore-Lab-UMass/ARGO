@@ -357,7 +357,11 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
 
         for (const row of sequenceRows) {
             const motif = row.motifID;
-            const motifDataSource = motif.split(".")[3];
+            const motifDataSource = motif?.split(".")[3];
+            if (!motifDataSource) {
+                counts["none"] = (counts["none"] ?? 0) + 1;
+                continue;
+            }
             const chars = motifDataSource.split("");
 
             for (const char of chars) {
@@ -374,7 +378,11 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
         const counts: Record<string, number> = {};
         for (const row of sequenceRows) {
             const motif = row.motifID;
-            const motifQuality = motif.split(".").pop();
+            const motifQuality = motif?.split(".").pop();
+            if (!motifQuality) {
+                counts["none"] = (counts["none"] ?? 0) + 1;
+                continue;
+            }
 
             counts[motifQuality] = (counts[motifQuality] ?? 0) + 1;
         }
