@@ -24,7 +24,7 @@ const pageLinks: PageInfo[] = [
     },
     {
         pageName: "Help",
-        link: "/abhelpout",
+        link: "/help",
     },
 ];
 
