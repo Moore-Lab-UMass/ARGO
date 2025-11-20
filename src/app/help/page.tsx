@@ -3,8 +3,9 @@ import { Box, Divider, Link, Typography } from "@mui/material";
 import React from "react";
 import Grid from "@mui/material/Grid2"
 import Image from "next/image";
-import homepage from "../../../public/help/homepage.png";
+import exampleCards from "../../../public/help/exampleCards.png";
 import requiredFields from "../../../public/help/requiredFields.png";
+import snpUpload from "../../../public/help/snpUpload.png";
 import ContactForm from "./contactForm";
 
 export default function About() {
@@ -20,8 +21,8 @@ export default function About() {
                     <Typography variant="h2">Don&apos;t know where to start?</Typography>
                     <Divider />
                     <Typography mt={1} variant="body1" paragraph>
-                        If you are unsure how to use ARGO, you may begin with our example file which has 100 variants ready to go.
-                        Just click &quot;Use Example File&quot; on the homepage and ARGO will automatically load it and rank the variants for you.
+                        If you are unsure how to use ARGO, you may begin with one of our example files, which have 100 variants each all ready to rank.
+                        Just click &quot;Use File&quot; on the card and ARGO will automatically load it and rank the variants for you.
                     </Typography>
                 </Grid>
                 <Grid
@@ -30,7 +31,7 @@ export default function About() {
                     alignItems={"center"}
                     display={"flex"}
                 >
-                    <Image src={homepage} alt={"example"} style={{ width: "80%", height: "100%" }} />
+                    <Image src={exampleCards} alt={"example"} style={{ width: "80%", height: "100%" }} />
                 </Grid>
                 <Grid size={12}>
                     <Typography mt={1} variant="body1" paragraph>
@@ -45,6 +46,18 @@ export default function About() {
                     display={"flex"}
                 >
                     <Image src={requiredFields} alt={"Required Fields"} style={{ width: "80%", height: "100%" }} />
+                </Grid>
+                <Grid size={12}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}>
+                    <Typography mt={1} variant="body1" paragraph>
+                        You don&apos;t need a full ARGO safe file, however. Feel free to use our SNP Upload option and simply supply us with a list of
+                        RSID&apos;s, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;SNP Upload&quot; before you begin.
+                    </Typography>
+                    <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
                 </Grid>
                 {/* Contact Us */}
                 <Grid id="contact-us" size={12}>

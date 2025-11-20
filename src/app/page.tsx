@@ -1,10 +1,13 @@
 //Home Page
 "use client";
-import { Box, Collapse, Stack, Typography } from "@mui/material";
+import { Box, Button, Collapse, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import ArgoUpload from "./components/ArgoUpload";
 import ExampleFiles from "./components/ExampleFiles";
 import SnpUpload from "./components/SnpUpload";
+import Grid from "@mui/material/Grid2"
+import Link from "next/link";
+
 
 export default function Home() {
   const [argoUploadVisible, setArgoUploadVisible] = useState(false);
@@ -22,7 +25,7 @@ export default function Home() {
         sx={{
           background: `
             linear-gradient(#0c184abf, #0c184a80),
-            url("/ArgoBackground.png")
+            url("/ArgoBackground2.png")
           `,
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
@@ -71,7 +74,6 @@ export default function Home() {
             )}
           </Box>
         </Collapse>
-
         <Collapse in={argoUploadVisible} sx={{ width: "100%" }} timeout={500}>
           <ArgoUpload />
           <Box
@@ -123,6 +125,49 @@ export default function Home() {
           Try these example files to get started with ARGO. They have all required fields and are ready to be uploaded. Download these files to view what your file should look like
         </Typography>
         <ExampleFiles />
+      </Box>
+      <Box
+        width={"100%"}
+        justifyContent={"center"}
+        alignItems={"center"}
+        display={"flex"}
+        flexDirection={"column"}
+        sx={{ paddingY: 10, paddingX: { xs: 5, md: 20 } }}
+      >
+        <Grid container width="100%" justifyContent="space-around">
+          <Grid size={6} width={"auto"}>
+            <Typography variant="h4" sx={{ fontWeight: 550, mb: 2 }}>
+              Not Sure Where to Start?
+            </Typography>
+            <Typography variant="body1" maxWidth={500} mb={2}>
+              Visit the help page to view a detailed breakdown of the application and how to contact our team
+            </Typography>
+            <Button
+                variant="contained"
+                LinkComponent={Link}
+                href="/help"
+                sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+              >
+                View Breakdown
+              </Button>
+          </Grid>
+          <Grid size={6} width={"auto"}>
+            <Typography variant="h4" sx={{ fontWeight: 550, mb: 2 }}>
+              Want to Know More?
+            </Typography>
+            <Typography variant="body1" maxWidth={500} mb={2}>
+              Visit our About page to learn what ARGO does
+            </Typography>
+            <Button
+                variant="contained"
+                LinkComponent={Link}
+                href="/about"
+                sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+              >
+                Learn More
+              </Button>
+          </Grid>
+        </Grid>
       </Box>
     </div>
   );
