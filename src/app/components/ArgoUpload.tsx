@@ -272,26 +272,6 @@ const ArgoUpload: React.FC = ({
         return string.substring(0, maxLength - ellipsis.length) + ellipsis;
     }
 
-    //set files to the example file provided
-    const handleUseExample = async () => {
-        handleReset("TSV File")
-        // const url = "/ArgoTesting.tsv";
-        const url = "/ArgoExample.tsv";
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const blob = await response.blob();
-            const file = new File([blob], "ArgoExample.tsv", { type: blob.type });
-
-            setFiles(file);
-            submitUploadedFile(file)
-        } catch (error) {
-            console.error("Failed to fetch and set the file:", error);
-        }
-    };
-
     return (
         <>
             <Box
