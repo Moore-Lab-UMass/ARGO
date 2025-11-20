@@ -5,7 +5,7 @@ import GeneTable from "./genes/GeneTable"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import RankedRegionsTable from "./main/MainTable"
 import { useMemo, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
 import { generateGeneRanks } from "./genes/geneHelpers"
@@ -167,6 +167,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                 useGenes={geneFilterVariables.useGenes}
                 useMotifs={sequenceFilterVariables.useMotifs}
             />
+            <Divider sx={{mt: "20px", borderBottomWidth: 2}} variant="fullWidth" />
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="tables">
                     {(provided) => (
