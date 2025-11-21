@@ -59,6 +59,18 @@ export default function About() {
                     </Typography>
                     <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
                 </Grid>
+                <Grid size={12}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                    }}>
+                    <Typography mt={1} variant="body1" paragraph>
+                        Once uploaded, you can view your aggregate ranked regions in the first table. Every subsequent table is Sequence, Elements, and Genes
+                        specific. Their respected filters will manipulate these tables and their contents if changed, which will then affect the aggregate 
+                        ranks in the main table. Select your desired filters and explore the results!
+                    </Typography>
+                </Grid>
                 {/* Contact Us */}
                 <Grid id="contact-us" size={12}>
                     <Typography mb={1} variant="h2">
