@@ -1,5 +1,5 @@
 import { IconButton, Modal, Paper, Tooltip, Typography } from '@mui/material';
-import { DataTable, DataTableColumn } from '@weng-lab/ui-components';
+import { GridColDef, GridRenderCellParams, Table } from '@weng-lab/ui-components';
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
@@ -35,18 +35,23 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
     motifs,
 }) => {
 
-    const MOTIFS_COLS: DataTableColumn<MotifProps>[] = [
+    const MOTIFS_COLS: GridColDef<MotifProps>[] = [
         {
-            header: "Reference Score",
-            value: (row) => row.referenceAllele && row.referenceAllele.score ? row.referenceAllele.score : "N/A",
-            render: (row) =>
-                row.referenceAllele ? (
+            field: "referenceScore",
+            headerName: "Reference Score",
+            valueGetter: (_, row) =>
+                row.referenceAllele?.score ?? "N/A",
+            renderCell: (params: GridRenderCellParams) => {
+                const ref = params.row.referenceAllele;
+                if (!ref) return "N/A";
+
+                return (
                     <Tooltip
                         title={
                             <span>
-                                {row.referenceAllele.sequence && (
+                                {ref.sequence && (
                                     <>
-                                        <strong>Allele:</strong> {row.referenceAllele.sequence}
+                                        <strong>Allele:</strong> {ref.sequence}
                                     </>
                                 )}
                             </span>
@@ -54,23 +59,30 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
                         arrow
                         placement="left"
                     >
-                        <Typography fontSize={"14px"}>
-                            {row.referenceAllele.score ? Number(row.referenceAllele.score).toFixed(2) : "N/A"}
+                        <Typography fontSize="14px">
+                            {ref.score ? Number(ref.score).toFixed(2) : "N/A"}
                         </Typography>
                     </Tooltip>
-                ) : "N/A"
+                );
+            },
         },
+
         {
-            header: "Alternate Score",
-            value: (row) => row.alt && row.alt.score ? row.alt.score : "N/A",
-            render: (row) =>
-                row.alt ? (
+            field: "alternateScore",
+            headerName: "Alternate Score",
+            valueGetter: (_, row) =>
+                row.alt?.score ?? "N/A",
+            renderCell: (params: GridRenderCellParams) => {
+                const alt = params.row.alt;
+                if (!alt) return "N/A";
+
+                return (
                     <Tooltip
                         title={
                             <span>
-                                {row.alt.sequence && (
+                                {alt.sequence && (
                                     <>
-                                        <strong>Allele:</strong> {row.alt.sequence}
+                                        <strong>Allele:</strong> {alt.sequence}
                                     </>
                                 )}
                             </span>
@@ -78,35 +90,44 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
                         arrow
                         placement="left"
                     >
-                        <Typography fontSize={"14px"}>
-                            {row.alt.score ? row.alt.score?.toFixed(2) : "N/A"}
+                        <Typography fontSize="14px">
+                            {alt.score ? alt.score.toFixed(2) : "N/A"}
                         </Typography>
                     </Tooltip>
-                ) : "N/A"
+                );
+            },
         },
+
         {
-            header: "Delta",
-            value: (row) => row.diff || row.diff === 0 ? row.diff.toFixed(2) : "N/A"
+            field: "delta",
+            headerName: "Delta",
+            valueGetter: (_, row) =>
+                row.diff || row.diff === 0
+                    ? row.diff.toFixed(2)
+                    : "N/A",
         },
+
         {
-            header: "Motif ID",
-            value: (row) => row.motifID ? row.motifID : "None",
-            render: row => row.motifID ? (
-                <Tooltip
-                    title={"Open Motif In HOCOMOCO"}
-                    arrow
-                    placement="left"
-                >
-                    <Link
-                        href={`https://hocomoco12.autosome.org/motif/${row.motifID}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "#030f98", textDecoration: "none" }}
-                    >
-                        {row.motifID}
-                    </Link>
-                </Tooltip>
-            ) : "None"
+            field: "motifID",
+            headerName: "Motif ID",
+            valueGetter: (_, row) => row.motifID ?? "None",
+            renderCell: (params: GridRenderCellParams) => {
+                const id = params.row.motifID;
+                if (!id) return "None";
+
+                return (
+                    <Tooltip title="Open Motif In HOCOMOCO" arrow placement="left">
+                        <Link
+                            href={`https://hocomoco12.autosome.org/motif/${id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#030f98", textDecoration: "none" }}
+                        >
+                            {id}
+                        </Link>
+                    </Tooltip>
+                );
+            },
         },
     ];
 
@@ -147,13 +168,20 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
                 </Typography>
                 <br />
                 {motifs && (
-                    <DataTable
-                        searchable
+                    <Table
+                        key={"tfpeaks"}
                         columns={MOTIFS_COLS}
                         rows={motifs}
-                        sortColumn={2}
-                        key={"tfpeaks"}
-                        itemsPerPage={10}
+                        loading={false}
+                        initialState={{
+                            sorting: {
+                                sortModel: [{ field: "delta", sort: "desc" }],
+                            },
+                        }}
+                        divHeight={{ maxHeight: "600px" }}
+                        label={"Motifs"}
+                        downloadFileName="OverlappingMotifs.tsv"
+                        emptyTableFallback={"No Motifs Found"}
                     />
                 )}
             </Paper>

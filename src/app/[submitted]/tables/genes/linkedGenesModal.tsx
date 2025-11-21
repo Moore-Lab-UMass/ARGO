@@ -1,5 +1,5 @@
 import { Typography, Modal, Paper, IconButton } from "@mui/material";
-import { DataTableColumn, DataTable } from "@weng-lab/ui-components";
+import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import CloseIcon from '@mui/icons-material/Close';
 import { GeneLinkingMethod } from "../../../types";
 import GeneLink from "../../../components/GeneLink";
@@ -29,21 +29,27 @@ const GenesModal: React.FC<GeneModalProps> = ({
     genes,
 }) => {
 
-    const GENE_COLS: DataTableColumn<LinkedGenes>[] = [
+    const GENE_COLS: GridColDef<LinkedGenes>[] = [
         {
-            header: "Gene Name",
-            value: (row) => row.name.trim(),
-            render: (row) => (
-                <GeneLink assembly="GRCh38" geneName={row.name.trim()} />
-            )
+            field: "geneName",
+            headerName: "Gene Name",
+            valueGetter: (_, row) => row.name.trim(),
+            renderCell: (params: GridRenderCellParams) => {
+                const name = params.row.name?.trim();
+                return <GeneLink assembly="GRCh38" geneName={name} />;
+            },
         },
+
         {
-            header: "Gene ID",
-            value: (row) => row.geneid
+            field: "geneID",
+            headerName: "Gene ID",
+            valueGetter: (_, row) => row.geneid,
         },
+
         {
-            header: "Linked By",
-            value: (row) => row.linkedBy,
+            field: "linkedBy",
+            headerName: "Linked By",
+            valueGetter: (_, row) => row.linkedBy,
         },
     ];
 
@@ -78,13 +84,20 @@ const GenesModal: React.FC<GeneModalProps> = ({
                 <br />
                 <br />
                 {genes && (
-                    <DataTable
-                        searchable
+                    <Table
+                        key={"linkedGenes"}
                         columns={GENE_COLS}
                         rows={genes}
-                        sortColumn={2}
-                        key={"tfpeaks"}
-                        itemsPerPage={10}
+                        loading={false}
+                        initialState={{
+                            sorting: {
+                                sortModel: [{ field: "geneName", sort: "desc" }],
+                            },
+                        }}
+                        divHeight={{ maxHeight: "600px" }}
+                        label={"Linked Genes"}
+                        downloadFileName="LinkedGenes.tsv"
+                        emptyTableFallback={"No Linked Genes"}
                     />
                 )}
             </Paper>
