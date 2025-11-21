@@ -7,6 +7,7 @@ import theme from "./theme"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
 import Header from "./components/Header";
 import MuiXLicense from "./_utility/MuiXLicense";
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
                 <Header maintenance={false} />
                 <Stack flexGrow={1} overflow={"auto"} minHeight={0} id="content-wrapper">
                   <Stack flexGrow={1}>{children}</Stack>
+                  <Footer />
                 </Stack>
               </Stack>
             </ThemeProvider>

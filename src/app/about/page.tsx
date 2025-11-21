@@ -104,7 +104,7 @@ export default function About() {
                             lg: 5,
                         }}
                     >
-                        <Typography variant="h5" gutterBottom>Rang Aggregation</Typography>
+                        <Typography variant="h5" gutterBottom>Rangk Aggregation</Typography>
                         <Typography variant="body1" paragraph>
                             ARGO implements rank aggregation methods, which produce a single consensus ranking by combining multiple different rankings, 
                             often deriving from complementary sources. Rank aggregation is advantageous because it can leverage the strengths of individual methods, 

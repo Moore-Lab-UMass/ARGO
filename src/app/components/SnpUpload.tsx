@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react"
-import { Button, Typography, Stack, IconButton, FormControl, Box, TextField, Alert, Container, Table, TableBody, TableCell, TableRow, RadioGroup, FormControlLabel, Radio, Tooltip, DialogContent, Dialog, DialogTitle } from "@mui/material"
+import { Button, Typography, Stack, IconButton, FormControl, Box, TextField, Alert, Container, RadioGroup, FormControlLabel, Radio, Tooltip, } from "@mui/material"
 import { useDropzone } from "react-dropzone"
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
@@ -23,8 +23,6 @@ const ArgoUpload: React.FC = ({
     const [textValue, setTextValue] = useState(""); // State to control the TextField value
     const [textChanged, setTextChanged] = useState(true);
     const [getAllele] = useLazyQuery(REF_CHECK_QUERY);
-    const [cellErr, setCellErr] = useState("");
-    const [requiredOpen, setRequiredOpen] = useState(false);
     const [selectedSearch, setSelectedSearch] = useState<string>("TSV File")
 
     //check to see if the value in the text box has changed
@@ -33,7 +31,6 @@ const ArgoUpload: React.FC = ({
     }, [textValue])
 
     const handleReset = (searchChange: string) => {
-        setCellErr(""); //clear the errored cells
         setTextValue(""); // Clear the text box
         setFiles(null); //clear uploaded files
         setSelectedSearch(searchChange); //change search to selected search
@@ -108,82 +105,10 @@ const ArgoUpload: React.FC = ({
 
     //check for errors in input file / text
     const validateRegions = useCallback(async (regions: InputRegions): Promise<string | null> => {
-        // Validate fields are separated by tabs
-        const tabErrorIndex = regions.find(region =>
-            Object.values(region).some(value =>
-                typeof value === "string" && value.includes(" ")
-            )
-        );
-        if (tabErrorIndex) {
-            return `Fields must be separated by tabs in region at regionID: ${tabErrorIndex.regionID}
-            (${Object.values(tabErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
-        // Validate chromosomes have numbers
-        const chrErrorIndex = regions.find(region =>
-            Number(region.chr.replace('chr', '')) === 0 || isNaN(Number(region.chr.replace('chr', '')))
-        );
-        if (chrErrorIndex) {
-            setCellErr("chr");
-            return `Provide valid chromosome numbers at regionID: ${chrErrorIndex.regionID}
-            (${Object.values(chrErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
-        // Validate start and end are numbers
-        const startEndErrorIndex = regions.find(region =>
-            isNaN(region.start) || isNaN(region.end)
-        );
-        if (startEndErrorIndex) {
-            setCellErr("numbers");
-            return `Start and End must be numbers at regionID: ${startEndErrorIndex.regionID}
-            (${Object.values(startEndErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
-        // Validate end position greater than start
-        const greaterThanErrorIndex = regions.find(region =>
-            region.end <= region.start
-        );
-        if (greaterThanErrorIndex) {
-            setCellErr("numbers");
-            return `End position must be greater than start position at regionID: ${greaterThanErrorIndex.regionID}
-            (${Object.values(greaterThanErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
-        // Validate total base pairs is less than 10,000
-        const totalBasePairs = regions.reduce(
-            (sum, region) => sum + (region.end - region.start),
-            0
-        );
-        if (totalBasePairs > 10000) {
-            return "The total base pairs in the input regions must not exceed 10,000.";
-        }
-
-        // Validate reference alleles
-        const refError = await compareRegionsToReferences(regions);
-        if (refError !== "") {
-            setCellErr("ref")
-            return refError;
-        }
-
-        const validAlts = /^[CGTA-]+$/;
-        const altErrorIndex = regions.find(region => !validAlts.test(region.alt));
-        if (altErrorIndex) {
-            setCellErr("alt")
-            return `Alternate allele must only include these 5 characters [A, C, T, G, -] at regionID: ${altErrorIndex.regionID}
-            (${Object.values(altErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
-        const validStrands = ["+", "-"];
-        const strandErrorIndex = regions.find(region => !validStrands.includes(region.strand));
-        if (strandErrorIndex) {
-            setCellErr("strand")
-            return `Strand must only but + or - at regionID: ${strandErrorIndex.regionID}
-            (${Object.values(strandErrorIndex).slice(0, -1).join(' ')})`;
-        }
-
+        
         // If no errors, return null
         return null;
-    }, [compareRegionsToReferences])
+    }, [])
 
     //map parsed file / text to Genomic region type and sort them
     const configureInputedRegions = useCallback(async (data, fileName: string) => {
@@ -231,7 +156,6 @@ const ArgoUpload: React.FC = ({
     function submitTextUpload(event) {
         setLoading(true)
         setError([false, ""])
-        setCellErr("")
         const uploadedData = event.get("textUploadFile").toString()
         const inputData = parseDataInput(uploadedData)
         configureInputedRegions(inputData, "textSubmission")
@@ -240,7 +164,6 @@ const ArgoUpload: React.FC = ({
     const submitUploadedFile = useCallback((file: File) => {
         setLoading(true)
         setError([false, ""])
-        setCellErr("")
         let allLines = []
         if (file.type !== "tsv" && file.name.split('.').pop() !== "tsv") {
             console.error("File type is not tsv");
@@ -302,7 +225,7 @@ const ArgoUpload: React.FC = ({
                         lineHeight: '25px',
                         letterSpacing: 0,
                     }}>
-                    Complete File Upload
+                    SNP ID Upload
                 </Typography>
                 {/* Upload section */}
                     <Stack width="100%">
@@ -320,8 +243,8 @@ const ArgoUpload: React.FC = ({
                                 </FormControl>
                                 {/* Help icon to open Required Fields */}
                             </Stack>
-                            <Tooltip title="View required fields" arrow>
-                                <IconButton color={cellErr === "" ? "default" : "error"} onClick={() => setRequiredOpen(true)}>
+                            <Tooltip title="Upload or type in RSID's and ARGO will autofill the required fields to be ready to rank!" arrow>
+                                <IconButton>
                                     <HelpOutlineIcon />
                                 </IconButton>
                             </Tooltip>
@@ -438,71 +361,6 @@ const ArgoUpload: React.FC = ({
                         </Box>
                     </Stack>
             </Box>
-
-            {/* Dialog with Required Fields */}
-            <Dialog open={requiredOpen} onClose={() => setRequiredOpen(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Required Fields</DialogTitle>
-                <DialogContent>
-                    <Table
-                        sx={{
-                            border: "1px solid",
-                            borderColor: "black",
-                            width: "100%",
-                            "& td, & th": {
-                                padding: "8px",
-                                fontSize: "1rem",
-                                textAlign: "center",
-                                border: "1px solid",
-                                borderColor: "black"
-                            }
-                        }}
-                    >
-                        <TableBody>
-                            <TableRow>
-                                <TableCell sx={{ backgroundColor: cellErr === "chr" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="Chromosome where the variant is located Ex: Chr1" arrow>
-                                        <span>Chromosome</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="Start position of the variant Ex: 1000000" arrow>
-                                        <span>Start</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell sx={{ backgroundColor: cellErr === "numbers" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="End position of the variant Ex: 1000001" arrow>
-                                        <span>End</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell sx={{ backgroundColor: cellErr === "ref" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="Original Sequence Ex: G" arrow>
-                                        <span>Reference Allele</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell sx={{ backgroundColor: cellErr === "alt" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="Mutated Sequence, Insertion Ex: C, Deletion Ex: -" arrow>
-                                        <span>Alternate Allele</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell sx={{ backgroundColor: cellErr === "strand" ? "error.light" : "transparent" }}>
-                                    <Tooltip title="Strand information (+ or -)" arrow>
-                                        <span>Strand</span>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell>
-                                    <Tooltip title="Optional region identifier, String or Number" arrow>
-                                        <span>Region ID (optional)</span>
-                                    </Tooltip>
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                    <Typography variant="body1" fontSize="1rem" sx={{ mt: 2 }}>
-                        If using the text box, separate fields with a tab. Below is an example file to help you
-                        format your data correctly.
-                    </Typography>
-                </DialogContent>
-            </Dialog>
         </>
     );
 }
