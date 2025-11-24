@@ -289,11 +289,6 @@ const ArgoUpload: React.FC = ({
                     mx: "auto"
                 }}
             >
-                {error[0] && (
-                    <Alert variant="outlined" severity="error" sx={{ width: "100%" }}>
-                        {error[1]}
-                    </Alert>
-                )}
                 {/* Top Description */}
                 <Typography
                     sx={{
@@ -304,139 +299,144 @@ const ArgoUpload: React.FC = ({
                     }}>
                     Complete File Upload
                 </Typography>
+                {error[0] && (
+                    <Alert variant="outlined" severity="error" sx={{ width: "100%", mt: 2 }}>
+                        {error[1]}
+                    </Alert>
+                )}
                 {/* Upload section */}
-                    <Stack width="100%">
-                        <Stack direction="row" alignItems="flex-start" flexWrap="wrap" justifyContent="space-between" sx={{ mb: 1 }}>
-                            <Stack alignItems="center" spacing={2}>
-                                <FormControl>
-                                    <RadioGroup
-                                        row
-                                        value={selectedSearch}
-                                        onChange={(event) => handleReset(event.target.value)}
-                                    >
-                                        <FormControlLabel value="TSV File" control={<Radio />} label="TSV File" />
-                                        <FormControlLabel value="Text Box" control={<Radio />} label="Text Box" />
-                                    </RadioGroup>
-                                </FormControl>
-                                {/* Help icon to open Required Fields */}
-                            </Stack>
-                            <Tooltip title="View required fields" arrow>
-                                <IconButton color={cellErr === "" ? "default" : "error"} onClick={() => setRequiredOpen(true)}>
-                                    <HelpOutlineIcon />
-                                </IconButton>
-                            </Tooltip>
+                <Stack width="100%">
+                    <Stack direction="row" alignItems="flex-start" flexWrap="wrap" justifyContent="space-between" sx={{ mb: 1 }}>
+                        <Stack alignItems="center" spacing={2}>
+                            <FormControl>
+                                <RadioGroup
+                                    row
+                                    value={selectedSearch}
+                                    onChange={(event) => handleReset(event.target.value)}
+                                >
+                                    <FormControlLabel value="TSV File" control={<Radio />} label="TSV File" />
+                                    <FormControlLabel value="Text Box" control={<Radio />} label="Text Box" />
+                                </RadioGroup>
+                            </FormControl>
+                            {/* Help icon to open Required Fields */}
                         </Stack>
-                        <Box
-                            sx={{
-                                ...(files === null && {
-                                    flexGrow: 1,
-                                    display: "flex"
-                                })
-                            }}
-                        >
-                            {selectedSearch === "TSV File" ? (
-                                files === null && (
-                                    <Container
-                                        sx={{
-                                            border: isDragActive ? "2px dashed blue" : "2px dashed grey",
-                                            borderRadius: "10px",
-                                            minWidth: "250px",
-                                            pl: "0 !important",
-                                            pr: "0 !important",
-                                            color: isDragActive ? "text.secondary" : "text.primary",
-                                            height: "215.5px"
-                                        }}
-                                    >
-                                        <div {...getRootProps()} style={{ padding: "1rem" }}>
-                                            <input {...getInputProps()} type="file" accept=".tsv" />
-                                            <Stack spacing={1} direction="column" alignItems="center">
-                                                <UploadFileIcon />
-                                                <Typography>Drag and drop a .tsv file</Typography>
-                                                <Typography>or</Typography>
-                                                <Button
-                                                    variant="outlined"
-                                                    disabled={isDragActive}
-                                                    sx={{ textTransform: "none" }}
-                                                >
-                                                    Click to select a file
-                                                </Button>
-                                            </Stack>
-                                        </div>
-                                    </Container>
-                                )
-                            ) : (
-                                <FormControl fullWidth>
-                                    <form action={submitTextUpload}>
-                                        <TextField
-                                            name="textUploadFile"
-                                            multiline
-                                            fullWidth
-                                            rows={6}
-                                            placeholder="Copy and paste your data from Excel here"
-                                            onKeyDown={handleKeyDown}
-                                            value={textValue}
-                                            onChange={(e) => setTextValue(e.target.value)}
-                                        />
-                                        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1 }}>
-                                            <LoadingButton
-                                                loading={loading}
-                                                loadingPosition="end"
-                                                type="submit"
-                                                size="medium"
-                                                variant="outlined"
-                                                disabled={!textChanged}
-                                                sx={{ textTransform: "none" }}
-                                            >
-                                                Submit
-                                            </LoadingButton>
+                        <Tooltip title="View required fields" arrow>
+                            <IconButton color={cellErr === "" ? "default" : "error"} onClick={() => setRequiredOpen(true)}>
+                                <HelpOutlineIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                    <Box
+                        sx={{
+                            ...(files === null && {
+                                flexGrow: 1,
+                                display: "flex"
+                            })
+                        }}
+                    >
+                        {selectedSearch === "TSV File" ? (
+                            files === null && (
+                                <Container
+                                    sx={{
+                                        border: isDragActive ? "2px dashed blue" : "2px dashed grey",
+                                        borderRadius: "10px",
+                                        minWidth: "250px",
+                                        pl: "0 !important",
+                                        pr: "0 !important",
+                                        color: isDragActive ? "text.secondary" : "text.primary",
+                                        height: "215.5px"
+                                    }}
+                                >
+                                    <div {...getRootProps()} style={{ padding: "1rem" }}>
+                                        <input {...getInputProps()} type="file" accept=".tsv" />
+                                        <Stack spacing={1} direction="column" alignItems="center">
+                                            <UploadFileIcon />
+                                            <Typography>Drag and drop a .tsv file</Typography>
+                                            <Typography>or</Typography>
                                             <Button
-                                                color="error"
-                                                type="button"
-                                                size="medium"
                                                 variant="outlined"
-                                                onClick={() => handleReset(selectedSearch)}
+                                                disabled={isDragActive}
                                                 sx={{ textTransform: "none" }}
                                             >
-                                                Reset
+                                                Click to select a file
                                             </Button>
                                         </Stack>
-                                    </form>
-                                </FormControl>
-                            )}
-
-                            {/* Uploaded file display */}
-                            {files !== null && (
-                                <>
-                                    <Typography mb={1} variant="h5">
-                                        Uploaded:
-                                    </Typography>
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <Typography>
-                                            {`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(
-                                                files.size / 1000000
-                                            ).toFixed(1)}\u00A0mb`}
-                                        </Typography>
-                                        <IconButton color="primary" onClick={() => handleReset(selectedSearch)}>
-                                            <Cancel />
-                                        </IconButton>
+                                    </div>
+                                </Container>
+                            )
+                        ) : (
+                            <FormControl fullWidth>
+                                <form action={submitTextUpload}>
+                                    <TextField
+                                        name="textUploadFile"
+                                        multiline
+                                        fullWidth
+                                        rows={6}
+                                        placeholder="Copy and paste your data from Excel here"
+                                        onKeyDown={handleKeyDown}
+                                        value={textValue}
+                                        onChange={(e) => setTextValue(e.target.value)}
+                                    />
+                                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1 }}>
+                                        <Button
+                                            color="error"
+                                            type="button"
+                                            size="medium"
+                                            variant="outlined"
+                                            onClick={() => handleReset(selectedSearch)}
+                                            sx={{ textTransform: "none" }}
+                                        >
+                                            Reset
+                                        </Button>
+                                        <LoadingButton
+                                            loading={loading}
+                                            loadingPosition="end"
+                                            type="submit"
+                                            size="medium"
+                                            variant="outlined"
+                                            disabled={!textChanged}
+                                            sx={{ textTransform: "none" }}
+                                        >
+                                            Submit
+                                        </LoadingButton>
                                     </Stack>
-                                    <LoadingButton
-                                        loading={loading}
-                                        loadingPosition="end"
-                                        sx={{ textTransform: "none", maxWidth: "18rem" }}
-                                        onClick={() => {
-                                            submitUploadedFile(files);
-                                        }}
-                                        variant="outlined"
-                                        color="primary"
-                                        disabled={filesSubmitted}
-                                    >
-                                        <span>Submit</span>
-                                    </LoadingButton>
-                                </>
-                            )}
-                        </Box>
-                    </Stack>
+                                </form>
+                            </FormControl>
+                        )}
+
+                        {/* Uploaded file display */}
+                        {files !== null && (
+                            <>
+                                <Typography mb={1} variant="h5">
+                                    Uploaded:
+                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Typography>
+                                        {`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(
+                                            files.size / 1000000
+                                        ).toFixed(1)}\u00A0mb`}
+                                    </Typography>
+                                    <IconButton color="primary" onClick={() => handleReset(selectedSearch)}>
+                                        <Cancel />
+                                    </IconButton>
+                                </Stack>
+                                <LoadingButton
+                                    loading={loading}
+                                    loadingPosition="end"
+                                    sx={{ textTransform: "none", maxWidth: "18rem" }}
+                                    onClick={() => {
+                                        submitUploadedFile(files);
+                                    }}
+                                    variant="outlined"
+                                    color="primary"
+                                    disabled={filesSubmitted}
+                                >
+                                    <span>Submit</span>
+                                </LoadingButton>
+                            </>
+                        )}
+                    </Box>
+                </Stack>
             </Box>
 
             {/* Dialog with Required Fields */}

@@ -182,6 +182,19 @@ export const REF_CHECK_QUERY = gql(`
 }
     `)
 
+export const SNP_QUERY = gql(`
+  query Snp($snpids: [String], $coordinates: [GenomicRangeInput], $assembly: String!) {
+    snpQuery(assembly: $assembly, snpids: $snpids, coordinates: $coordinates) {
+      id
+      coordinates {
+        chromosome
+        start
+        end
+      }
+    }
+  }
+`);
+
 export const BED_INTERSECT_QUERY = gql(`
 query bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {
   intersection (

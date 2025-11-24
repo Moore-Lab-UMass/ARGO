@@ -379,3 +379,14 @@ export type MotifRanking = {
     threshold?: number | null;
     motif?: string | null;
 }[]
+
+export type ReturnedSnps = {
+    __typename?: "SNP";
+    id: string;
+    coordinates: {
+        __typename?: "GenomicRange";
+        chromosome: string;
+        start: number;
+        end: number;
+    };
+}[]

@@ -4,10 +4,10 @@ import { useDropzone } from "react-dropzone"
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
-import { InputRegions } from "../types";
+import { InputRegions, ReturnedSnps } from "../types";
 import { useLazyQuery } from "@apollo/client";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { REF_CHECK_QUERY } from "../queries";
+import { SNP_QUERY } from "../queries";
 import { encodeRegions } from "../_utility/coding";
 
 const ArgoUpload: React.FC = ({
@@ -22,7 +22,7 @@ const ArgoUpload: React.FC = ({
     const [filesSubmitted, setFilesSubmitted] = useState(false);
     const [textValue, setTextValue] = useState(""); // State to control the TextField value
     const [textChanged, setTextChanged] = useState(true);
-    const [getAllele] = useLazyQuery(REF_CHECK_QUERY);
+    const [getSnps] = useLazyQuery(SNP_QUERY);
     const [selectedSearch, setSelectedSearch] = useState<string>("TSV File")
 
     //check to see if the value in the text box has changed
@@ -67,90 +67,71 @@ const ArgoUpload: React.FC = ({
                 line.startsWith("track") ||
                 line.length === 0
             )) {
-                allLines.push(line.split("\t"))
+                allLines.push(line)
             }
         })
         return allLines
     }
 
-    const compareRegionsToReferences = useCallback(async (regions: InputRegions): Promise<string> => {
-        const response = await getAllele({
+    const validateVariants = useCallback(async (data: string[]): Promise<ReturnedSnps | string> => {
+        const trimmed = data.map((line) => line.trim());
+
+        const response = await getSnps({
             variables: {
-                inputs: regions.map(region => ({
-                    chrom: region.chr,
-                    start: region.start,
-                    end: region.end,
-                    regionid: region.regionID as string,
-                    ref: region.ref,
-                    strand: region.strand
-                })),
+                snpids: trimmed,
+                assembly: "GRCh38",
             },
             fetchPolicy: "cache-first",
         });
 
-        // Extract mismatched regions from the response
-        const mismatchedRegions = response.data?.refcheckmotifranking ?? [];
+        const returnedSnps = response?.data?.snpQuery ?? [];
+        const foundSet = new Set(
+            returnedSnps.map((s: { id: string }) => s.id)
+        );
 
-        // If there are no mismatches, return an empty string
-        if (mismatchedRegions.length === 0) {
-            return "";
+        // Check each input
+        for (const id of trimmed) {
+            if (!foundSet.has(id)) {
+                return `${id} is not a valid snp id`;
+            }
         }
 
-        // Format the error message for mismatched regions
-        return mismatchedRegions.map(region =>
-            `Reference allele does not match at regionID: ${region.regionid} 
-            (${region.chrom} ${region.start} ${region.end}), the correct reference allele would be ${region.refTrue}`
-        ).join("\n");
-    }, [getAllele]);
+        return returnedSnps;
 
-    //check for errors in input file / text
-    const validateRegions = useCallback(async (regions: InputRegions): Promise<string | null> => {
-        
-        // If no errors, return null
-        return null;
-    }, [])
+    }, [getSnps]);
 
-    //map parsed file / text to Genomic region type and sort them
     const configureInputedRegions = useCallback(async (data, fileName: string) => {
-        const regions: InputRegions = data.map((item, index) => ({
-            chr: item[0],
-            start: Number(item[1]),
-            end: Number(item[2]),
-            ref: item[3],
-            alt: item[4],
-            strand: item[5],
-            regionID: item.length === 7 ? item[6].replace("\r", "") : index + 1,
-        }));
 
         setLoading(true);
 
-        // Validate regions
-        const errorMessage = await validateRegions(regions);
-        if (errorMessage) {
-            setError([true, errorMessage]);
+        // Validate variants
+        const variants = await validateVariants(data);
+        if (typeof variants === "string") {
+            setError([true, variants]);
             setLoading(false);
             return;
         }
+        console.log(variants);
 
-        // Sort the regions
-        const sortedRegions = regions.sort((a, b) => {
-            const chrA = Number(a.chr.replace('chr', ''));
-            const chrB = Number(b.chr.replace('chr', ''));
+        // // Sort the regions
+        // const sortedRegions = regions.sort((a, b) => {
+        //     const chrA = Number(a.chr.replace('chr', ''));
+        //     const chrB = Number(b.chr.replace('chr', ''));
 
-            if (chrA !== chrB) {
-                return chrA - chrB;
-            }
-            return a.start - b.start;
-        });
-        const encoded = encodeRegions(sortedRegions);
-        sessionStorage.setItem("encodedRegions", encoded);
-        sessionStorage.setItem("fileName", fileName);
-        window.open(`/${fileName}`, "_self")
+        //     if (chrA !== chrB) {
+        //         return chrA - chrB;
+        //     }
+        //     return a.start - b.start;
+        // });
+        // const encoded = encodeRegions(sortedRegions);
+        // sessionStorage.setItem("encodedRegions", encoded);
+        // sessionStorage.setItem("fileName", fileName);
+        // window.open(`/${fileName}`, "_self")
 
         setLoading(false);
         setFilesSubmitted(true);
         setTextChanged(false);
-    }, [validateRegions])
+    }, [validateVariants])
 
 
     function submitTextUpload(event) {
@@ -158,7 +139,7 @@ const ArgoUpload: React.FC = ({
         setError([false, ""])
         const uploadedData = event.get("textUploadFile").toString()
         const inputData = parseDataInput(uploadedData)
-        configureInputedRegions(inputData, "textSubmission")
+        configureInputedRegions(inputData, "TextSubmission")
     }
 
     const submitUploadedFile = useCallback((file: File) => {
@@ -212,11 +193,6 @@ const ArgoUpload: React.FC = ({
                     mx: "auto"
                 }}
             >
-                {error[0] && (
-                    <Alert variant="outlined" severity="error" sx={{ width: "100%" }}>
-                        {error[1]}
-                    </Alert>
-                )}
                 {/* Top Description */}
                 <Typography
                     sx={{
@@ -227,139 +203,144 @@ const ArgoUpload: React.FC = ({
                     }}>
                     SNP ID Upload
                 </Typography>
+                {error[0] && (
+                    <Alert variant="outlined" severity="error" sx={{ width: "100%", mt: 2 }}>
+                        {error[1]}
+                    </Alert>
+                )}
                 {/* Upload section */}
-                    <Stack width="100%">
-                        <Stack direction="row" alignItems="flex-start" flexWrap="wrap" justifyContent="space-between" sx={{ mb: 1 }}>
-                            <Stack alignItems="center" spacing={2}>
-                                <FormControl>
-                                    <RadioGroup
-                                        row
-                                        value={selectedSearch}
-                                        onChange={(event) => handleReset(event.target.value)}
-                                    >
-                                        <FormControlLabel value="TSV File" control={<Radio />} label="TSV File" />
-                                        <FormControlLabel value="Text Box" control={<Radio />} label="Text Box" />
-                                    </RadioGroup>
-                                </FormControl>
-                                {/* Help icon to open Required Fields */}
-                            </Stack>
-                            <Tooltip title="Upload or type in RSID's and ARGO will autofill the required fields to be ready to rank!" arrow>
-                                <IconButton>
-                                    <HelpOutlineIcon />
-                                </IconButton>
-                            </Tooltip>
+                <Stack width="100%">
+                    <Stack direction="row" alignItems="flex-start" flexWrap="wrap" justifyContent="space-between" sx={{ mb: 1 }}>
+                        <Stack alignItems="center" spacing={2}>
+                            <FormControl>
+                                <RadioGroup
+                                    row
+                                    value={selectedSearch}
+                                    onChange={(event) => handleReset(event.target.value)}
+                                >
+                                    <FormControlLabel value="TSV File" control={<Radio />} label="TSV File" />
+                                    <FormControlLabel value="Text Box" control={<Radio />} label="Text Box" />
+                                </RadioGroup>
+                            </FormControl>
+                            {/* Help icon to open Required Fields */}
                         </Stack>
-                        <Box
-                            sx={{
-                                ...(files === null && {
-                                    flexGrow: 1,
-                                    display: "flex"
-                                })
-                            }}
-                        >
-                            {selectedSearch === "TSV File" ? (
-                                files === null && (
-                                    <Container
-                                        sx={{
-                                            border: isDragActive ? "2px dashed blue" : "2px dashed grey",
-                                            borderRadius: "10px",
-                                            minWidth: "250px",
-                                            pl: "0 !important",
-                                            pr: "0 !important",
-                                            color: isDragActive ? "text.secondary" : "text.primary",
-                                            height: "215.5px"
-                                        }}
-                                    >
-                                        <div {...getRootProps()} style={{ padding: "1rem" }}>
-                                            <input {...getInputProps()} type="file" accept=".tsv" />
-                                            <Stack spacing={1} direction="column" alignItems="center">
-                                                <UploadFileIcon />
-                                                <Typography>Drag and drop a .tsv file</Typography>
-                                                <Typography>or</Typography>
-                                                <Button
-                                                    variant="outlined"
-                                                    disabled={isDragActive}
-                                                    sx={{ textTransform: "none" }}
-                                                >
-                                                    Click to select a file
-                                                </Button>
-                                            </Stack>
-                                        </div>
-                                    </Container>
-                                )
-                            ) : (
-                                <FormControl fullWidth>
-                                    <form action={submitTextUpload}>
-                                        <TextField
-                                            name="textUploadFile"
-                                            multiline
-                                            fullWidth
-                                            rows={6}
-                                            placeholder="Copy and paste your data from Excel here"
-                                            onKeyDown={handleKeyDown}
-                                            value={textValue}
-                                            onChange={(e) => setTextValue(e.target.value)}
-                                        />
-                                        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1 }}>
-                                            <LoadingButton
-                                                loading={loading}
-                                                loadingPosition="end"
-                                                type="submit"
-                                                size="medium"
-                                                variant="outlined"
-                                                disabled={!textChanged}
-                                                sx={{ textTransform: "none" }}
-                                            >
-                                                Submit
-                                            </LoadingButton>
+                        <Tooltip title="Upload or type in RSID's and ARGO will autofill the required fields to be ready to rank! Please seperate ID's with a new line." arrow>
+                            <IconButton>
+                                <HelpOutlineIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                    <Box
+                        sx={{
+                            ...(files === null && {
+                                flexGrow: 1,
+                                display: "flex"
+                            })
+                        }}
+                    >
+                        {selectedSearch === "TSV File" ? (
+                            files === null && (
+                                <Container
+                                    sx={{
+                                        border: isDragActive ? "2px dashed blue" : "2px dashed grey",
+                                        borderRadius: "10px",
+                                        minWidth: "250px",
+                                        pl: "0 !important",
+                                        pr: "0 !important",
+                                        color: isDragActive ? "text.secondary" : "text.primary",
+                                        height: "215.5px"
+                                    }}
+                                >
+                                    <div {...getRootProps()} style={{ padding: "1rem" }}>
+                                        <input {...getInputProps()} type="file" accept=".tsv" />
+                                        <Stack spacing={1} direction="column" alignItems="center">
+                                            <UploadFileIcon />
+                                            <Typography>Drag and drop a .tsv file</Typography>
+                                            <Typography>or</Typography>
                                             <Button
-                                                color="error"
-                                                type="button"
-                                                size="medium"
                                                 variant="outlined"
-                                                onClick={() => handleReset(selectedSearch)}
+                                                disabled={isDragActive}
                                                 sx={{ textTransform: "none" }}
                                             >
-                                                Reset
+                                                Click to select a file
                                             </Button>
                                         </Stack>
-                                    </form>
-                                </FormControl>
-                            )}
-
-                            {/* Uploaded file display */}
-                            {files !== null && (
-                                <>
-                                    <Typography mb={1} variant="h5">
-                                        Uploaded:
-                                    </Typography>
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <Typography>
-                                            {`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(
-                                                files.size / 1000000
-                                            ).toFixed(1)}\u00A0mb`}
-                                        </Typography>
-                                        <IconButton color="primary" onClick={() => handleReset(selectedSearch)}>
-                                            <Cancel />
-                                        </IconButton>
+                                    </div>
+                                </Container>
+                            )
+                        ) : (
+                            <FormControl fullWidth>
+                                <form action={submitTextUpload}>
+                                    <TextField
+                                        name="textUploadFile"
+                                        multiline
+                                        fullWidth
+                                        rows={6}
+                                        placeholder="Copy and paste your data from Excel here"
+                                        onKeyDown={handleKeyDown}
+                                        value={textValue}
+                                        onChange={(e) => setTextValue(e.target.value)}
+                                    />
+                                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 1 }}>
+                                        <Button
+                                            color="error"
+                                            type="button"
+                                            size="medium"
+                                            variant="outlined"
+                                            onClick={() => handleReset(selectedSearch)}
+                                            sx={{ textTransform: "none" }}
+                                        >
+                                            Reset
+                                        </Button>
+                                        <LoadingButton
+                                            loading={loading}
+                                            loadingPosition="end"
+                                            type="submit"
+                                            size="medium"
+                                            variant="outlined"
+                                            disabled={!textChanged}
+                                            sx={{ textTransform: "none" }}
+                                        >
+                                            Submit
+                                        </LoadingButton>
                                     </Stack>
-                                    <LoadingButton
-                                        loading={loading}
-                                        loadingPosition="end"
-                                        sx={{ textTransform: "none", maxWidth: "18rem" }}
-                                        onClick={() => {
-                                            submitUploadedFile(files);
-                                        }}
-                                        variant="outlined"
-                                        color="primary"
-                                        disabled={filesSubmitted}
-                                    >
-                                        <span>Submit</span>
-                                    </LoadingButton>
-                                </>
-                            )}
-                        </Box>
-                    </Stack>
+                                </form>
+                            </FormControl>
+                        )}
+
+                        {/* Uploaded file display */}
+                        {files !== null && (
+                            <>
+                                <Typography mb={1} variant="h5">
+                                    Uploaded:
+                                </Typography>
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                    <Typography>
+                                        {`${truncateFileName(files.name, 40)}\u00A0-\u00A0${(
+                                            files.size / 1000000
+                                        ).toFixed(1)}\u00A0mb`}
+                                    </Typography>
+                                    <IconButton color="primary" onClick={() => handleReset(selectedSearch)}>
+                                        <Cancel />
+                                    </IconButton>
+                                </Stack>
+                                <LoadingButton
+                                    loading={loading}
+                                    loadingPosition="end"
+                                    sx={{ textTransform: "none", maxWidth: "18rem" }}
+                                    onClick={() => {
+                                        submitUploadedFile(files);
+                                    }}
+                                    variant="outlined"
+                                    color="primary"
+                                    disabled={filesSubmitted}
+                                >
+                                    <span>Submit</span>
+                                </LoadingButton>
+                            </>
+                        )}
+                    </Box>
+                </Stack>
             </Box>
         </>
     );
