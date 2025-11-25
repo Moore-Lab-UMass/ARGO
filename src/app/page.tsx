@@ -48,7 +48,7 @@ export default function Home() {
               textAlign: 'center',
             }}
           >
-            Aggreagate Rank Generator
+            Aggregate Rank Generator
           </Typography>
         </Stack>
         <Collapse in={!argoUploadVisible} sx={{ width: "100%" }} timeout={500}>
