@@ -1,6 +1,6 @@
 //Home Page
 "use client";
-import { Box, Button, Collapse, Stack, Typography } from "@mui/material";
+import { Box, Button, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import ArgoUpload from "./components/ArgoUpload";
 import ExampleFiles from "./components/ExampleFiles";
@@ -51,52 +51,46 @@ export default function Home() {
             Aggregate Rank Generator
           </Typography>
         </Stack>
-        <Collapse in={!argoUploadVisible} sx={{ width: "100%" }} timeout={500}>
-          <SnpUpload />
-          <Box
-            sx={{
-              width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
-              display: "flex",
-              justifyContent: { xs: "center", md: "flex-end" },
-              mx: "auto",
-            }}
+        <Box
+          sx={{
+            backgroundColor: "rgba(249, 248, 244, .8)",
+            borderRadius: 2,
+            px: 2,
+            py: 2,
+            display: "flex",
+            width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
+            minWidth: { xs: "unset", md: 450 },
+            mt: 2,
+            alignItems: "center",
+            flexDirection: "column",
+            mx: "auto"
+          }}
+        >
+          <Typography variant="h6">Upload Option</Typography>
+          <RadioGroup
+            row
+            value={argoUploadVisible ? "argo" : "snp"}
+            onChange={toggleArgoUploadVisible}
+            sx={{ columnGap: 2 }}
           >
-            {!argoUploadVisible && (
-              <Typography variant="subtitle2" color="#b2bcf0" textAlign={{ xs: "center", md: "right" }}>
-                Have a complete file with all required fields?{" "}
-                <span
-                  onClick={toggleArgoUploadVisible}
-                  style={{ color: "#b2bcf0", textDecoration: "underline", cursor: "pointer" }}
-                >
-                  Click here!
-                </span>
-              </Typography>
-            )}
-          </Box>
-        </Collapse>
-        <Collapse in={argoUploadVisible} sx={{ width: "100%" }} timeout={500}>
-          <ArgoUpload />
-          <Box
-            sx={{
-              width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
-              display: "flex",
-              justifyContent: { xs: "center", md: "flex-end" },
-              mx: "auto",
-            }}
-          >
-            {argoUploadVisible && (
-              <Typography variant="subtitle2" color="#b2bcf0" textAlign={{ xs: "center", md: "right" }}>
-                Only have RSID&apos;s and want to autofill the rest?{" "}
-                <span
-                  onClick={toggleArgoUploadVisible}
-                  style={{ color: "#b2bcf0", textDecoration: "underline", cursor: "pointer" }}
-                >
-                  Click here!
-                </span>
-              </Typography>
-            )}
-          </Box>
-        </Collapse>
+            <FormControlLabel
+              value="snp"
+              control={<Radio />}
+              label="RSID List"
+            />
+            <FormControlLabel
+              value="argo"
+              control={<Radio />}
+              label="Required Fields File"
+            />
+          </RadioGroup>
+          {!argoUploadVisible ? (
+            <SnpUpload />
+          ) : (
+            <ArgoUpload />
+          )}
+
+        </Box>
       </Box>
       <Box
         width={"100%"}
@@ -143,13 +137,13 @@ export default function Home() {
               Visit the help page to view a detailed breakdown of the application and how to contact our team
             </Typography>
             <Button
-                variant="contained"
-                LinkComponent={Link}
-                href="/help"
-                sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
-              >
-                View Breakdown
-              </Button>
+              variant="contained"
+              LinkComponent={Link}
+              href="/help"
+              sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+            >
+              View Breakdown
+            </Button>
           </Grid>
           <Grid size={6} width={"auto"}>
             <Typography variant="h4" sx={{ fontWeight: 550, mb: 2 }}>
@@ -159,13 +153,13 @@ export default function Home() {
               Visit our About page to learn what ARGO does
             </Typography>
             <Button
-                variant="contained"
-                LinkComponent={Link}
-                href="/about"
-                sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
-              >
-                Learn More
-              </Button>
+              variant="contained"
+              LinkComponent={Link}
+              href="/about"
+              sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+            >
+              Learn More
+            </Button>
           </Grid>
         </Grid>
       </Box>

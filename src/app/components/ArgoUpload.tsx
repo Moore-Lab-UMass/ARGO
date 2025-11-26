@@ -275,30 +275,9 @@ const ArgoUpload: React.FC = ({
     return (
         <>
             <Box
-                sx={{
-                    backgroundColor: "rgba(249, 248, 244, .8)",
-                    borderRadius: 2,
-                    px: 2,
-                    py: 2,
-                    display: "flex",
-                    width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
-                    minWidth: { xs: "unset", md: 450 },
-                    mt: 2,
-                    alignItems: "center",
-                    flexDirection: "column",
-                    mx: "auto"
-                }}
+
+                width={"100%"}
             >
-                {/* Top Description */}
-                <Typography
-                    sx={{
-                        fontWeight: 400,
-                        fontSize: '25px',
-                        lineHeight: '25px',
-                        letterSpacing: 0,
-                    }}>
-                    Complete File Upload
-                </Typography>
                 {error[0] && (
                     <Alert variant="outlined" severity="error" sx={{ width: "100%", mt: 2 }}>
                         {error[1]}
