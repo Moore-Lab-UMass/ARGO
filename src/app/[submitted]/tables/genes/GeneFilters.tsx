@@ -243,13 +243,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 alignItems={"center"}
                                 width={"100%"}
                             >
-                                <Typography
-                                    sx={{ color: "#2C5BA0", pl: 1 }}
-                                >
-                                    {geneFilterVariables.linkageBiosample.ontology.charAt(0).toUpperCase() +
-                                        geneFilterVariables.linkageBiosample.ontology.slice(1) +
-                                        " - " +
-                                        geneFilterVariables.linkageBiosample.displayname}
+                                <Typography sx={{ color: "#2C5BA0", pl: 1 }}>
+                                    {geneFilterVariables.methodOfLinkage === "eQTLs"
+                                        ? geneFilterVariables.linkageBiosample.displayname
+                                        : `${geneFilterVariables.linkageBiosample.ontology.charAt(0).toUpperCase()}${geneFilterVariables.linkageBiosample.ontology.slice(1)} - ${geneFilterVariables.linkageBiosample.displayname}`}
                                 </Typography>
                                 <IconButton
                                     sx={{ zIndex: 10 }}
