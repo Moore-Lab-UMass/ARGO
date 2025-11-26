@@ -129,7 +129,7 @@ export default function About() {
                         </Typography>
                         <Typography variant="h6">Elements</Typography>
                         <Typography variant="body1" paragraph>
-                            ARGO also prioritizea variants using element-level annotations by intersecting variants with cCREs. Users have the option to rank elements 
+                            ARGO also prioritizes variants using element-level annotations by intersecting variants with cCREs. Users have the option to rank elements 
                             by their cell type activity and can either broadly group samples by organ or tissue—such as heart, brain, or liver—or select specific cell types such 
                             as cardiomyocytes, neurons, or hepatocytes. Users are also able to rank cCREs by the specificity of their activity. This is useful as some conditions
                             may affect multiple systems, suggesting that they disrupt regulatory processes in many different cell types. In contrast, other conditions may be highly 

@@ -8,6 +8,7 @@ import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from ".
 import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
 import { RegistryBiosamplePlusRNA } from "../../../_biosampleTables/types";
+import TissueList from "./TissueList";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -35,7 +36,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         LINKED_GENES_CELL_TYPES_QUERY,
         {
             variables: { assay: methodOfLinkage.replace("_", "-") },
-            skip: !geneFilterVariables.useGenes || methodOfLinkage === "distance" || computationalMethods.includes(methodOfLinkage as ComputationalMethod),
+            skip: !geneFilterVariables.useGenes || methodOfLinkage === "distance" || methodOfLinkage === "eQTLs" || computationalMethods.includes(methodOfLinkage as ComputationalMethod),
         }
     );
 
@@ -242,13 +243,10 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 alignItems={"center"}
                                 width={"100%"}
                             >
-                                <Typography
-                                    sx={{ color: "#2C5BA0", pl: 1 }}
-                                >
-                                    {geneFilterVariables.linkageBiosample.ontology.charAt(0).toUpperCase() +
-                                        geneFilterVariables.linkageBiosample.ontology.slice(1) +
-                                        " - " +
-                                        geneFilterVariables.linkageBiosample.displayname}
+                                <Typography sx={{ color: "#2C5BA0", pl: 1 }}>
+                                    {geneFilterVariables.methodOfLinkage === "eQTLs"
+                                        ? geneFilterVariables.linkageBiosample.displayname
+                                        : `${geneFilterVariables.linkageBiosample.ontology.charAt(0).toUpperCase()}${geneFilterVariables.linkageBiosample.ontology.slice(1)} - ${geneFilterVariables.linkageBiosample.displayname}`}
                                 </Typography>
                                 <IconButton
                                     sx={{ zIndex: 10 }}
@@ -440,7 +438,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         <CloseIcon />
                     </IconButton>
                     <Typography variant="h4">
-                        Select Biosample for Linkage Method: {methodOfLinkage}
+                        Select {methodOfLinkage === "eQTLs" ? "Tissue" : "Biosample"} for Linkage Method: {methodOfLinkage.replaceAll("_", " ")}
                     </Typography>
                     <br />
                     <Box mb={2}>
@@ -461,14 +459,42 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                                 </IconButton>
                             </Stack>
                         )}
-                        <BiosampleTables
-                            selected={linkageBiosample?.name}
-                            onChange={(biosample) => setLinkageBiosample(biosample)}
-                            assembly={"GRCh38"}
-                            preFilterBiosamples={(biosample) => availableCellTypes.some((available) => available.name === biosample.name)}
-                            hasRNASeq
-                            additionalCellTypes={availableCellTypes}
-                        />
+                        {methodOfLinkage !== "eQTLs" ? (
+                            <BiosampleTables
+                                selected={linkageBiosample?.name}
+                                onChange={(biosample) => setLinkageBiosample(biosample)}
+                                assembly={"GRCh38"}
+                                preFilterBiosamples={(biosample) => availableCellTypes.some((available) => available.name === biosample.name)}
+                                hasRNASeq
+                                additionalCellTypes={availableCellTypes}
+                            />
+                        ) : (
+                            <TissueList
+                                onSelect={(t) =>
+                                    setLinkageBiosample({
+                                        name: t,
+                                        cellType: t,
+                                        ontology: t,
+                                        displayname: t,
+                                        lifeStage: "other",
+                                        sampleType: "other",
+                                        dnase: null,
+                                        h3k4me3: null,
+                                        h3k27ac: null,
+                                        ctcf: null,
+                                        atac: null,
+                                        dnase_signal: null,
+                                        h3k4me3_signal: null,
+                                        h3k27ac_signal: null,
+                                        ctcf_signal: null,
+                                        atac_signal: null,
+                                        rnaseq: false,
+                                    })
+                                }
+                                selected={linkageBiosample}
+                            />
+                        )}
+
                     </Box>
                     <Stack width="100%" direction={"row"} spacing={1} alignItems={"center"} justifyContent={"flex-end"}>
                         <FormGroup>

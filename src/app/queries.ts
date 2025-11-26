@@ -182,6 +182,18 @@ export const REF_CHECK_QUERY = gql(`
 }
     `)
 
+export const SNP_QUERY = gql(`
+  query fetchSNPAllele($snp: [String]!){
+  getSNPAllele(snp:$snp){
+    altallele
+    refallele
+    chrom
+    start
+    snp
+  }
+}
+`);
+
 export const BED_INTERSECT_QUERY = gql(`
 query bedIntersectCCRE_1 ($user_ccres: [cCRE]!, $assembly: String!, $max_ouput_length: Int) {
   intersection (
@@ -232,11 +244,13 @@ export const COMPUTATIONAL_LNKED_GENES_QUERY = gql(`
   `)
 
   export const LINKED_GENES_QUERY = gql(`
-    query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]! ){
+    query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]!, $tissue: [String], $method: [String] ){
   linkedGenesQuery(assembly: $assembly,    
     celltype: $celltype,
     assaytype:$assaytype,
-    accession: $accession
+    accession: $accession,
+    tissue: $tissue,
+    method: $method
     ) {
       accession  
       p_val

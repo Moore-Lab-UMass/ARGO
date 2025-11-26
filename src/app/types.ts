@@ -379,3 +379,12 @@ export type MotifRanking = {
     threshold?: number | null;
     motif?: string | null;
 }[]
+
+export type ReturnedSnps = {
+    __typename?: "AlleleResult";
+    altallele: string;
+    refallele: string;
+    chrom: string;
+    start: number;
+    snp: string;
+}[]
