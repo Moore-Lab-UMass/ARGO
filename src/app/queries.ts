@@ -183,16 +183,15 @@ export const REF_CHECK_QUERY = gql(`
     `)
 
 export const SNP_QUERY = gql(`
-  query Snp($snpids: [String], $coordinates: [GenomicRangeInput], $assembly: String!) {
-    snpQuery(assembly: $assembly, snpids: $snpids, coordinates: $coordinates) {
-      id
-      coordinates {
-        chromosome
-        start
-        end
-      }
-    }
+  query fetchSNPAllele($snp: [String]!){
+  getSNPAllele(snp:$snp){
+    altallele
+    refallele
+    chrom
+    start
+    snp
   }
+}
 `);
 
 export const BED_INTERSECT_QUERY = gql(`
@@ -245,11 +244,13 @@ export const COMPUTATIONAL_LNKED_GENES_QUERY = gql(`
   `)
 
   export const LINKED_GENES_QUERY = gql(`
-    query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]! ){
+    query getLinkedGenes($assembly: String!, $celltype: [String],$assaytype: [String], $accession: [String!]!, $tissue: [String], $method: [String] ){
   linkedGenesQuery(assembly: $assembly,    
     celltype: $celltype,
     assaytype:$assaytype,
-    accession: $accession
+    accession: $accession,
+    tissue: $tissue,
+    method: $method
     ) {
       accession  
       p_val

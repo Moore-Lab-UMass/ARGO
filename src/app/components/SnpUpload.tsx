@@ -78,15 +78,14 @@ const ArgoUpload: React.FC = ({
 
         const response = await getSnps({
             variables: {
-                snpids: trimmed,
-                assembly: "GRCh38",
+                snp: trimmed,
             },
             fetchPolicy: "cache-first",
         });
 
-        const returnedSnps = response?.data?.snpQuery ?? [];
+        const returnedSnps = response?.data?.getSNPAllele ?? [];
         const foundSet = new Set(
-            returnedSnps.map((s: { id: string }) => s.id)
+            returnedSnps.map((s: { snp: string }) => s.snp)
         );
 
         // Check each input

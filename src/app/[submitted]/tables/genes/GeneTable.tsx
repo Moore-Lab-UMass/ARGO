@@ -47,13 +47,27 @@ const GeneTable: React.FC<GeneTableProps> = ({
         fetchPolicy: 'cache-first',
     });
 
+    const eqtlVariables = {
+        accession: intersectingCcres ? intersectingCcres.map((c) => c.accession) : [],
+        assembly: "grch38",
+        tissue: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.displayname : [],
+        method: "eQTLs",
+    };
+
+    const nonEqtlVariables = {
+        accession: intersectingCcres ? intersectingCcres.map((c) => c.accession) : [],
+        assembly: "grch38",
+        celltype: geneFilterVariables.linkageBiosample
+            ? geneFilterVariables.linkageBiosample.cellType
+            : [],
+        assaytype: geneFilterVariables.methodOfLinkage.replace("_", "-"),
+    };
+
+    const isEqtl = geneFilterVariables.methodOfLinkage === "eQTLs";
+    const queryVariables = isEqtl ? eqtlVariables : nonEqtlVariables;
+
     const { loading: loading_linked_genes, data: linkedGenesData, error: error_linked_genes } = useQuery(LINKED_GENES_QUERY, {
-        variables: {
-            accession: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
-            assembly: "grch38",
-            celltype: geneFilterVariables.linkageBiosample ? geneFilterVariables.linkageBiosample.cellType : [],
-            assaytype: geneFilterVariables.methodOfLinkage.replace("_", "-")
-        },
+        variables: queryVariables,
         skip: !intersectingCcres || geneFilterVariables.methodOfLinkage === "distance" || computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
         client: client,
         fetchPolicy: 'cache-first',

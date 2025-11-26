@@ -381,12 +381,10 @@ export type MotifRanking = {
 }[]
 
 export type ReturnedSnps = {
-    __typename?: "SNP";
-    id: string;
-    coordinates: {
-        __typename?: "GenomicRange";
-        chromosome: string;
-        start: number;
-        end: number;
-    };
+    __typename?: "AlleleResult";
+    altallele: string;
+    refallele: string;
+    chrom: string;
+    start: number;
+    snp: string;
 }[]

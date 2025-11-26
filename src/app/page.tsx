@@ -76,7 +76,7 @@ export default function Home() {
             <FormControlLabel
               value="snp"
               control={<Radio />}
-              label="RSID List"
+              label="Common RSID List"
             />
             <FormControlLabel
               value="argo"

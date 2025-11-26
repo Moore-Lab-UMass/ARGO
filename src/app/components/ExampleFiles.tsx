@@ -100,7 +100,7 @@ const ExampleFiles: React.FC = () => {
               examplesRefs.current[index] = el;
             }}
             data-index={index}
-            size={{ xs: 12, md: 4 }}
+            size={{ md: 12, lg: 4 }}
           >
             <Box
               sx={{
