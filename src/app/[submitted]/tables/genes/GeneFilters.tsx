@@ -441,7 +441,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         <CloseIcon />
                     </IconButton>
                     <Typography variant="h4">
-                        Select Biosample for Linkage Method: {methodOfLinkage}
+                        Select {methodOfLinkage === "eQTLs" ? "Tissue" : "Biosample"} for Linkage Method: {methodOfLinkage.replaceAll("_", " ")}
                     </Typography>
                     <br />
                     <Box mb={2}>
