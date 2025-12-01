@@ -386,5 +386,6 @@ export type ReturnedSnps = {
     refallele: string;
     chrom: string;
     start: number;
+    stop: number;
     snp: string;
 }[]

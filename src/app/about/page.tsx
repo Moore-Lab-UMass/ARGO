@@ -19,7 +19,7 @@ export default function About() {
                     <Typography variant="h2">About ARGO</Typography>
                     <Divider />
                     <Typography mt={1} variant="body1" paragraph>
-                        ARGO (Aggregate Rank Generator) is a web-based transcriptional regulation resources to aid in the
+                        ARGO (Aggregate Rank Generator) is a web-based transcriptional regulation resource to aid in the
                         prioritization and interpretation of non-coding disease variants. While many Mendelian diseases are caused
                         by defects in the coding or splicing regions of genes, a precise molecular diagnosis has not been identified
                         for the majority of patients with suspected Mendelian conditions. It is therefore likely that the disease-associated

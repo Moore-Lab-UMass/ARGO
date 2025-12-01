@@ -110,22 +110,31 @@ const ArgoUpload: React.FC = ({
             setLoading(false);
             return;
         }
-        console.log(variants);
+
+        const regions: InputRegions = variants.map((variant) => ({
+            chr: variant.chrom,
+            start: variant.start,
+            end: variant.start === variant.stop ? variant.start + 1 : variant.stop,
+            ref: variant.refallele,
+            alt: variant.altallele,
+            strand: "+",
+            regionID: variant.snp,
+        }));
 
         // // Sort the regions
-        // const sortedRegions = regions.sort((a, b) => {
-        //     const chrA = Number(a.chr.replace('chr', ''));
-        //     const chrB = Number(b.chr.replace('chr', ''));
+        const sortedRegions = regions.sort((a, b) => {
+            const chrA = Number(a.chr.replace('chr', ''));
+            const chrB = Number(b.chr.replace('chr', ''));
 
-        //     if (chrA !== chrB) {
-        //         return chrA - chrB;
-        //     }
-        //     return a.start - b.start;
-        // });
-        // const encoded = encodeRegions(sortedRegions);
-        // sessionStorage.setItem("encodedRegions", encoded);
-        // sessionStorage.setItem("fileName", fileName);
-        // window.open(`/${fileName}`, "_self")
+            if (chrA !== chrB) {
+                return chrA - chrB;
+            }
+            return a.start - b.start;
+        });
+        const encoded = encodeRegions(sortedRegions);
+        sessionStorage.setItem("encodedRegions", encoded);
+        sessionStorage.setItem("fileName", fileName);
+        window.open(`/${fileName}`, "_self")
 
         setLoading(false);
         setFilesSubmitted(true);

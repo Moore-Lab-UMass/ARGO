@@ -189,6 +189,7 @@ export const SNP_QUERY = gql(`
     refallele
     chrom
     start
+    stop
     snp
   }
 }
