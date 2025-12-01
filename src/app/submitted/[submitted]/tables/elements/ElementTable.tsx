@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from "react";
-import { ElementTableProps, ElementTableRow } from "../../../types";
+import { ElementTableProps, ElementTableRow } from "../../../../types";
 import { Link, Stack, Tooltip } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { client } from "../../../client";
-import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../queries";
+import { client } from "../../../../client";
+import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../../queries";
 import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
 import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
-import { GROUP_COLOR_MAP } from "../../../_utility/colors";
+import { GROUP_COLOR_MAP } from "../../../../_utility/colors";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,

@@ -1,4 +1,4 @@
-import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow, Table } from "../../types";
+import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow, Table } from "../../../types";
 import SequenceTable from "./sequence/SequenceTable"
 import ElementTable from "./elements/ElementTable"
 import GeneTable from "./genes/GeneTable"
@@ -9,7 +9,7 @@ import { Box, Divider } from "@mui/material";
 import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
 import { generateGeneRanks } from "./genes/geneHelpers"
-import TableToTop from "../../components/TableToTop";
+import TableToTop from "../../../components/TableToTop";
 
 export interface RankedRegionTablesContainerProps {
     sequenceFilterVariables: SequenceFilterState;

@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../../types";
+import { DataScource, MotifQuality, MotifRanking, SequenceTableProps, SequenceTableRow } from "../../../../types";
 import MotifsModal, { MotifProps } from "./MotifModal";
 import { Stack, Tooltip, Typography } from "@mui/material";
 import { useQuery } from "@apollo/client";
-import { client } from "../../../client";
-import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../queries";
+import { client } from "../../../../client";
+import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "../../../../queries";
 import { calculateConservationScores, calculateMotifScores, getNumOverlappingMotifs } from "./sequenceHelpers";
 import Link from "next/link";
 import { GridColDef, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
-import { DATA_SOURCE_COLOR_MAP, QUALITY_COLOR_MAP } from "../../../_utility/colors";
+import { DATA_SOURCE_COLOR_MAP, QUALITY_COLOR_MAP } from "../../../../_utility/colors";
 import Grid from "@mui/material/Grid2"
 
 const SequenceTable: React.FC<SequenceTableProps> = ({

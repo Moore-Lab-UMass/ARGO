@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../types';
+import { ElementFilterState, FilterProps, GeneFilterState, Panel, SequenceFilterState } from '../../types';
 import { Box, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import SequenceFilters from './tables/sequence/SequenceFilters';
 import ElementFilters from './tables/elements/ElementFilters';
 import GeneFilters from './tables/genes/GeneFilters';
 import { Clear } from "@mui/icons-material";
-import theme from '../theme';
+import theme from '../../theme';
 
 // Initial filter states
 export const initialSequenceFilterState: SequenceFilterState = {
@@ -58,8 +58,9 @@ const Filters: React.FC<FilterProps> = ({
     updateGeneFilter,
     drawerOpen,
     toggleDrawer,
+    ref
 }) => {
-
+    const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
     const [expandedAccordions, setExpandedAccordions] = useState<Panel[]>([]);
 
     // Function to reset filters
@@ -98,71 +99,66 @@ const Filters: React.FC<FilterProps> = ({
 
 
     return (
-        <Box
+        <Drawer
+            ref={ref}
+            anchor="left"
+            open={drawerOpen}
+            onClose={toggleDrawer}
+            variant={isLargeScreen ? 'persistent' : 'temporary'}
+            ModalProps={{ keepMounted: true }}
             sx={{
-                display: drawerOpen ? "block" : "contents",
+                '& .MuiDrawer-paper': {
+                    position: isLargeScreen ? 'absolute' : 'fixed',
+                    width: drawerOpen ? '25vw' : 0,
+                    height: `calc(100vh + 64px)`,
+                    backgroundColor: "rgba(249, 248, 244, 1)",
+                },
             }}
         >
-            <Drawer
-                anchor="left"
-                open={drawerOpen}
-                onClose={toggleDrawer}
-                variant={useMediaQuery(theme.breakpoints.up('lg')) ? 'persistent' : 'temporary'}
-                sx={{
-                    '& .MuiDrawer-paper': {
-                        width: drawerOpen ? '25vw' : 0,
-                        top: theme => `${theme.mixins.toolbar.minHeight}px`,
-                        zIndex: 0,
-                        minWidth: 300,
-                        backgroundColor: "rgba(249, 248, 244, 1)"
-                    }
-                }}
-            >
-                <Stack direction={"row"} justifyContent={"space-between"} padding={1} sx={{ borderBottom: "1px solid #ddd" }}>
-                    <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }} alignContent={"center"}>Filters</Typography>
-                    {filtersChanged && (
-                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <Typography>Clear Filters</Typography>
-                            <IconButton onClick={handleClearFilters}>
-                                <Clear />
-                            </IconButton>
-                        </Stack>
-                    )}
-                    <IconButton
-                        color="primary"
-                        onClick={toggleDrawer}
-                        style={{
-                            transform: 'rotate(90deg)',
-                        }}
-                    >
-                        <ExpandMoreIcon />
-                    </IconButton>
-                </Stack>
-                <Box
-                    height="calc(100vh - 113px)"
-                    overflow="auto"
+            <Stack direction={"row"} justifyContent={"space-between"} padding={1} sx={{ borderBottom: "1px solid #ddd" }}>
+                <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }} alignContent={"center"}>Filters</Typography>
+                {filtersChanged && (
+                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                        <Typography>Clear Filters</Typography>
+                        <IconButton onClick={handleClearFilters}>
+                            <Clear />
+                        </IconButton>
+                    </Stack>
+                )}
+                <IconButton
+                    color="primary"
+                    onClick={toggleDrawer}
+                    style={{
+                        transform: 'rotate(90deg)',
+                    }}
                 >
-                    <SequenceFilters
-                        sequenceFilterVariables={sequenceFilterVariables}
-                        updateSequenceFilter={updateSequenceFilter}
-                        isExpanded={isExpanded}
-                        handleAccordionChange={handleAccordionChange}
-                    />
-                    <ElementFilters
-                        elementFilterVariables={elementFilterVariables}
-                        updateElementFilter={updateElementFilter}
-                        isExpanded={isExpanded}
-                        handleAccordionChange={handleAccordionChange}
-                    />
-                    <GeneFilters
-                        geneFilterVariables={geneFilterVariables}
-                        updateGeneFilter={updateGeneFilter}
-                        isExpanded={isExpanded}
-                        handleAccordionChange={handleAccordionChange}
-                    />
-                </Box>
-            </Drawer>
-        </Box>
+                    <ExpandMoreIcon />
+                </IconButton>
+            </Stack>
+            <Box
+                height="calc(100vh - 113px)"
+                overflow="auto"
+            >
+                <SequenceFilters
+                    sequenceFilterVariables={sequenceFilterVariables}
+                    updateSequenceFilter={updateSequenceFilter}
+                    isExpanded={isExpanded}
+                    handleAccordionChange={handleAccordionChange}
+                />
+                <ElementFilters
+                    elementFilterVariables={elementFilterVariables}
+                    updateElementFilter={updateElementFilter}
+                    isExpanded={isExpanded}
+                    handleAccordionChange={handleAccordionChange}
+                />
+                <GeneFilters
+                    geneFilterVariables={geneFilterVariables}
+                    updateGeneFilter={updateGeneFilter}
+                    isExpanded={isExpanded}
+                    handleAccordionChange={handleAccordionChange}
+                />
+            </Box>
+        </Drawer>
     );
 };
 

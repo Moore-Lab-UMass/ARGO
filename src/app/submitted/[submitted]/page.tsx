@@ -1,15 +1,15 @@
 "use client"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { Box, Stack } from "@mui/material"
 import { useLazyQuery } from "@apollo/client"
-import { client } from "../client"
-import { ElementFilterState, SequenceFilterState, GeneFilterState, CCREs, InputRegions } from "../types"
+import { client } from "../../client"
+import { ElementFilterState, SequenceFilterState, GeneFilterState, CCREs, InputRegions } from "../../types"
 import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./Filters"
-import { BED_INTERSECT_QUERY } from "../queries"
-import { decodeRegions } from "../_utility/coding"
+import { BED_INTERSECT_QUERY } from "../../queries"
+import { decodeRegions } from "../../_utility/coding"
 import Tables from "./tables/Tables"
-import SubmissionHeader from "../components/SubmissionHeader"
+import SubmissionHeader from "../../components/SubmissionHeader"
 
 export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
@@ -25,6 +25,18 @@ export default function Argo() {
     const [sequenceFilterVariables, setSequenceFilterVariables] = useState<SequenceFilterState>(initialSequenceFilterState);
     const [elementFilterVariables, setElementFilterVariables] = useState<ElementFilterState>(initialElementFilterState);
     const [geneFilterVariables, setGeneFilterVariables] = useState<GeneFilterState>(initialGeneFilterState);
+
+    const filtersWidth = "25vw";
+    const headerHeight = 64
+
+    const filtersRef = useRef<HTMLDivElement>(null);
+    const [filtersHeight, setfiltersHeight] = useState<number>(0);
+
+    useEffect(() => {
+        if (filtersRef.current) {
+            setfiltersHeight(filtersRef.current.getBoundingClientRect().height);
+        }
+    }, [filtersRef]);
 
     //Run on first page load to decode the submitted regions and file name
     useEffect(() => {
@@ -117,28 +129,38 @@ export default function Argo() {
     }, [inputRegions, intersectArray]);
 
     return (
-        <Stack direction={"row"} height={"100%"}>
-            <Filters
-                sequenceFilterVariables={sequenceFilterVariables}
-                elementFilterVariables={elementFilterVariables}
-                geneFilterVariables={geneFilterVariables}
-                updateSequenceFilter={updateSequenceFilter}
-                updateElementFilter={updateElementFilter}
-                updateGeneFilter={updateGeneFilter}
-                drawerOpen={drawerOpen}
-                toggleDrawer={toggleDrawer}
-            />
+        <Stack direction={"row"} height={"100%"} minHeight={`${filtersHeight}px` || 0}>
+            <Box
+                id="filters-wrapper"
+                sx={{
+                    position: "sticky",
+                    top: 0,
+                    width: drawerOpen ? filtersWidth : 0,
+                    height: `calc(100vh + ${headerHeight}px)`,
+                }}
+            >
+                <Filters
+                    sequenceFilterVariables={sequenceFilterVariables}
+                    elementFilterVariables={elementFilterVariables}
+                    geneFilterVariables={geneFilterVariables}
+                    updateSequenceFilter={updateSequenceFilter}
+                    updateElementFilter={updateElementFilter}
+                    updateGeneFilter={updateGeneFilter}
+                    drawerOpen={drawerOpen}
+                    toggleDrawer={toggleDrawer}
+                    ref={filtersRef}
+                />
+            </Box>
             <Box
                 sx={{
                     flexGrow: 1,
                     height: "100%",
-                    ml: { lg: drawerOpen ? "25vw" : 0, xs: 0 },
                     minWidth: 0,
                     padding: 3,
                     zIndex: 1,
                 }}
             >
-                <SubmissionHeader fileName={fileName} drawerOpen={drawerOpen} toggleDrawer={toggleDrawer}/>
+                <SubmissionHeader fileName={fileName} drawerOpen={drawerOpen} toggleDrawer={toggleDrawer} />
                 <Tables
                     sequenceFilterVariables={sequenceFilterVariables}
                     elementFilterVariables={elementFilterVariables}

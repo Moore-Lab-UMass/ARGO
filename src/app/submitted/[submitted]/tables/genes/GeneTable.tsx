@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../types";
+import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../../types";
 import { GridColDef, Table } from "@weng-lab/ui-components";
 import { Stack, Tooltip, Typography } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
-import { client } from "../../../client";
-import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../../queries";
+import { client } from "../../../../client";
+import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../../../queries";
 import { parseLinkedGenes, parseClosestGenes, parseComputationalGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
-import { AggregateByEnum } from "../../../../graphql/__generated__/graphql";
-import GeneLink from "../../../components/GeneLink";
+import { AggregateByEnum } from "../../../../../graphql/__generated__/graphql";
+import GeneLink from "../../../../components/GeneLink";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",

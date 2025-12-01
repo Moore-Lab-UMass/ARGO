@@ -159,6 +159,7 @@ export type FilterProps = {
     updateGeneFilter: UpdateGeneFilter;
     drawerOpen: boolean;
     toggleDrawer: () => void;
+    ref: React.RefObject<HTMLDivElement>;
 }
 
 export type Panel = "gene" | "sequence" | "element"

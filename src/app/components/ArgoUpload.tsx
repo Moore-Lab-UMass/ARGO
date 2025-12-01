@@ -220,7 +220,7 @@ const ArgoUpload: React.FC = ({
         const encoded = encodeRegions(sortedRegions);
         sessionStorage.setItem("encodedRegions", encoded);
         sessionStorage.setItem("fileName", fileName);
-        window.open(`/${fileName}`, "_self")
+        window.open(`submitted/${fileName}`, "_self")
 
         setLoading(false);
         setFilesSubmitted(true);

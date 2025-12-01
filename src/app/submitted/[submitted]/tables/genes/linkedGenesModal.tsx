@@ -1,8 +1,8 @@
 import { Typography, Modal, Paper, IconButton } from "@mui/material";
 import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import CloseIcon from '@mui/icons-material/Close';
-import { GeneLinkingMethod } from "../../../types";
-import GeneLink from "../../../components/GeneLink";
+import { GeneLinkingMethod } from "../../../../types";
+import GeneLink from "../../../../components/GeneLink";
 
 type LinkedGenes = {
     accession: string

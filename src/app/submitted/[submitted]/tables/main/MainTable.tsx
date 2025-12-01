@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
-import { InputRegions, MainTableRow, RankedRegions } from "../../../types";
+import { InputRegions, MainTableRow, RankedRegions } from "../../../../types";
 import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, GridSortDirection, GridSortModel, Table, useGridApiRef } from "@weng-lab/ui-components";
 import { calculateAggregateRanks, matchRanks } from "./helpers";
-import AutoSortSwitch from "../../../components/AutoSortSwitch";
+import AutoSortSwitch from "../../../../components/AutoSortSwitch";
 
 export interface RankedRegionsTableProps {
     inputRegions: InputRegions;
