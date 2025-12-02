@@ -106,19 +106,19 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                     <FormGroup>
                         <FormControl fullWidth>
                             <Select size="small" value={sequenceFilterVariables.alignment} disabled={!sequenceFilterVariables.useConservation} onChange={(event) => updateSequenceFilter("alignment", event.target.value as Alignment)}>
-                                <MenuItem value={"241-mam-phyloP"}>241-Mammal(phyloP)</MenuItem>
-                                <MenuItem value={"447-mam-phyloP"}>447-Mammal(phyloP)</MenuItem>
-                                <MenuItem value={"241-mam-phastCons"}>241-Mammal(phastCons)</MenuItem>
-                                <MenuItem value={"43-prim-phyloP"}>43-Primate(phyloP)</MenuItem>
-                                <MenuItem value={"43-prim-phastCons"}>43-Primate(phastCons)</MenuItem>
-                                <MenuItem value={"243-prim-phastCons"}>243-Primate(phastCons)</MenuItem>
-                                <MenuItem value={"100-vert-phyloP"}>100-Vertebrate(phyloP)</MenuItem>
-                                <MenuItem value={"100-vert-phastCons"}>100-Vertebrate(phastCons)</MenuItem>
+                                <MenuItem value={"100-vert-phyloP"}>phyloP - 100 vertebrates</MenuItem>
+                                <MenuItem value={"241-mam-phyloP"}>phyloP - 241 mammals</MenuItem>
+                                <MenuItem value={"447-mam-phyloP"}>phyloP - 447 mammals</MenuItem>
+                                <MenuItem value={"43-prim-phyloP"}>phyloP - 43 primates</MenuItem>
+                                <MenuItem value={"100-vert-phastCons"}>phastCons - 100 vertebrates</MenuItem>
+                                <MenuItem value={"241-mam-phastCons"}>phastCons - 241 mammals</MenuItem>
+                                <MenuItem value={"43-prim-phastCons"}>phastCons - 43 primates</MenuItem>
+                                {/* <MenuItem value={"243-prim-phastCons"}>phastCons - 243 primates</MenuItem> */}
                             </Select>
                         </FormControl>
                     </FormGroup>
                     <FormControl sx={{ mt: 1 }}>
-                        <Typography>Rank Conservation Scores By</Typography>
+                        <Typography>Rank conservation scores by</Typography>
                         <RadioGroup
                             row
                             value={sequenceFilterVariables.rankBy}
@@ -165,7 +165,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                             <>
                                 <FormControl sx={{ mt: 1 }}>
                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                        <Typography>Motif Quality</Typography>
+                                        <Typography>Motif quality</Typography>
                                         <Tooltip
                                             arrow
                                             placement="right-end"
@@ -230,7 +230,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                 </FormControl>
                                 <FormControl sx={{ mt: 1 }}>
                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                        <Typography>Data Source</Typography>
+                                        <Typography>Data source</Typography>
                                         <Tooltip
                                             arrow
                                             placement="right-end"
@@ -256,7 +256,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                 onChange={(event) => { handleSelectAllSources(event) }}
                                             />
                                         }
-                                        label="Select All"
+                                        label="Select all"
                                         disabled={!sequenceFilterVariables.useMotifs}
                                     />
                                     <Grid container spacing={0} ml={2}>
@@ -334,7 +334,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                 </FormGroup>
                 <FormGroup>
                     <FormControl sx={{ marginLeft: 2 }}>
-                        <Typography>Include in Ranking</Typography>
+                        <Typography>Include in ranking</Typography>
                         <FormControlLabel value="numMotifs" control={<Checkbox onChange={() => updateSequenceFilter("numOverlappingMotifs", !sequenceFilterVariables.numOverlappingMotifs)} checked={sequenceFilterVariables.numOverlappingMotifs} />} label="Number of Overlaping Motifs" disabled={!sequenceFilterVariables.useMotifs} />
                         <FormControlLabel value="motifScoreDelta" control={<Checkbox onChange={() => updateSequenceFilter("motifScoreDelta", !sequenceFilterVariables.motifScoreDelta)} checked={sequenceFilterVariables.motifScoreDelta} />} label="Motif Score Delta" disabled={!sequenceFilterVariables.useMotifs} />
                         {/* <FormControlLabel value="tfPeakStrength" control={<Checkbox onChange={() => updateSequenceFilter("tfPeakStrength", !sequenceFilterVariables.tfPeakStrength)} checked={sequenceFilterVariables.tfPeakStrength && sequenceFilterVariables.motifCatalog === "factorbook"} />} label="TF Peak Strength" disabled={!sequenceFilterVariables.useMotifs || !sequenceFilterVariables.overlapsTFPeak || sequenceFilterVariables.motifCatalog !== "factorbook"} /> */}

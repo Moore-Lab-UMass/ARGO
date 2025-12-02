@@ -187,7 +187,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                     >
                         Genes
                     </Typography>
-                    <Tooltip arrow placement="right-end" title={"Filter results based on linked genes and thier method of linkage"}>
+                    <Tooltip arrow placement="right-end" title={"Filter results based on linked genes and thier linking method"}>
                         <InfoOutlined fontSize="small" />
                     </Tooltip>
                 </Stack>
@@ -199,7 +199,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         fullWidth
                         disabled={!geneFilterVariables.useGenes}
                     >
-                        <Typography>Method of Linkage</Typography>
+                        <Typography>Linking method</Typography>
                         <Select
                             value={geneFilterVariables.methodOfLinkage}
                             onChange={(event) => {
@@ -258,7 +258,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </Paper>
                     )}
                     <FormControl disabled={!geneFilterVariables.useGenes} sx={{ mt: 2 }}>
-                        <Typography>Rank Gene Expression By</Typography>
+                        <Typography>Rank gene expression by</Typography>
                         <RadioGroup
                             row
                             value={geneFilterVariables.rankGeneExpBy}
@@ -284,7 +284,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         sx={{ width: "fit-content" }}
                         variant="outlined"
                     >
-                        Gene Expression Biosample
+                        Gene expression biosample
                     </Button>
                     {geneFilterVariables.selectedBiosample && (
                         <Paper elevation={0} sx={{ width: "fit-content" }}>
@@ -313,7 +313,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </Paper>
                     )}
                     <FormControl disabled={!geneFilterVariables.useGenes}>
-                        <Typography sx={{ mt: 1 }}>Rank Expression Specificity By</Typography>
+                        <Typography sx={{ mt: 1 }}>Rank expression specificity by</Typography>
                         <RadioGroup
                             row
                             value={geneFilterVariables.rankExpSpecBy}
@@ -332,7 +332,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </RadioGroup>
                     </FormControl>
                     <FormControl disabled={!geneFilterVariables.useGenes}>
-                        <Typography sx={{ mt: 1 }}>Rank # of Linked Genes by</Typography>
+                        <Typography sx={{ mt: 1 }}>Rank # of linked genes by</Typography>
                         <RadioGroup
                             row
                             value={geneFilterVariables.rankLinkedBy}
@@ -351,16 +351,16 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                         </RadioGroup>
                     </FormControl>
                     <FormControl disabled={!geneFilterVariables.useGenes}>
-                        <Typography sx={{ mt: 1 }}>Gene Filters</Typography>
+                        <Typography sx={{ mt: 1 }}>Gene filters</Typography>
                         <FormGroup>
                             <FormControlLabel
-                                label="Must be Protein Coding"
+                                label="Must be protein coding"
                                 control={<Checkbox />}
                                 checked={geneFilterVariables.mustBeProteinCoding}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateGeneFilter("mustBeProteinCoding", e.target.checked)}
                             />
                             <FormControlLabel
-                                label="Genes Must Have Mouse Ortholog"
+                                label="Only include genes with an orthologous gene in mouse"
                                 control={<Checkbox />}
                                 checked={geneFilterVariables.mustHaveOrtholog}
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateGeneFilter("mustHaveOrtholog", e.target.checked)}
