@@ -225,19 +225,27 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                             <Grid size={6}>
                                 <FormGroup>
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes.CA}
-                                        onChange={() => toggleClass('CA')}
+                                        checked={elementFilterVariables.classes.PLS}
+                                        onChange={() => toggleClass('PLS')}
                                         control={<Checkbox />}
-                                        label="CA"
-                                        value="CA"
+                                        label="Promoter"
+                                        value="PLS"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes["CA-CTCF"]}
-                                        onChange={() => toggleClass('CA-CTCF')}
+                                        checked={elementFilterVariables.classes.pELS}
+                                        onChange={() => toggleClass('pELS')}
                                         control={<Checkbox />}
-                                        label="CA-CTCF"
-                                        value="CACTCF"
+                                        label="Proximal enhancer"
+                                        value="pELS"
+                                        disabled={!elementFilterVariables.usecCREs}
+                                    />
+                                    <FormControlLabel
+                                        checked={elementFilterVariables.classes.dELS}
+                                        onChange={() => toggleClass('dELS')}
+                                        control={<Checkbox />}
+                                        label="Distal enhancer"
+                                        value="dELS"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
@@ -248,6 +256,18 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                         value="CAH3K4me3"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
+                                </FormGroup>
+                            </Grid>
+                            <Grid size={6}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        checked={elementFilterVariables.classes["CA-CTCF"]}
+                                        onChange={() => toggleClass('CA-CTCF')}
+                                        control={<Checkbox />}
+                                        label="CA-CTCF"
+                                        value="CACTCF"
+                                        disabled={!elementFilterVariables.usecCREs}
+                                    />
                                     <FormControlLabel
                                         checked={elementFilterVariables.classes["CA-TF"]}
                                         onChange={() => toggleClass('CA-TF')}
@@ -256,32 +276,12 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                         value="CATF"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
-                                </FormGroup>
-                            </Grid>
-                            <Grid size={6}>
-                                <FormGroup>
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes.dELS}
-                                        onChange={() => toggleClass('dELS')}
+                                        checked={elementFilterVariables.classes.CA}
+                                        onChange={() => toggleClass('CA')}
                                         control={<Checkbox />}
-                                        label="dELS"
-                                        value="dELS"
-                                        disabled={!elementFilterVariables.usecCREs}
-                                    />
-                                    <FormControlLabel
-                                        checked={elementFilterVariables.classes.pELS}
-                                        onChange={() => toggleClass('pELS')}
-                                        control={<Checkbox />}
-                                        label="pELS"
-                                        value="pELS"
-                                        disabled={!elementFilterVariables.usecCREs}
-                                    />
-                                    <FormControlLabel
-                                        checked={elementFilterVariables.classes.PLS}
-                                        onChange={() => toggleClass('PLS')}
-                                        control={<Checkbox />}
-                                        label="PLS"
-                                        value="PLS"
+                                        label="CA"
+                                        value="CA"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
