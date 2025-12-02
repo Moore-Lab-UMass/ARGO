@@ -58,8 +58,8 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
             </Stack>
             <AppBar position="static">
                 <Toolbar sx={{ justifyContent: "space-between", backgroundColor: "rgba(249, 248, 244, 1)" }}>
-                    <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                        <Box component={Link} href={"/"} height={45} width={40} position={"relative"}>
+                    <Stack direction={"row"} spacing={2} alignItems={"center"} component={Link} href={"/"}>
+                        <Box height={45} width={40} position={"relative"}>
                             <Image
                                 priority
                                 src="/argoLogo.png"
@@ -68,7 +68,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                                 style={{ objectFit: "contain", objectPosition: "left center" }}
                             />
                         </Box>
-                        <Typography variant="h5" color="black">
+                        <Typography variant="h5" color="black" >
                             ARGO
                         </Typography>
                     </Stack>

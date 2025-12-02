@@ -54,8 +54,9 @@ export default function About() {
                         alignItems: "center",
                     }}>
                     <Typography mt={1} variant="body1" paragraph>
-                        You don&apos;t need a full ARGO safe file, however. Feel free to use our SNP Upload option and simply supply us with a list of
-                        RSID&apos;s, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;SNP Upload&quot; before you begin.
+                        You don&apos;t need a full ARGO safe file, however. Feel free to use our RSID upload option and simply supply us with a list of
+                        common RSID&apos;s, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;Common RSID List&quot; before you begin.
+                        We will autofill the rest of the required fields for you based on the ID&apos;s you provide and automatically rank them.
                     </Typography>
                     <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
                 </Grid>

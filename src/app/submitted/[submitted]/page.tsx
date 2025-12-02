@@ -27,7 +27,7 @@ export default function Argo() {
     const [geneFilterVariables, setGeneFilterVariables] = useState<GeneFilterState>(initialGeneFilterState);
 
     const filtersWidth = "25vw";
-    const headerHeight = 64
+    const headerHeight = 64;
 
     const filtersRef = useRef<HTMLDivElement>(null);
     const [filtersHeight, setfiltersHeight] = useState<number>(0);
