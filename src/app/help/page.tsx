@@ -21,8 +21,8 @@ export default function About() {
                     <Typography variant="h2">Don&apos;t know where to start?</Typography>
                     <Divider />
                     <Typography mt={1} variant="body1" paragraph>
-                        If you are unsure how to use ARGO, you may begin with one of our example files, which have 100 variants each all ready to rank.
-                        Just click &quot;Use File&quot; on the card and ARGO will automatically load it and rank the variants for you.
+                        If you are unsure how to use ARGO, you may begin with one of our example files, which have 100 variants each, all ready to rank.
+                        Just click &quot;Use File&quot; on the card, and ARGO will automatically load it and rank the variants for you.
                     </Typography>
                 </Grid>
                 <Grid
@@ -36,7 +36,7 @@ export default function About() {
                 <Grid size={12}>
                     <Typography mt={1} variant="body1" paragraph>
                         You are also able to download the example file if you want to view the standard input format ARGO accepts.
-                        The required fields are shown below, and will highlight red on the homepage if they are missing.
+                        The required fields are shown below and will highlight red on the homepage if they are missing.
                     </Typography>
                 </Grid>
                 <Grid
@@ -55,8 +55,8 @@ export default function About() {
                     }}>
                     <Typography mt={1} variant="body1" paragraph>
                         You don&apos;t need a full ARGO safe file, however. Feel free to use our RSID upload option and simply supply us with a list of
-                        common RSID&apos;s, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;Common RSID List&quot; before you begin.
-                        We will autofill the rest of the required fields for you based on the ID&apos;s you provide and automatically rank them.
+                        common RSIDs, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;Common RSID List&quot; before you begin.
+                        We will autofill the rest of the required fields for you based on the IDs you provide and automatically rank them.
                     </Typography>
                     <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
                 </Grid>
@@ -68,7 +68,7 @@ export default function About() {
                     }}>
                     <Typography mt={1} variant="body1" paragraph>
                         Once uploaded, you can view your aggregate ranked regions in the first table. Every subsequent table is Sequence, Elements, and Genes
-                        specific. Their respected filters will manipulate these tables and their contents if changed, which will then affect the aggregate 
+                        specific. Their respective filters will manipulate these tables and their contents if changed, which will then affect the aggregate 
                         ranks in the main table. Select your desired filters and explore the results!
                     </Typography>
                 </Grid>
@@ -95,7 +95,7 @@ export default function About() {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            submit an issue on Github.
+                            Submit an issue on Github.
                         </Link>
                     </Box>
                     <Box mb={2}>

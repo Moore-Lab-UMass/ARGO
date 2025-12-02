@@ -159,7 +159,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                         <FormControlLabel sx={{ width: "auto" }} value="mm10" control={<Radio />} label="mm10" disabled={!elementFilterVariables.usecCREs} />
                     </RadioGroup>
                     <FormControlLabel
-                        label="cCREs Must Have Mouse Ortholog"
+                        label="Only include cCREs with an orthologous cCRE in mouse"
                         control={
                             <Checkbox
                                 onChange={() => updateElementFilter("mustHaveOrtholog", !elementFilterVariables.mustHaveOrtholog)}
@@ -167,6 +167,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                 checked={elementFilterVariables.mustHaveOrtholog}
                             />
                         }
+                        sx={{mb: 1}}
                     />
                     <Stack>
                         <Button
@@ -178,7 +179,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                             startIcon={<BiotechIcon />}
 
                         >
-                            Within a Biosample
+                            Within a biosample
                         </Button>
                         {elementFilterVariables.selectedBiosample && (
                             <Paper elevation={0} sx={{ width: "fit-content" }}>
@@ -208,7 +209,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                         )}
                     </Stack>
                     <FormControl sx={{ mt: 1 }}>
-                        <Typography>Include Classes</Typography>
+                        <Typography>Include classes</Typography>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -217,26 +218,34 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                     onChange={(event) => { handleSelectAllClasses(event) }}
                                 />
                             }
-                            label="Select All"
+                            label="Select all"
                             disabled={!elementFilterVariables.usecCREs}
                         />
                         <Grid container spacing={0} ml={2}>
                             <Grid size={6}>
                                 <FormGroup>
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes.CA}
-                                        onChange={() => toggleClass('CA')}
+                                        checked={elementFilterVariables.classes.PLS}
+                                        onChange={() => toggleClass('PLS')}
                                         control={<Checkbox />}
-                                        label="CA"
-                                        value="CA"
+                                        label="Promoter"
+                                        value="PLS"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes["CA-CTCF"]}
-                                        onChange={() => toggleClass('CA-CTCF')}
+                                        checked={elementFilterVariables.classes.pELS}
+                                        onChange={() => toggleClass('pELS')}
                                         control={<Checkbox />}
-                                        label="CA-CTCF"
-                                        value="CACTCF"
+                                        label="Proximal enhancer"
+                                        value="pELS"
+                                        disabled={!elementFilterVariables.usecCREs}
+                                    />
+                                    <FormControlLabel
+                                        checked={elementFilterVariables.classes.dELS}
+                                        onChange={() => toggleClass('dELS')}
+                                        control={<Checkbox />}
+                                        label="Distal enhancer"
+                                        value="dELS"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
@@ -247,6 +256,18 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                         value="CAH3K4me3"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
+                                </FormGroup>
+                            </Grid>
+                            <Grid size={6}>
+                                <FormGroup>
+                                    <FormControlLabel
+                                        checked={elementFilterVariables.classes["CA-CTCF"]}
+                                        onChange={() => toggleClass('CA-CTCF')}
+                                        control={<Checkbox />}
+                                        label="CA-CTCF"
+                                        value="CACTCF"
+                                        disabled={!elementFilterVariables.usecCREs}
+                                    />
                                     <FormControlLabel
                                         checked={elementFilterVariables.classes["CA-TF"]}
                                         onChange={() => toggleClass('CA-TF')}
@@ -255,32 +276,12 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                                         value="CATF"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
-                                </FormGroup>
-                            </Grid>
-                            <Grid size={6}>
-                                <FormGroup>
                                     <FormControlLabel
-                                        checked={elementFilterVariables.classes.dELS}
-                                        onChange={() => toggleClass('dELS')}
+                                        checked={elementFilterVariables.classes.CA}
+                                        onChange={() => toggleClass('CA')}
                                         control={<Checkbox />}
-                                        label="dELS"
-                                        value="dELS"
-                                        disabled={!elementFilterVariables.usecCREs}
-                                    />
-                                    <FormControlLabel
-                                        checked={elementFilterVariables.classes.pELS}
-                                        onChange={() => toggleClass('pELS')}
-                                        control={<Checkbox />}
-                                        label="pELS"
-                                        value="pELS"
-                                        disabled={!elementFilterVariables.usecCREs}
-                                    />
-                                    <FormControlLabel
-                                        checked={elementFilterVariables.classes.PLS}
-                                        onChange={() => toggleClass('PLS')}
-                                        control={<Checkbox />}
-                                        label="PLS"
-                                        value="PLS"
+                                        label="CA"
+                                        value="CA"
                                         disabled={!elementFilterVariables.usecCREs}
                                     />
                                     <FormControlLabel
@@ -296,7 +297,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                         </Grid>
                     </FormControl>
                     <FormControl>
-                        <Typography mt={2}>Include Assay Z-Scores</Typography>
+                        <Typography mt={2}>Include assay z-scores</Typography>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -372,7 +373,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                     </FormControl>
                 </Stack>
                 <FormControl sx={{ ml: 2, mt: 1 }}>
-                    <Typography>Rank cCREs With Matching Input Region By</Typography>
+                    <Typography>Rank cCREs with matching input region by</Typography>
                     <RadioGroup
                         row
                         value={elementFilterVariables.rankBy}
