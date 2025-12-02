@@ -171,8 +171,8 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                             placement="right-end"
                                             title={
                                                 <div>
-                                                    <b>A:</b> Found in both Chip-Seq and Ht-Selex <br />
-                                                    <b>B:</b> Reproducible in Chip-Seq or HT-Selex <br />
+                                                    <b>A:</b> Found in both Chip-seq and Ht-SELEX <br />
+                                                    <b>B:</b> Reproducible in Chip-seq or HT-SELEX <br />
                                                     <b>C:</b> Found in a single dataset <br />
                                                     <b>D:</b> Subtypes built from motifs exclusively inherited from HOCOMOCO-v12
                                                 </div>
@@ -236,10 +236,10 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                             placement="right-end"
                                             title={
                                                 <div>
-                                                    <b>P:</b> Chip-Seq <br />
-                                                    <b>S:</b> HT-Selex <br />
-                                                    <b>M:</b> Methyl HT-Selex <br />
-                                                    <b>G:</b> Genomic HT-Selex <br />
+                                                    <b>P:</b> Chip-seq <br />
+                                                    <b>S:</b> HT-SELEX <br />
+                                                    <b>M:</b> Methyl HT-SELEX <br />
+                                                    <b>G:</b> Genomic HT-SELEX <br />
                                                     <b>I:</b> SMiLe-Seq <br />
                                                     <b>B:</b> PBM <br />
                                                 </div>
@@ -266,7 +266,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                     checked={sequenceFilterVariables.dataSource.p}
                                                     onChange={() => toggleDataSource('p')}
                                                     control={<Checkbox />}
-                                                    label="Chip-Seq"
+                                                    label="Chip-seq"
                                                     value="p"
                                                     disabled={!sequenceFilterVariables.useMotifs}
                                                 />
@@ -274,7 +274,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                     checked={sequenceFilterVariables.dataSource.s}
                                                     onChange={() => toggleDataSource('s')}
                                                     control={<Checkbox />}
-                                                    label="HT-Selex"
+                                                    label="HT-SELEX"
                                                     value="s"
                                                     disabled={!sequenceFilterVariables.useMotifs}
                                                 />
@@ -282,7 +282,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                     checked={sequenceFilterVariables.dataSource.m}
                                                     onChange={() => toggleDataSource('m')}
                                                     control={<Checkbox />}
-                                                    label="Methyl HT-Selex"
+                                                    label="Methyl HT-SELEX"
                                                     value="m"
                                                     disabled={!sequenceFilterVariables.useMotifs}
                                                 />
@@ -294,7 +294,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                     checked={sequenceFilterVariables.dataSource.g}
                                                     onChange={() => toggleDataSource('g')}
                                                     control={<Checkbox />}
-                                                    label="Genomic HT-Selex"
+                                                    label="Genomic HT-SELEX"
                                                     value="g"
                                                     disabled={!sequenceFilterVariables.useMotifs}
                                                 />
