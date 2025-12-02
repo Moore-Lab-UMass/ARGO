@@ -104,13 +104,13 @@ export default function About() {
                             lg: 5,
                         }}
                     >
-                        <Typography variant="h5" gutterBottom>Rangk Aggregation</Typography>
+                        <Typography variant="h5" gutterBottom>Rank Aggregation</Typography>
                         <Typography variant="body1" paragraph>
                             ARGO implements rank aggregation methods, which produce a single consensus ranking by combining multiple different rankings, 
                             often deriving from complementary sources. Rank aggregation is advantageous because it can leverage the strengths of individual methods, 
                             while mitigating their weaknesses, leading to more robust, reliable, and useful outcomes. Rank aggregation also enables us to integrate 
                             diverse data sources with different scales or normalizations as highlighted by our previous work using rank aggregation to predict functionally 
-                            active enhancers in embryonic mouse tissues
+                            active enhancers in embryonic mouse tissues.
                         </Typography>
                     </Grid>
                 </Grid>
@@ -119,7 +119,7 @@ export default function About() {
                         <Typography variant="h5" gutterBottom>Annotations</Typography>
                         <Typography variant="h6">Sequence</Typography>
                         <Typography variant="body1" paragraph>
-                            ARGO prioritizes candidate variants by aggregating ranks across three categories of annotations: (1) sequence, (2) elements, and (3) genes 
+                            ARGO prioritizes candidate variants by aggregating ranks across three categories of annotations: (1) sequence, (2) elements, and (3) genes. 
                             For sequence features, variants are ranked based on their predicted impact on transcription factor binding and their evolutionary conservation. 
                             Using our Factorbook motif annotations, we calculate the change in motif score between the reference and input variant. To reduce potential 
                             false positive motif sites, users are also able to filter motif matches based on support from transcription factor ChIP-seq data. 
