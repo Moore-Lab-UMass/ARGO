@@ -121,8 +121,13 @@ const ArgoUpload: React.FC = ({
             regionID: variant.snp,
         }));
 
-        // // Sort the regions
-        const sortedRegions = regions.sort((a, b) => {
+        // Remove duplicates by regionID
+        const uniqueRegions = Array.from(
+            new Map(regions.map(r => [r.regionID, r])).values()
+        );
+
+        // Sort the regions
+        const sortedRegions = uniqueRegions.sort((a, b) => {
             const chrA = Number(a.chr.replace('chr', ''));
             const chrB = Number(b.chr.replace('chr', ''));
 
