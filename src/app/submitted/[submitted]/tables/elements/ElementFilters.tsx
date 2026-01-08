@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { CCREAssays, CCREClasses, ElementAccordianProps } from "../../../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Modal, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
-import BiosampleTables from "../../../../_biosampleTables/BiosampleTables";
+import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
-import CloseIcon from '@mui/icons-material/Close';
 import BiotechIcon from '@mui/icons-material/Biotech';
+import { ElementBiosampleModal } from "./ElementBiosampleModal";
+import { EncodeBiosample } from "@weng-lab/ui-components";
 
 const ElementFilters: React.FC<ElementAccordianProps> = ({
     elementFilterVariables,
@@ -80,21 +80,21 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
     };
 
     //change assays and availible assays depending on if there is a biosample selected or not
-    const handleSelectedBiosample = (biosample) => {
+    const handleSelectedBiosample = (biosample: EncodeBiosample) => {
         updateElementFilter("selectedBiosample", biosample)
         updateElementFilter('availableAssays', {
-            dnase: !!biosample.dnase,
-            h3k4me3: !!biosample.h3k4me3,
-            h3k27ac: !!biosample.h3k27ac,
-            ctcf: !!biosample.ctcf,
-            atac: !!biosample.atac_signal,
+            dnase: !!biosample.dnase_experiment_accession,
+            h3k4me3: !!biosample.h3k4me3_experiment_accession,
+            h3k27ac: !!biosample.h3k27ac_experiment_accession,
+            ctcf: !!biosample.ctcf_experiment_accession,
+            atac: !!biosample.atac_experiment_accession,
         });
         updateElementFilter('assays', {
-            dnase: !!biosample.dnase,
-            h3k4me3: !!biosample.h3k4me3,
-            h3k27ac: !!biosample.h3k27ac,
-            ctcf: !!biosample.ctcf,
-            atac: !!biosample.atac_signal,
+            dnase: !!biosample.dnase_experiment_accession,
+            h3k4me3: !!biosample.h3k4me3_experiment_accession,
+            h3k27ac: !!biosample.h3k27ac_experiment_accession,
+            ctcf: !!biosample.ctcf_experiment_accession,
+            atac: !!biosample.atac_experiment_accession,
         });
         setOpen(false);
     }
@@ -116,15 +116,6 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
             atac: true,
         });
     }
-
-    const style = {
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: 1000,
-        p: 4,
-    };
 
     return (
         <Accordion
@@ -392,31 +383,13 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                     </RadioGroup>
                 </FormControl>
             </AccordionDetails>
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <Paper sx={style}>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    <Typography variant="h4">
-                        Filter cCREs Through Biosamples
-                    </Typography>
-                    <br />
-                    <BiosampleTables
-                        selected={elementFilterVariables.selectedBiosample?.name}
-                        onChange={(biosample) => handleSelectedBiosample(biosample)}
-                        assembly={elementFilterVariables.cCREAssembly}
-                    />
-                </Paper>
-            </Modal>
+            <ElementBiosampleModal
+                open={open}
+                onClose={() => setOpen(false)}
+                assembly={elementFilterVariables.cCREAssembly}
+                selected={elementFilterVariables.selectedBiosample}
+                onSelectionChange={(biosample) => handleSelectedBiosample(biosample)}
+            />
         </Accordion>
     )
 }
