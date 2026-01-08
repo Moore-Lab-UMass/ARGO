@@ -131,7 +131,7 @@ export type GeneFilterState = {
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
-    selectedBiosample: RegistryBiosamplePlusRNA | null;
+    selectedBiosample: EncodeBiosample | null;
     linkageBiosample: RegistryBiosamplePlusRNA | null;
     rankLinkedBy: "most" | "least"
 }

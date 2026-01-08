@@ -14,14 +14,16 @@ interface BiosampleSelectProps {
   assembly: "GRCh38" | "mm10";
   selected: EncodeBiosample;
   onSelectionChange: (biosample: EncodeBiosample) => void;
+  prefilterBiosamples?: (biosample: EncodeBiosample) => boolean;
 }
 
-export const ElementBiosampleModal: React.FC<BiosampleSelectProps> = ({
+export const BiosampleModal: React.FC<BiosampleSelectProps> = ({
   assembly,
   selected,
   open,
   onSelectionChange,
   onClose,
+  prefilterBiosamples
 }) => {
   const handleSelectionChange = (samples: EncodeBiosample[]) => {
     onSelectionChange(samples[0]); // will only be length one since we specify disableMultipleRowSelection, and are disabling grouped row selection
@@ -55,6 +57,7 @@ export const ElementBiosampleModal: React.FC<BiosampleSelectProps> = ({
           sx={{ "& .is-leaf-row:hover": { cursor: "pointer" } }} // used to apply cursor: "pointer" to clickable leaf nodes
           //temp, remove when enabled in theme
           disableRowGrouping={false}
+          prefilterBiosamples={prefilterBiosamples}
         />
       </DialogContent>
     </Dialog>

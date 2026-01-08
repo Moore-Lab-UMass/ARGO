@@ -9,6 +9,8 @@ import { useQuery } from "@apollo/client";
 import BiotechIcon from '@mui/icons-material/Biotech';
 import { RegistryBiosamplePlusRNA } from "../../../../_biosampleTables/types";
 import TissueList from "./TissueList";
+import { EncodeBiosample } from "@weng-lab/ui-components";
+import { BiosampleModal } from "../../../../components/BiosampleModal";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -29,7 +31,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     const [linkageBiosampleOpen, setLinkageBiosampleOpen] = useState(false);
     const [methodOfLinkage, setMethodOfLinkage] = useState<GeneLinkingMethod>(geneFilterVariables.methodOfLinkage);
     const [linkageBiosample, setLinkageBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.linkageBiosample);
-    const [biosample, setBiosample] = useState<RegistryBiosamplePlusRNA | null>(geneFilterVariables.selectedBiosample)
+    const [biosample, setBiosample] = useState<EncodeBiosample | null>(geneFilterVariables.selectedBiosample)
     const [include, setInclude] = useState(false);
 
     const { data: cellTypes } = useQuery(
@@ -369,60 +371,14 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                     </FormControl>
                 </Stack>
             </AccordionDetails>
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <Paper sx={style}>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    <Typography variant="h4">
-                        Filter Genes Through Biosamples
-                    </Typography>
-                    <br />
-                    <Box mb={2}>
-                        {biosample && (
-                            <Stack
-                                minWidth={"350px"}
-                                direction="row"
-                                alignItems={"center"}
-                                borderRadius={1}
-                                justifyContent={"space-between"}
-                                sx={{ backgroundColor: theme => theme.palette.secondary.main }}
-                                width={"fit-content"}
-                                paddingX={1}
-                            >
-                                <Typography><b>Selected: </b>{biosample.displayname}</Typography>
-                                <IconButton onClick={() => setBiosample(null)}>
-                                    <CancelRounded />
-                                </IconButton>
-                            </Stack>
-                        )}
-                    </Box>
-                    <BiosampleTables
-                        selected={biosample?.name}
-                        onChange={(biosample) => setBiosample(biosample)}
-                        assembly={"GRCh38"}
-                        preFilterBiosamples={(biosample) => biosample.rnaseq}
-                        hasRNASeq
-                    />
-                    <Stack width={"100%"} alignItems={"flex-end"}>
-                        <Button
-                            variant="contained"
-                            onClick={() => handleSelectedBiosample(biosample)}
-                        >
-                            Submit
-                        </Button>
-                    </Stack>
-                </Paper>
-            </Modal>
+            <BiosampleModal
+                open={open}
+                onClose={() => setOpen(false)}
+                assembly={"GRCh38"}
+                selected={biosample}
+                onSelectionChange={(biosample) => handleSelectedBiosample(biosample)}
+                prefilterBiosamples={(biosample) => biosample.rna_seq_tracks.length > 0}
+            />
             <Modal open={linkageBiosampleOpen} onClose={() => handleLinkageBiosampleClose()}>
                 <Paper sx={style}>
                     <IconButton

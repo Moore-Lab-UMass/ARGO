@@ -4,7 +4,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormCo
 import Grid from "@mui/material/Grid2"
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
 import BiotechIcon from '@mui/icons-material/Biotech';
-import { ElementBiosampleModal } from "./ElementBiosampleModal";
+import { BiosampleModal } from "../../../../components/BiosampleModal";
 import { EncodeBiosample } from "@weng-lab/ui-components";
 
 const ElementFilters: React.FC<ElementAccordianProps> = ({
@@ -383,7 +383,7 @@ const ElementFilters: React.FC<ElementAccordianProps> = ({
                     </RadioGroup>
                 </FormControl>
             </AccordionDetails>
-            <ElementBiosampleModal
+            <BiosampleModal
                 open={open}
                 onClose={() => setOpen(false)}
                 assembly={elementFilterVariables.cCREAssembly}
