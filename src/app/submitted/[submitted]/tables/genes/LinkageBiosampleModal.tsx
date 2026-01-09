@@ -180,6 +180,7 @@ export const LinkageBiosampleModal: React.FC<BiosampleSelectProps> = ({
                     <Button
                         variant="contained"
                         onClick={() => handleSubmit()}
+                        disabled={!selected}
                     >
                         Submit
                     </Button>
