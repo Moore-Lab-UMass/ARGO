@@ -23,8 +23,9 @@ export const BiosampleModal: React.FC<BiosampleSelectProps> = ({
   open,
   onSelectionChange,
   onClose,
-  prefilterBiosamples
+  prefilterBiosamples,
 }) => {
+  
   const handleSelectionChange = (samples: EncodeBiosample[]) => {
     onSelectionChange(samples[0]); // will only be length one since we specify disableMultipleRowSelection, and are disabling grouped row selection
     onClose();

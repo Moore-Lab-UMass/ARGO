@@ -1,5 +1,4 @@
 import { EncodeBiosample } from "@weng-lab/ui-components"
-import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
 
 export type Table = "sequence" | "elements" | "genes"
 
@@ -132,7 +131,7 @@ export type GeneFilterState = {
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
     selectedBiosample: EncodeBiosample | null;
-    linkageBiosample: RegistryBiosamplePlusRNA | null;
+    linkageBiosample: EncodeBiosample | null;
     rankLinkedBy: "most" | "least"
 }
 
