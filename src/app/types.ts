@@ -1,4 +1,4 @@
-import { RegistryBiosamplePlusRNA } from "./_biosampleTables/types"
+import { EncodeBiosample } from "@weng-lab/ui-components"
 
 export type Table = "sequence" | "elements" | "genes"
 
@@ -116,12 +116,14 @@ export type ElementFilterState = {
     usecCREs: boolean;
     cCREAssembly: "GRCh38" | "mm10";
     mustHaveOrtholog: boolean;
-    selectedBiosample: RegistryBiosamplePlusRNA | null;
+    selectedBiosample: EncodeBiosample | null;
     assays: CCREAssays;
     rankBy: "avg" | "max";
     availableAssays: CCREAssays;
     classes: CCREClasses;
 }
+
+export type CompBiosample = EncodeBiosample & { cellType?: string }
 
 export type GeneFilterState = {
     useGenes: boolean;
@@ -130,8 +132,8 @@ export type GeneFilterState = {
     mustHaveOrtholog: boolean;
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
-    selectedBiosample: RegistryBiosamplePlusRNA | null;
-    linkageBiosample: RegistryBiosamplePlusRNA | null;
+    selectedBiosample: EncodeBiosample | null;
+    linkageBiosample: CompBiosample | null;
     rankLinkedBy: "most" | "least"
 }
 
