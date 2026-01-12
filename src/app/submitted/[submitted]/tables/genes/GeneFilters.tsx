@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../../../types";
+import { CompBiosample, ComputationalMethod, GeneAccordianProps, GeneLinkingMethod } from "../../../../types";
 import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../../../queries";
@@ -27,7 +27,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
     const [open, setOpen] = useState(false);
     const [linkageBiosampleOpen, setLinkageBiosampleOpen] = useState(false);
     const [methodOfLinkage, setMethodOfLinkage] = useState<GeneLinkingMethod>(geneFilterVariables.methodOfLinkage);
-    const [linkageBiosample, setLinkageBiosample] = useState<EncodeBiosample | null>(geneFilterVariables.linkageBiosample);
+    const [linkageBiosample, setLinkageBiosample] = useState<CompBiosample | null>(geneFilterVariables.linkageBiosample);
     const [biosample, setBiosample] = useState<EncodeBiosample | null>(geneFilterVariables.selectedBiosample)
 
     const { data: cellTypes } = useQuery(
@@ -46,16 +46,17 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         }
     );
 
-    const availableCellTypes: EncodeBiosample[] = useMemo(() => {
+    const availableCellTypes: CompBiosample[] = useMemo(() => {
         if (!cellTypes && !compuCellTypes) return [];
 
-        const biosamples = new Map<string, EncodeBiosample>();
+        const biosamples = new Map<string, CompBiosample>();
 
         cellTypes?.getLinkedGenesCelltypesByAssay.forEach((item) => {
             biosamples.set(item.biosample_value, {
                 name: item.biosample_value,
                 ontology: item.tissue,
                 displayname: item.displayname,
+                cellType: item.celltype,
                 lifeStage: "other",
                 sampleType: "other",
                 dnase_experiment_accession: null,
@@ -78,6 +79,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
                     name: item.biosample_mapping ?? item.biosample_value,
                     ontology: item.tissue,
                     displayname: item.biosample_value,
+                    cellType: item.biosample_value,
                     lifeStage: "other",
                     sampleType: "other",
                     dnase_experiment_accession: null,
@@ -115,12 +117,12 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         setMethodOfLinkage(method);
     }
 
-    const handleLinkageBiosampleSubmit = (method: GeneLinkingMethod, cellType: EncodeBiosample, include: boolean) => {
-        if (include && cellType.rna_seq_tracks.length > 0) {
-            setBiosample(cellType)
-            updateGeneFilter("selectedBiosample", cellType as EncodeBiosample)
+    const handleLinkageBiosampleSubmit = (method: GeneLinkingMethod, biosample: EncodeBiosample, include: boolean) => {
+        if (include && biosample.rna_seq_tracks.length > 0) {
+            setBiosample(biosample)
+            updateGeneFilter("selectedBiosample", biosample as EncodeBiosample)
         }
-        updateGeneFilter("linkageBiosample", cellType);
+        updateGeneFilter("linkageBiosample", biosample);
         updateGeneFilter("methodOfLinkage", method);
         setLinkageBiosampleOpen(false);
         if (method !== methodOfLinkage) {

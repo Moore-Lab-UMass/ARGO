@@ -123,6 +123,8 @@ export type ElementFilterState = {
     classes: CCREClasses;
 }
 
+export type CompBiosample = EncodeBiosample & { cellType?: string }
+
 export type GeneFilterState = {
     useGenes: boolean;
     methodOfLinkage: GeneLinkingMethod
@@ -131,7 +133,7 @@ export type GeneFilterState = {
     rankExpSpecBy: "max" | "avg";
     rankGeneExpBy: "max" | "avg";
     selectedBiosample: EncodeBiosample | null;
-    linkageBiosample: EncodeBiosample | null;
+    linkageBiosample: CompBiosample | null;
     rankLinkedBy: "most" | "least"
 }
 
