@@ -38,7 +38,6 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
                 </Stack>
                 <Button
                     variant="outlined"
-                    size="fit-content"
                     endIcon={<Download />}
                     sx={{ height: "30px" }}
                     onClick={() => {
