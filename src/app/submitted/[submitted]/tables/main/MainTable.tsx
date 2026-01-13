@@ -5,6 +5,7 @@ import { InputRegions, MainTableRow, RankedRegions } from "../../../../types";
 import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, GridSortDirection, GridSortModel, Table, useGridApiRef } from "@weng-lab/ui-components";
 import { calculateAggregateRanks, matchRanks } from "./helpers";
 import AutoSortSwitch from "../../../../components/AutoSortSwitch";
+import CompassCollection from "./CompassCollection";
 
 export interface RankedRegionsTableProps {
     inputRegions: InputRegions;
@@ -164,43 +165,46 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
     }, [apiRef, autoSort, initialSort, selected]);
 
     return (
-        <Box mt="20px" id="123456">
-            <Table
-                apiRef={apiRef}
-                columns={mainColumns}
-                rows={mainRows}
-                loading={loading}
-                initialState={{
-                    sorting: {
-                        sortModel: initialSort,
-                    },
-                }}
-                divHeight={{
-                    height: loading ? "440px" : "100%",
-                    maxHeight: "440px",
-                }}
-                toolbarSlot={AutoSortToolbar}
-                label={
-                    <Tooltip title="Select a row to isolate it" arrow placement="top-start">
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <InfoOutlined
-                                fontSize="small"
-                            />
-                            <Typography>Ranked Regions</Typography>
-                        </Stack>
-                    </Tooltip>
-                }
-                checkboxSelection
-                getRowId={(row) => row.regionID}
-                onRowSelectionModelChange={handleRowSelectionModelChange}
-                rowSelectionModel={{
-                    type: "include",
-                    ids: new Set(selected.map((x) => x.regionID)),
-                }}
-                keepNonExistentRowsSelected
-                downloadFileName="AggregateRanks.tsv"
-            />
-        </Box>
+        <>
+            <Box mt="20px" id="123456">
+                <Table
+                    apiRef={apiRef}
+                    columns={mainColumns}
+                    rows={mainRows}
+                    loading={loading}
+                    initialState={{
+                        sorting: {
+                            sortModel: initialSort,
+                        },
+                    }}
+                    divHeight={{
+                        height: loading ? "440px" : "100%",
+                        maxHeight: "440px",
+                    }}
+                    toolbarSlot={AutoSortToolbar}
+                    label={
+                        <Tooltip title="Select a row to isolate it" arrow placement="top-start">
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <InfoOutlined
+                                    fontSize="small"
+                                />
+                                <Typography>Ranked Regions</Typography>
+                            </Stack>
+                        </Tooltip>
+                    }
+                    checkboxSelection
+                    getRowId={(row) => row.regionID}
+                    onRowSelectionModelChange={handleRowSelectionModelChange}
+                    rowSelectionModel={{
+                        type: "include",
+                        ids: new Set(selected.map((x) => x.regionID)),
+                    }}
+                    keepNonExistentRowsSelected
+                    downloadFileName="AggregateRanks.tsv"
+                />
+            </Box>
+            <CompassCollection mainRows={mainRows} />
+        </>
     );
 };
 
