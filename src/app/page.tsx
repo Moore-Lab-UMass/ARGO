@@ -7,6 +7,7 @@ import ExampleFiles from "./components/ExampleFiles";
 import SnpUpload from "./components/SnpUpload";
 import Grid from "@mui/material/Grid2"
 import Link from "next/link";
+import { LineChartPro, useChartProApiRef } from "@mui/x-charts-pro";
 
 
 export default function Home() {
@@ -15,6 +16,8 @@ export default function Home() {
   const toggleArgoUploadVisible = () => {
     setArgoUploadVisible(!argoUploadVisible);
   };
+
+  const apiRef = useChartProApiRef<'line'>();
 
   return (
     <div>
@@ -120,6 +123,28 @@ export default function Home() {
         </Typography>
         <ExampleFiles />
       </Box>
+      <LineChartPro
+                apiRef={apiRef}
+                xAxis={[{ data: [1, 2, 3, 5, 8, 10], label: 'Rank' }]}
+                yAxis={[{ label: 'Density' }]}
+                series={[
+                    {
+                        data: [8, 9.5, 7, 2, 0, 0],
+                        label: "Positive compass variant",
+                        color: "#1fa718",
+                        showMark: false
+                    },
+                    {
+                        data: [1, 1.5, 2, 2.5, 3, 4.5],
+                        label: "Negative compass variant",
+                        color: "grey",
+                        showMark: false
+                    },
+                ]}
+                showToolbar
+                height={200}
+                width={600}
+            />
       <Box
         width={"100%"}
         justifyContent={"center"}

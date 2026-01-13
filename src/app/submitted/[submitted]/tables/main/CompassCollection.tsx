@@ -33,7 +33,6 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({ mainRows }) => {
                     bgcolor: "background.paper",
                 }}
             >
-                {/* Content */}
                 {open && (
                     <CompassLayout mainRows={mainRows} />
                 )}
