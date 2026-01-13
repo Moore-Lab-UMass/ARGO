@@ -1912,39 +1912,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/x-charts-pro@npm:^8.24.0":
-  version: 8.24.0
-  resolution: "@mui/x-charts-pro@npm:8.24.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.28.4"
-    "@mui/utils": "npm:^7.3.5"
-    "@mui/x-charts": "npm:8.24.0"
-    "@mui/x-charts-vendor": "npm:8.23.0"
-    "@mui/x-internal-gestures": "npm:0.4.0"
-    "@mui/x-internals": "npm:8.24.0"
-    "@mui/x-license": "npm:8.24.0"
-    clsx: "npm:^2.1.1"
-    prop-types: "npm:^15.8.1"
-    rasterizehtml: "npm:^1.4.0"
-  peerDependencies:
-    "@emotion/react": ^11.9.0
-    "@emotion/styled": ^11.8.1
-    "@mui/material": ^5.15.14 || ^6.0.0 || ^7.0.0
-    "@mui/system": ^5.15.14 || ^6.0.0 || ^7.0.0
-    react: ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-  dependenciesMeta:
-    rasterizehtml:
-      optional: true
-  peerDependenciesMeta:
-    "@emotion/react":
-      optional: true
-    "@emotion/styled":
-      optional: true
-  checksum: 10c0/749b515b48cd44852dec403ae673861bc5ccbc0790121bca4d72fd5ff0caaabda939ee22dd1ca1ad9cc2cfa265b45e4da3fc1c2e0033b34c1b92cfa76c21beb0
-  languageName: node
-  linkType: hard
-
 "@mui/x-charts-vendor@npm:8.23.0":
   version: 8.23.0
   resolution: "@mui/x-charts-vendor@npm:8.23.0"
@@ -1976,7 +1943,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/x-charts@npm:8.24.0":
+"@mui/x-charts@npm:^8.24.0":
   version: 8.24.0
   resolution: "@mui/x-charts@npm:8.24.0"
   dependencies:
@@ -3129,7 +3096,7 @@ __metadata:
     "@mui/lab": "npm:6.0.0-beta.13"
     "@mui/material": "npm:^6.1.5"
     "@mui/material-nextjs": "npm:^7"
-    "@mui/x-charts-pro": "npm:^8.24.0"
+    "@mui/x-charts": "npm:^8.24.0"
     "@types/node": "npm:^20"
     "@types/pako": "npm:^2"
     "@types/react": "npm:^19.1.9"
@@ -3929,13 +3896,6 @@ __metadata:
   dependencies:
     tiny-invariant: "npm:^1.0.6"
   checksum: 10c0/611e56d76b16e4e21956ed9fa53f1936fbbfaccd378659587e9c929f342037fc6c062f8af9447226e11fe7c95e31e6c007a37e592f9bff4c2d40e6915553104a
-  languageName: node
-  linkType: hard
-
-"css-font-face-src@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "css-font-face-src@npm:1.0.0"
-  checksum: 10c0/4f131307073b062cdec43766a932970e4fd9857e75f043d36a0d7cebfd845910c83119087c61ca0839361ae3f065ec5f474151b6ac1dc33a331773a89885e8c8
   languageName: node
   linkType: hard
 
@@ -5551,16 +5511,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inlineresources@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "inlineresources@npm:1.2.0"
-  dependencies:
-    css-font-face-src: "npm:^1.0.0"
-    url: "npm:~0.11.0"
-  checksum: 10c0/535e834a152068d39f5295768cefef9df96b0789b85b78071ca1c7a62f51806182e492d5d643ae2a822abd777cad0355b2c55367d6701d677a6927214b659c13
-  languageName: node
-  linkType: hard
-
 "inquirer@npm:^8.0.0":
   version: 8.2.6
   resolution: "inquirer@npm:8.2.6"
@@ -7109,26 +7059,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "punycode@npm:1.4.1"
-  checksum: 10c0/354b743320518aef36f77013be6e15da4db24c2b4f62c5f1eb0529a6ed02fbaf1cb52925785f6ab85a962f2b590d9cd5ad730b70da72b5f180e2556b8bd3ca08
-  languageName: node
-  linkType: hard
-
 "punycode@npm:^2.1.0":
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
   checksum: 10c0/14f76a8206bc3464f794fb2e3d3cc665ae416c01893ad7a02b23766eb07159144ee612ad67af5e84fa4479ccfe67678c4feb126b0485651b302babf66f04f9e9
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.12.3":
-  version: 6.14.1
-  resolution: "qs@npm:6.14.1"
-  dependencies:
-    side-channel: "npm:^1.1.0"
-  checksum: 10c0/0e3b22dc451f48ce5940cbbc7c7d9068d895074f8c969c0801ac15c1313d1859c4d738e46dc4da2f498f41a9ffd8c201bd9fb12df67799b827db94cc373d2613
   languageName: node
   linkType: hard
 
@@ -7143,18 +7077,6 @@ __metadata:
   version: 4.0.3
   resolution: "raf-schd@npm:4.0.3"
   checksum: 10c0/ecabf0957c05fad059779bddcd992f1a9d3a35dfea439a6f0935c382fcf4f7f7fa60489e467b4c2db357a3665167d2a379782586b59712bb36c766e02824709b
-  languageName: node
-  linkType: hard
-
-"rasterizehtml@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "rasterizehtml@npm:1.4.0"
-  dependencies:
-    inlineresources: "npm:^1.1.0"
-    sane-domparser-error: "npm:~0.2.0"
-    url: "npm:~0.11.0"
-    xmlserializer: "npm:~0.6.0"
-  checksum: 10c0/5df24ac47620540ce6b612aa0f381e059c300e89535cf80602d031944dbe27fdbc4b8a48a0358b61e66d18dbe85cd7cdd6d9e1041d137c70509ea519bc68a536
   languageName: node
   linkType: hard
 
@@ -7571,13 +7493,6 @@ __metadata:
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
   checksum: 10c0/7e3c8b2e88a1841c9671094bbaeebd94448111dd90a81a1f606f3f67708a6ec57763b3b47f06da09fc6054193e0e6709e77325415dc8422b04497a8070fa02d4
-  languageName: node
-  linkType: hard
-
-"sane-domparser-error@npm:~0.2.0":
-  version: 0.2.0
-  resolution: "sane-domparser-error@npm:0.2.0"
-  checksum: 10c0/93e554da80a34dd76027a910e1081277828318889caba69e4cf2595fde070edcc9ea03cf4aa209a4dc1149d1aeefe228130331daa31d823f508918d075654d61
   languageName: node
   linkType: hard
 
@@ -8614,16 +8529,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"url@npm:~0.11.0":
-  version: 0.11.4
-  resolution: "url@npm:0.11.4"
-  dependencies:
-    punycode: "npm:^1.4.1"
-    qs: "npm:^6.12.3"
-  checksum: 10c0/cc93405ae4a9b97a2aa60ca67f1cb1481c0221cb4725a7341d149be5e2f9cfda26fd432d64dbbec693d16593b68b8a46aad8e5eab21f814932134c9d8620c662
-  languageName: node
-  linkType: hard
-
 "urlpattern-polyfill@npm:^10.0.0":
   version: 10.1.0
   resolution: "urlpattern-polyfill@npm:10.1.0"
@@ -8862,13 +8767,6 @@ __metadata:
   version: 2.2.0
   resolution: "xmlchars@npm:2.2.0"
   checksum: 10c0/b64b535861a6f310c5d9bfa10834cf49127c71922c297da9d4d1b45eeaae40bf9b4363275876088fbe2667e5db028d2cd4f8ee72eed9bede840a67d57dab7593
-  languageName: node
-  linkType: hard
-
-"xmlserializer@npm:~0.6.0":
-  version: 0.6.1
-  resolution: "xmlserializer@npm:0.6.1"
-  checksum: 10c0/3bd35dbea1c3c56c30dfda2ec98942a5d02aae238ab46f54cfb2a6f18ab6e4b727812c597e830269de181d00f5ddf5bbe32611da84c5eec26aa67ff7438c3db3
   languageName: node
   linkType: hard
 
