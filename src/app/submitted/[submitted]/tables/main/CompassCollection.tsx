@@ -1,3 +1,4 @@
+'use client';
 import { Box, Fab, Tooltip, Portal } from "@mui/material";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { useState } from "react";
@@ -28,7 +29,7 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({ mainRows }) => {
                     transition: "width 250ms ease, height 250ms ease, border-radius 250ms ease",
                     borderRadius: open ? 3 : "50%",
                     borderBottomRightRadius: 25,
-                    overflow: "hidden",
+                    overflow: "visible",
                     boxShadow: 6,
                     bgcolor: "background.paper",
                 }}

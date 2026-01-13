@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";

@@ -1,8 +1,10 @@
+'use client';
 import { Box, Button, FormControl, FormGroup, MenuItem, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { MainTableRow } from "../types";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Download, InfoOutlined } from "@mui/icons-material";
-import { LineChartPro, useChartProApiRef } from "@mui/x-charts-pro";
+import { LineChart } from "@mui/x-charts";
+import { downloadChart } from "../_utility/downloads";
 
 interface CompassLayoutProps {
     mainRows: MainTableRow[];
@@ -10,10 +12,10 @@ interface CompassLayoutProps {
 
 const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
     const [collection, setCollection] = useState<string>("Something");
-    const apiRef = useChartProApiRef<'line'>();
+    const chartRef = useRef<HTMLDivElement>(null);
 
     return (
-        <Box sx={{ p: 2, zIndex: (theme) => theme.zIndex.appBar + 1, }}>
+        <Box sx={{ p: 2 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <Tooltip
@@ -40,33 +42,33 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
                     variant="outlined"
                     endIcon={<Download />}
                     sx={{ height: "30px" }}
-                    onClick={() => {
-                        apiRef.current?.exportAsImage();
-                    }}
+                    onClick={() => downloadChart(chartRef.current, "compass_collection.png")}
                 >
                     Download Plot
                 </Button>
             </Stack>
-            <LineChartPro
-                apiRef={apiRef}
-                xAxis={[{ data: [1, 2, 3, 5, 8, 10], label: 'Rank' }]}
-                yAxis={[{ label: 'Density' }]}
-                series={[
-                    {
-                        data: [8, 9.5, 7, 2, 0, 0],
-                        label: "Positive compass variant",
-                        color: "#1fa718",
-                        showMark: false
-                    },
-                    {
-                        data: [1, 1.5, 2, 2.5, 3, 4.5],
-                        label: "Negative compass variant",
-                        color: "grey",
-                        showMark: false
-                    },
-                ]}
-                height={200}
-            />
+            <div ref={chartRef}>
+                <LineChart
+                    xAxis={[{ data: [1, 2, 3, 5, 8, 10], label: 'Rank' }]}
+                    yAxis={[{ label: 'Density' }]}
+                    series={[
+                        {
+                            data: [8, 9.5, 7, 2, 0, 0],
+                            label: "Positive compass variant",
+                            color: "#1fa718",
+                            showMark: false
+                        },
+                        {
+                            data: [1, 1.5, 2, 2.5, 3, 4.5],
+                            label: "Negative compass variant",
+                            color: "grey",
+                            showMark: false
+                        },
+                    ]}
+                    height={200}
+
+                />
+            </div>
         </Box>
     )
 }

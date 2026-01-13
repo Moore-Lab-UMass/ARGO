@@ -1,3 +1,4 @@
+'use client';
 import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow, Table } from "../../../types";
 import SequenceTable from "./sequence/SequenceTable"
 import ElementTable from "./elements/ElementTable"
