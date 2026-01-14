@@ -44,7 +44,7 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
                     sx={{ height: "30px" }}
                     onClick={() => downloadChart(chartRef.current, "compass_collection.png")}
                 >
-                    Download Plot
+                    Download
                 </Button>
             </Stack>
             <div ref={chartRef}>
