@@ -182,8 +182,7 @@ export default function Home() {
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 } }}
-        backgroundColor={"secondary.dark"}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 }, backgroundColor: "secondary.dark" }}
       >
         <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
           New to ARGO?
