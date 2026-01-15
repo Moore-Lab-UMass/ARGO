@@ -190,7 +190,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 renderCell: (params) => (
                     <Tooltip title="Open cCRE In SCREEN" arrow placement="left">
                         <Link
-                            href={`https://screen.wenglab.org/search?assembly=${elementFilterVariables.cCREAssembly}&chromosome=${params.row.chr}&start=${params.row.start}&end=${params.row.end}&accessions=${params.row.accession}&page=2`}
+                            href={`https://screen.wenglab.org/${elementFilterVariables.cCREAssembly}/ccre/${params.row.accession}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             underline="none"

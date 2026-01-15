@@ -1,8 +1,7 @@
-import { Typography, Modal, Paper, IconButton } from "@mui/material";
+import { Typography, Modal, Paper, IconButton, Tooltip, Link } from "@mui/material";
 import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import CloseIcon from '@mui/icons-material/Close';
 import { GeneLinkingMethod } from "../../../../types";
-import GeneLink from "../../../../components/GeneLink";
 
 type LinkedGenes = {
     accession: string
@@ -36,7 +35,18 @@ const GenesModal: React.FC<GeneModalProps> = ({
             valueGetter: (_, row) => row.name.trim(),
             renderCell: (params: GridRenderCellParams) => {
                 const name = params.row.name?.trim();
-                return <GeneLink assembly="GRCh38" geneName={name} />;
+                return (
+                    <Tooltip title={"Open gene in SCREEN"} arrow placement={"right"}>
+                        <Link
+                            href={`https://screen.wenglab.org/GRCh38/gene/${name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            underline="none"
+                        >
+                            {name}
+                        </Link>
+                    </Tooltip>
+                );
             },
         },
 

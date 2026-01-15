@@ -173,7 +173,7 @@ const ExampleFiles: React.FC = () => {
                     fontSize: "1rem",
                     display: "inline-flex",
                     alignItems: "center",
-                    backgroundColor: "primary.light"
+                    backgroundColor: "#515bb7"
                   }}
                   endIcon={<ArrowForwardIosIcon />}
                   loading={loading}

@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
+import { Box, Button, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useState } from "react";
 import ArgoUpload from "./components/ArgoUpload";
 import ExampleFiles from "./components/ExampleFiles";
@@ -19,37 +19,33 @@ export default function Home() {
     <div>
       <Box
         width="100%"
-        height={"auto"}
-        paddingY={{ xs: 10, md: 20 }}
+        height="auto"
+        paddingY={{ xs: 10, md: 15 }}
         sx={{
-          background: `
-            linear-gradient(#0c184abf, #0c184a80),
-            url("/ArgoBackground2.png")
-          `,
+          background: `url("/bg.png")`,
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
-          backgroundAttachment: 'fixed'
+          backgroundAttachment: 'fixed',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          zIndex: 1,
         }}
       >
-        <Stack direction={"row"} alignItems={"center"} spacing={4}>
-          <Typography variant="h4"
-            sx={{
-              fontWeight: 400,
-              fontSize: '40px',
-              lineHeight: '40px',
-              letterSpacing: 0,
-              color: 'white',
-              textAlign: 'center',
-            }}
-          >
-            Aggregate Rank Generator
-          </Typography>
-        </Stack>
+        <Typography variant="h4"
+          sx={{
+            fontWeight: 400,
+            fontSize: '40px',
+            lineHeight: '40px',
+            letterSpacing: 0,
+            color: 'white',
+            textAlign: 'center',
+          }}
+        >
+          Aggregate Rank Generator
+        </Typography>
         <Box
           sx={{
             backgroundColor: "rgba(249, 248, 244, .8)",
@@ -57,7 +53,7 @@ export default function Home() {
             px: 2,
             py: 2,
             display: "flex",
-            width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
+            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
             minWidth: { xs: "unset", md: 450 },
             mt: 2,
             alignItems: "center",
@@ -110,7 +106,7 @@ export default function Home() {
                           borderRadius: 2,
                           border: "2px solid",
                           borderColor: selected ? "primary.main" : "grey.300",
-                          backgroundColor: selected ? "grey.200" : "grey.100",
+                          backgroundColor: selected ? "primary.main" : "grey.100",
                           cursor: "pointer",
                           transition: "all 0.2s ease",
                           "&:hover": {
@@ -122,7 +118,7 @@ export default function Home() {
                           variant="h6"
                           sx={{
                             fontWeight: selected ? 600 : 500,
-                            color: selected ? "text.primary" : "text.secondary",
+                            color: selected ? "white" : "text.secondary",
                           }}
                         >
                           {option.title}
@@ -131,8 +127,8 @@ export default function Home() {
                         <Typography
                           variant="body2"
                           sx={{
-                            mt: 0.5,
-                            color: "text.secondary",
+                            mt: 0.75,
+                            color: selected ? "white" : "text.secondary",
                           }}
                         >
                           {option.description}
@@ -175,7 +171,7 @@ export default function Home() {
             maxWidth: "600px",
           }}
         >
-          Try these ready-to-use example files to get started. 
+          Try these ready-to-use example files to get started.
           Download them to see the correct format or upload directly to test ARGO
         </Typography>
         <ExampleFiles />
@@ -186,7 +182,7 @@ export default function Home() {
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 }}}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 } }}
         backgroundColor={"secondary.dark"}
       >
         <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
