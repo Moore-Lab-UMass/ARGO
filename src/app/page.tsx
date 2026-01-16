@@ -42,7 +42,8 @@ export default function Home() {
         >
           Aggregate Rank Generator
         </Typography>
-        <Typography variant="p1"
+        <Typography 
+          variant="body2"
           sx={{
             color: 'white',
           }}
