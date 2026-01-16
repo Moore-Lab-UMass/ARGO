@@ -51,6 +51,9 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({ mainRows }) => {
                                 transition: "transform 250ms ease",
                                 transform: open ? "rotate(180deg)" : "rotate(0deg)",
                             },
+                            "&:hover": {
+                                backgroundColor: "primary.main",
+                            },
                         }}
                     >
                         <ExploreIcon />
