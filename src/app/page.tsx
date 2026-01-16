@@ -34,17 +34,20 @@ export default function Home() {
           zIndex: 1,
         }}
       >
-        <Typography variant="h4"
+        <Typography variant="h3"
           sx={{
-            fontWeight: 400,
-            fontSize: '40px',
-            lineHeight: '40px',
-            letterSpacing: 0,
             color: 'white',
-            textAlign: 'center',
           }}
+          mb={.5}
         >
           Aggregate Rank Generator
+        </Typography>
+        <Typography variant="p1"
+          sx={{
+            color: 'white',
+          }}
+        >
+          A variant prioritization resource
         </Typography>
         <Box
           sx={{
