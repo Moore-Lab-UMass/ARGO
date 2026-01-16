@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../../types";
 import { GridColDef, Table } from "@weng-lab/ui-components";
-import { Stack, Tooltip, Typography } from "@mui/material";
+import { Link, Stack, Tooltip, Typography } from "@mui/material";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { client } from "../../../../client";
 import { CLOSEST_QUERY, SPECIFICITY_QUERY, GENE_EXP_QUERY, GENE_ORTHO_QUERY, LINKED_GENES_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY } from "../../../../queries";
 import { parseLinkedGenes, parseClosestGenes, parseComputationalGenes, filterOrthologGenes, getSpecificityScores, getExpressionScores } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { AggregateByEnum } from "../../../../../graphql/__generated__/graphql";
-import GeneLink from "../../../../components/GeneLink";
 
 const computationalMethods: ComputationalMethod[] = [
     "ABC_(DNase_only)",
@@ -252,7 +251,16 @@ const GeneTable: React.FC<GeneTableProps> = ({
                             >
                                 <Typography fontSize="14px">{score.toFixed(2)}</Typography>
                             </Tooltip>
-                            <GeneLink assembly="GRCh38" geneName={geneName.trim()} />
+                            <Tooltip title={"Open gene in SCREEN"} arrow placement={"right"}>
+                                <Link
+                                    href={`https://screen.wenglab.org/GRCh38/gene/${geneName}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    underline="none"
+                                >
+                                    {geneName}
+                                </Link>
+                            </Tooltip>
                         </Stack>
                     ) : (
                         <Typography fontSize="14px">{score.toFixed(2)}</Typography>
@@ -287,7 +295,16 @@ const GeneTable: React.FC<GeneTableProps> = ({
                             >
                                 <Typography fontSize="14px">{score.toFixed(2)}</Typography>
                             </Tooltip>
-                            <GeneLink assembly="GRCh38" geneName={geneName.trim()} />
+                            <Tooltip title={"Open gene in SCREEN"} arrow placement={"right"}>
+                                <Link
+                                    href={`https://screen.wenglab.org/GRCh38/gene/${geneName}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    underline="none"
+                                >
+                                    {geneName}
+                                </Link>
+                            </Tooltip>
                         </Stack>
                     ) : (
                         <Typography fontSize="14px">{score.toFixed(2)}</Typography>

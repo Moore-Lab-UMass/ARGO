@@ -3,7 +3,7 @@ import { Grow, Box, Typography, Stack, Button } from "@mui/material";
 import { useGrowOnScroll } from "../_utility/useGrowOnScroll";
 import Grid from "@mui/material/Grid2"
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { parseDataInput } from "../_utility/uploadHelpers";
 import { InputRegions } from "../types";
 import { encodeRegions } from "../_utility/coding";
@@ -113,7 +113,7 @@ const ExampleFiles: React.FC = () => {
                 background:
                   `linear-gradient(135deg, #0c184a 0%, #152460ff 25%, #1e2f74ff 100%)`,
                 color: "white",
-                height: 200,
+                height: 150,
                 p: 3,
                 boxShadow: 3,
                 textDecoration: "none",
@@ -162,10 +162,10 @@ const ExampleFiles: React.FC = () => {
                     link.click();
                   }}
                 >
-                  Download File
+                  Download
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   sx={{
                     borderColor: "white",
                     fontWeight: "bold",
@@ -173,12 +173,13 @@ const ExampleFiles: React.FC = () => {
                     fontSize: "1rem",
                     display: "inline-flex",
                     alignItems: "center",
+                    backgroundColor: "#515bb7"
                   }}
-                  endIcon={<FileUploadIcon />}
+                  endIcon={<ArrowForwardIosIcon />}
                   loading={loading}
                   onClick={() => handleUseExample(file.file)}
                 >
-                  Use File
+                  Test
                 </Button>
                 
               </Stack>

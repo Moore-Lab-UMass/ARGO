@@ -1,16 +1,15 @@
-//Home Page
 "use client";
-import { Box, Button, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
+import { Box, Button, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useState } from "react";
 import ArgoUpload from "./components/ArgoUpload";
 import ExampleFiles from "./components/ExampleFiles";
 import SnpUpload from "./components/SnpUpload";
-import Grid from "@mui/material/Grid2"
 import Link from "next/link";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
-
+//Home page
 export default function Home() {
-  const [argoUploadVisible, setArgoUploadVisible] = useState(false);
+  const [argoUploadVisible, setArgoUploadVisible] = useState(true);
 
   const toggleArgoUploadVisible = () => {
     setArgoUploadVisible(!argoUploadVisible);
@@ -20,37 +19,36 @@ export default function Home() {
     <div>
       <Box
         width="100%"
-        height={"auto"}
-        paddingY={{ xs: 10, md: 20 }}
+        height="auto"
+        paddingY={{ xs: 10, md: 15 }}
         sx={{
-          background: `
-            linear-gradient(#0c184abf, #0c184a80),
-            url("/ArgoBackground2.png")
-          `,
+          background: `url("/bg.png")`,
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
-          backgroundAttachment: 'fixed'
+          backgroundAttachment: 'fixed',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          zIndex: 1,
         }}
       >
-        <Stack direction={"row"} alignItems={"center"} spacing={4}>
-          <Typography variant="h4"
-            sx={{
-              fontWeight: 400,
-              fontSize: '40px',
-              lineHeight: '40px',
-              letterSpacing: 0,
-              color: 'white',
-              textAlign: 'center',
-            }}
-          >
-            Aggregate Rank Generator
-          </Typography>
-        </Stack>
+        <Typography variant="h3"
+          sx={{
+            color: 'white',
+          }}
+          mb={.5}
+        >
+          Aggregate Rank Generator
+        </Typography>
+        <Typography variant="p1"
+          sx={{
+            color: 'white',
+          }}
+        >
+          A variant prioritization resource
+        </Typography>
         <Box
           sx={{
             backgroundColor: "rgba(249, 248, 244, .8)",
@@ -58,7 +56,7 @@ export default function Home() {
             px: 2,
             py: 2,
             display: "flex",
-            width: { xs: "90%", sm: "80%", md: "60%", lg: "45%" },
+            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
             minWidth: { xs: "unset", md: 450 },
             mt: 2,
             alignItems: "center",
@@ -66,30 +64,90 @@ export default function Home() {
             mx: "auto"
           }}
         >
-          <Typography variant="h6">Upload Option</Typography>
-          <RadioGroup
-            row
-            value={argoUploadVisible ? "argo" : "snp"}
-            onChange={toggleArgoUploadVisible}
-            sx={{ columnGap: 2 }}
-          >
-            <FormControlLabel
-              value="snp"
-              control={<Radio />}
-              label="Common RSID List"
-            />
-            <FormControlLabel
-              value="argo"
-              control={<Radio />}
-              label="Required Fields File"
-            />
-          </RadioGroup>
+          <Box width="100%">
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              Choose your upload method
+            </Typography>
+            <RadioGroup
+              row
+              value={argoUploadVisible ? "argo" : "snp"}
+              onChange={toggleArgoUploadVisible}
+              sx={{ gap: 2, width: "100%" }}
+            >
+              {[
+                {
+                  value: "argo",
+                  title: "Required Fields File",
+                  description:
+                    "I have a TSV file or text data with all required ARGO fields (Chromosome, Position, Alleles, etc.)",
+                },
+                {
+                  value: "snp",
+                  title: "Common rsID List",
+                  description:
+                    "I have a list of SNP IDs and need the system to retrieve genomic coordinates automatically",
+                },
+              ].map((option) => {
+                const selected =
+                  (argoUploadVisible && option.value === "argo") ||
+                  (!argoUploadVisible && option.value === "snp");
+
+                return (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio sx={{ display: "none" }} />}
+                    sx={{
+                      flex: 1,
+                      m: 0,
+                    }}
+                    label={
+                      <Box
+                        sx={{
+                          width: "100%",
+                          p: 2.5,
+                          borderRadius: 2,
+                          border: "2px solid",
+                          borderColor: selected ? "primary.main" : "grey.300",
+                          backgroundColor: selected ? "primary.main" : "grey.100",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            borderColor: selected ? "primary.main" : "grey.600",
+                          },
+                        }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: selected ? 600 : 500,
+                            color: selected ? "white" : "text.secondary",
+                          }}
+                        >
+                          {option.title}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mt: 0.75,
+                            color: selected ? "white" : "text.secondary",
+                          }}
+                        >
+                          {option.description}
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                );
+              })}
+            </RadioGroup>
+          </Box>
           {!argoUploadVisible ? (
             <SnpUpload />
           ) : (
             <ArgoUpload />
           )}
-
         </Box>
       </Box>
       <Box
@@ -98,7 +156,7 @@ export default function Home() {
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 2, paddingX: { xs: 5, md: 20 } }}
+        sx={{ paddingY: 2, paddingX: { xs: 5, md: 20 }, mb: 10 }}
       >
         <Typography
           sx={{
@@ -107,7 +165,7 @@ export default function Home() {
             textAlign: "center",
           }}
         >
-          Example Files
+          Try our example files
         </Typography>
         <Typography
           variant="body1"
@@ -116,7 +174,8 @@ export default function Home() {
             maxWidth: "600px",
           }}
         >
-          Try these example files to get started with ARGO. They have all required fields and are ready to be uploaded. Download these files to view what your file should look like
+          Try these ready-to-use example files to get started.
+          Download them to see the correct format or upload directly to test ARGO
         </Typography>
         <ExampleFiles />
       </Box>
@@ -126,42 +185,46 @@ export default function Home() {
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 10, paddingX: { xs: 5, md: 20 } }}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 }, backgroundColor: "secondary.dark" }}
       >
-        <Grid container width="100%" justifyContent="space-around">
-          <Grid size={6} width={"auto"}>
-            <Typography variant="h4" sx={{ fontWeight: 550, mb: 2 }}>
-              Not Sure Where to Start?
-            </Typography>
-            <Typography variant="body1" maxWidth={500} mb={2}>
-              Visit the help page to view a detailed breakdown of the application and how to contact our team
-            </Typography>
-            <Button
-              variant="contained"
-              LinkComponent={Link}
-              href="/help"
-              sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
-            >
-              View Breakdown
-            </Button>
-          </Grid>
-          <Grid size={6} width={"auto"}>
-            <Typography variant="h4" sx={{ fontWeight: 550, mb: 2 }}>
-              Want to Know More?
-            </Typography>
-            <Typography variant="body1" maxWidth={500} mb={2}>
-              Visit our About page to learn what ARGO does
-            </Typography>
-            <Button
-              variant="contained"
-              LinkComponent={Link}
-              href="/about"
-              sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
-            >
-              Learn More
-            </Button>
-          </Grid>
-        </Grid>
+        <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
+          New to ARGO?
+        </Typography>
+        <Typography variant="body1" maxWidth={500} mb={2} textAlign={"center"}>
+          Visit the help page to view a detailed breakdown of the application and how to contact our team
+        </Typography>
+        <Button
+          variant="contained"
+          LinkComponent={Link}
+          href="/help"
+          sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
+          startIcon={<ArrowForwardIcon />}
+        >
+          View Help Guide
+        </Button>
+      </Box>
+      <Box
+        width={"100%"}
+        justifyContent={"center"}
+        alignItems={"center"}
+        display={"flex"}
+        flexDirection={"column"}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 } }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
+          Learn more about ARGO
+        </Typography>
+        <Typography variant="body1" maxWidth={500} mb={2} textAlign={"center"}>
+          Visit our About page to learn what ARGO is and how it works.
+        </Typography>
+        <Button
+          variant="outlined"
+          LinkComponent={Link}
+          href="/about"
+          startIcon={<ArrowForwardIcon />}
+        >
+          About ARGO
+        </Button>
       </Box>
     </div>
   );
