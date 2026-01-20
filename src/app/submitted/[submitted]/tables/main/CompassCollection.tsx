@@ -3,7 +3,7 @@ import { Box, Fab, Tooltip, Portal } from "@mui/material";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { useState } from "react";
 import { MainTableRow } from "../../../../types";
-import CompassLayout from "../../../../components/CompassLayout";
+import CompassLayout from "../../../../components/CompassCollection/CompassLayout";
 
 interface CompassCollectionProps {
     mainRows: MainTableRow[];

@@ -1,10 +1,11 @@
 'use client';
 import { Box, Button, FormControl, FormGroup, MenuItem, Select, Stack, Tooltip, Typography } from "@mui/material";
-import { MainTableRow } from "../types";
-import { useRef, useState } from "react";
+import { MainTableRow } from "../../types";
+import { useMemo, useRef, useState } from "react";
 import { Download, InfoOutlined } from "@mui/icons-material";
 import { LineChart } from "@mui/x-charts";
-import { downloadChart } from "../_utility/downloads";
+import { downloadChart } from "../../_utility/downloads";
+import RankBand from "./RankBand";
 
 interface CompassLayoutProps {
     mainRows: MainTableRow[];
@@ -13,6 +14,33 @@ interface CompassLayoutProps {
 const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
     const [collection, setCollection] = useState<string>("Something");
     const chartRef = useRef<HTMLDivElement>(null);
+
+    const ranks = useMemo(
+        () =>
+            mainRows
+                .map(r => r.aggregateRank)
+                .filter((r): r is number => r != null),
+        [mainRows]
+    );
+
+    const minRank = Math.min(...ranks);
+    const maxRank = Math.max(...ranks);
+
+    const generateCompassRows = (count = 100): MainTableRow[] =>
+        Array.from({ length: count }, (_, i) => ({
+            regionID: `test${i + 1}`,
+            inputRegion: { chr: "1", start: 1, end: 1 },
+            aggregateRank: Math.floor(Math.random() * 100) + 1, // 1–100, duplicates allowed
+        }));
+
+    const compassRows = generateCompassRows(100);
+
+    const dummyX = mainRows.map(r => r.aggregateRank)
+
+    const positiveDummy = dummyX.map(x => 10 * Math.exp(-x / 30));
+    const negativeDummy = dummyX.map(x => 5 + x * 0.05);
+
+
 
     return (
         <Box sx={{ p: 2 }}>
@@ -49,26 +77,32 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
             </Stack>
             <div ref={chartRef}>
                 <LineChart
-                    xAxis={[{ data: [1, 2, 3, 5, 8, 10], label: 'Rank' }]}
+                    xAxis={[
+                        {
+                            data: dummyX,
+                            min: minRank,
+                            max: maxRank,
+                        },
+                    ]}
                     yAxis={[{ label: 'Density' }]}
                     series={[
                         {
-                            data: [8, 9.5, 7, 2, 0, 0],
+                            data: positiveDummy,
                             label: "Positive compass variant",
                             color: "#1fa718",
                             showMark: false
                         },
                         {
-                            data: [1, 1.5, 2, 2.5, 3, 4.5],
+                            data: negativeDummy,
                             label: "Negative compass variant",
                             color: "grey",
                             showMark: false
                         },
                     ]}
                     height={200}
-
                 />
             </div>
+            <RankBand mainRows={mainRows} compassRows={compassRows} />
         </Box>
     )
 }

@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { Grow, Box, Typography, Stack, Button } from "@mui/material";
-import { useGrowOnScroll } from "../_utility/useGrowOnScroll";
+import { useGrowOnScroll } from "../../_utility/useGrowOnScroll";
 import Grid from "@mui/material/Grid2"
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { parseDataInput } from "../_utility/uploadHelpers";
-import { InputRegions } from "../types";
-import { encodeRegions } from "../_utility/coding";
+import { parseDataInput } from "../../_utility/uploadHelpers";
+import { InputRegions } from "../../types";
+import { encodeRegions } from "../../_utility/coding";
 import DescriptionIcon from '@mui/icons-material/Description';
 
 const examples = [
