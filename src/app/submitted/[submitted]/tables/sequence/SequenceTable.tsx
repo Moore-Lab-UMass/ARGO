@@ -296,7 +296,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                         return id ? (
                             <Tooltip title="Open Motif In HOCOMOCO" arrow placement="left">
                                 <Link
-                                    href={`https://hocomoco12.autosome.org/motif/${id}`}
+                                    href={`https://hocomoco14.autosome.org/motif/${id}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{ color: "#030f98", textDecoration: "none" }}
