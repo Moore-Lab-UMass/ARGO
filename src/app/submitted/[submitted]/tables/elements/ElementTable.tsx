@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../../../types";
 import { Link, Stack, Tooltip } from "@mui/material";
-import { useQuery } from "@apollo/client";
-import { client } from "../../../../client";
-import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from "../../../../queries";
-import { mapScoresCTSpecific, mapScores } from "./elementHelpers";
+import { mapScoresCTSpecific, mapScores, buildOrthologMap, filterElements } from "./elementHelpers";
 import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { GROUP_COLOR_MAP } from "../../../../_utility/colors";
+import { useElementData } from "../../../../hooks/useElementData";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
@@ -19,111 +17,69 @@ const ElementTable: React.FC<ElementTableProps> = ({
     ToolBarIcon
 }) => {
 
-    //query to get orthologous cCREs of the intersecting cCREs (also used in gene)
-    const { loading: loading_ortho, data: orthoData, error: error_ortho } = useQuery(ORTHOLOG_QUERY, {
-        variables: {
-            assembly: "GRCh38",
-            accessions: intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
-        },
-        skip: (!elementFilterVariables.mustHaveOrtholog && elementFilterVariables.cCREAssembly !== "mm10") || !intersectingCcres,
-        client: client,
-        fetchPolicy: 'cache-first',
-    })
-
-    const mouseAccessions = useMemo(() => {
-        if (elementFilterVariables.cCREAssembly === "mm10") {
-            return orthoData?.orthologQuery
-                .flatMap(entry => entry.ortholog)
-                .map(orthologEntry => orthologEntry.accession);
-        }
-    }, [elementFilterVariables.cCREAssembly, orthoData?.orthologQuery]);
-
-    //Query to get the assay zscores of the intersecting ccres
-    const { loading: loading_scores, data: zScoreData, error: error_scores } = useQuery(Z_SCORES_QUERY, {
-        variables: {
-            assembly: elementFilterVariables.cCREAssembly,
-            accessions: elementFilterVariables.cCREAssembly === "mm10" ? mouseAccessions : intersectingCcres ? intersectingCcres.map((ccre) => ccre.accession) : [],
-            cellType: elementFilterVariables.selectedBiosample ? elementFilterVariables.selectedBiosample.name : null
-        },
-        skip: !intersectingCcres || (elementFilterVariables.cCREAssembly === "mm10" && !mouseAccessions),
-        client: client,
-        fetchPolicy: 'cache-first',
+    const {
+        ortho,
+        zScores,
+        loading,
+        error,
+    } = useElementData({
+        intersectingCcres,
+        elementFilterVariables,
     });
 
     //all data pertaining to the element table
     const allElementData: ElementTableRow[] = useMemo(() => {
-        if (!zScoreData) return [];
-        const data = zScoreData['cCRESCREENSearch'];
-        let mapObj = intersectingCcres;
+        if (!zScores.data) return [];
 
-        //use mouse accesion instead if mm10 selected
-        if (elementFilterVariables.cCREAssembly === "mm10") {
-            const orthologMapping: { [accession: string]: string | undefined } = {};
+        const data = zScores.data.cCRESCREENSearch;
+        const orthoMap = buildOrthologMap(ortho.data);
 
-            orthoData.orthologQuery.forEach((entry: { accession: string; ortholog: Array<{ accession: string }> }) => {
-                if (entry.ortholog.length > 0) {
-                    orthologMapping[entry.accession] = entry.ortholog[0].accession;
-                }
-            });
+        const baseCcres =
+            elementFilterVariables.cCREAssembly === 'mm10'
+                ? intersectingCcres
+                    .map(ccre => ({
+                        ...ccre,
+                        accession: orthoMap[ccre.accession],
+                    }))
+                    .filter(ccre => ccre.accession)
+                : intersectingCcres;
 
-            mapObj = intersectingCcres
-                .map((ccre) => ({
-                    ...ccre,
-                    accession: orthologMapping[ccre.accession]
-                }))
-                .filter((ccre) => ccre.accession !== undefined);
-        }
+        const scoreMapper = elementFilterVariables.selectedBiosample
+            ? mapScoresCTSpecific
+            : mapScores;
 
-        //map assay scores bsed on selected biosample
-        if (elementFilterVariables.selectedBiosample) {
-            return mapObj.map(obj => mapScoresCTSpecific(obj, data));
-        } else {
-            return mapObj.map(obj => mapScores(obj, data));
-        }
-    }, [zScoreData, intersectingCcres, elementFilterVariables.cCREAssembly, elementFilterVariables.selectedBiosample, orthoData]);
+        return baseCcres.map(ccre => scoreMapper(ccre, data));
+    }, [
+        zScores.data,
+        intersectingCcres,
+        elementFilterVariables.cCREAssembly,
+        elementFilterVariables.selectedBiosample,
+        ortho.data,
+    ]);
 
-    const errorElements = error_ortho || error_scores
 
     // Filter cCREs based on class and ortholog
-    const elementRows: ElementTableRow[] = useMemo(() => {
-        if (errorElements)
-            if (allElementData.length === 0 || loading_scores || loading_ortho) {
-                return [];
-            }
-        let data = allElementData;
-        //filter through ortholog
-        if (elementFilterVariables.mustHaveOrtholog && orthoData && elementFilterVariables.cCREAssembly !== "mm10") {
-            const orthologMapping: { [accession: string]: string | undefined } = {};
-
-            orthoData.orthologQuery.forEach((entry: { accession: string; ortholog: Array<{ accession: string }> }) => {
-                if (entry.ortholog.length > 0) {
-                    orthologMapping[entry.accession] = entry.ortholog[0].accession;
-                }
-            });
-
-            data = data
-                .map((row) => ({
-                    ...row,
-                    ortholog: orthologMapping[row.accession]
-                }))
-                .filter((row) => row.ortholog !== undefined);
-        }
-        //filter through classes return if the data set i fully filtered
-        const filteredClasses = data.filter(row => elementFilterVariables.classes[row.class] !== false);
-        if (filteredClasses.length === 0) {
-            return null
+    const elementRows: ElementTableRow[] | null = useMemo(() => {
+        if (loading || error || allElementData.length === 0) {
+            return [];
         }
 
-        return filteredClasses;
+        const filteredElements = filterElements({
+            allElementData,
+            orthoData: ortho.data,
+            elementFilterVariables,
+        })
 
-    }, [errorElements, allElementData, loading_scores, loading_ortho, elementFilterVariables.mustHaveOrtholog, elementFilterVariables.cCREAssembly, elementFilterVariables.classes, orthoData]);
+        return filteredElements;
+    }, [loading, error, allElementData, ortho.data, elementFilterVariables]);
+
 
     useEffect(() => {
         if (!elementRows) return
         updateElementRows(elementRows)
     }, [elementRows, updateElementRows])
 
-    const loadingRows = loading_ortho || loading_scores || loadingIntersect;
+    const loadingRows = loading || loadingIntersect;
 
     useEffect(() => {
         updateLoadingElementRows(loadingRows);
@@ -210,6 +166,18 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 cols.push({
                     field: "ortholog",
                     headerName: "Orthologous Accession",
+                    renderCell: (params) => (
+                        <Tooltip title="Open cCRE In SCREEN" arrow placement="left">
+                            <Link
+                                href={`https://screen.wenglab.org/mm10/ccre/${params.row.ortholog}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                underline="none"
+                            >
+                                {params.row.ortholog}
+                            </Link>
+                        </Tooltip>
+                    ),
                 });
             }
 
@@ -275,8 +243,8 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
                 emptyTableFallback={"No Overlapping cCREs"}
                 toolbarSlot={ToolBarIcon}
-                toolbarStyle={{backgroundColor: "#e7eef8"}}
-                error={errorElements ? true : false}
+                toolbarStyle={{ backgroundColor: "#e7eef8" }}
+                error={error ? true : false}
             />
         </Stack>
     )

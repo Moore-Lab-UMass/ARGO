@@ -1,4 +1,5 @@
-import { GenomicRegion, InputRegions, MotifRanking, RankedRegions, SequenceTableRow } from "../../../../types";
+import { BigRequestsMultipleRegionsSequenceQuery, MotifRankingQueryQuery } from "../../../../../graphql/__generated__/graphql";
+import { DataScource, GenomicRegion, InputRegions, MotifQuality, MotifRanking, RankedRegions, SequenceFilterState, SequenceTableRow } from "../../../../types";
 
 // switch between min, max, avg for conservation scores, calculate each respectivley
 export const calculateConservationScores = (scores, rankBy: string, inputRegions: InputRegions): SequenceTableRow[] => {
@@ -220,4 +221,109 @@ export const generateSequenceRanks = (sequenceRows: SequenceTableRow[]): RankedR
 
     return rankedRegions
 
+};
+
+interface FilterSequenceArgs {
+    inputRegions: InputRegions;
+    conservationData?: BigRequestsMultipleRegionsSequenceQuery;
+    motifData?: MotifRankingQueryQuery;
+    sequenceFilterVariables: SequenceFilterState;
+}
+
+export const filterSequence = ({
+    inputRegions,
+    conservationData,
+    motifData,
+    sequenceFilterVariables,
+}: FilterSequenceArgs): SequenceTableRow[] => {
+    //Conservation scores
+    let calculatedConservationScores: SequenceTableRow[] = [];
+    if (conservationData) {
+        calculatedConservationScores = calculateConservationScores(
+            conservationData.bigRequestsMultipleRegions,
+            sequenceFilterVariables.rankBy,
+            inputRegions
+        );
+    }
+
+    //Motif scores
+    let calculatedMotifScores: SequenceTableRow[] = [];
+    let filteredMotifs: MotifRanking = [];
+
+    if (motifData) {
+        filteredMotifs = motifData.motifranking
+            .filter((motif) => {
+                const motifQuality =
+                    motif.motif.split('.').pop();
+                const motifDataSource =
+                    motif.motif.split('.')[3];
+
+                return (
+                    sequenceFilterVariables.motifQuality[
+                    motifQuality.toLowerCase() as keyof MotifQuality
+                    ] &&
+                    motifDataSource
+                        .split('')
+                        .some(letter =>
+                            sequenceFilterVariables.dataSource[
+                            letter.toLowerCase() as keyof DataScource
+                            ]
+                        )
+                );
+            })
+            .map((motif) => ({
+                ...motif,
+                ref: Number(motif.ref),
+            }));
+
+        calculatedMotifScores = calculateMotifScores(
+            inputRegions,
+            filteredMotifs
+        );
+    }
+
+    //Overlapping motifs
+    let numOverlappingMotifs: SequenceTableRow[] = [];
+    if (motifData && sequenceFilterVariables.numOverlappingMotifs) {
+        numOverlappingMotifs = getNumOverlappingMotifs(
+            inputRegions,
+            filteredMotifs
+        );
+    }
+
+    //Merge rows
+    return inputRegions.map(region => {
+        const conservationRow =
+            calculatedConservationScores.find(
+                row => row.regionID === region.regionID
+            );
+
+        const motifScoresRow =
+            calculatedMotifScores.find(
+                row => row.regionID === region.regionID
+            );
+
+        const numOverlappingMotifsRow =
+            numOverlappingMotifs.find(
+                row => row.regionID === region.regionID
+            );
+
+        return {
+            regionID: region.regionID,
+            inputRegion: region,
+            conservationScore:
+                conservationRow?.conservationScore ?? -1_000_000,
+            motifScoreDelta: motifScoresRow?.motifScoreDelta,
+            referenceAllele: motifScoresRow
+                ? motifScoresRow.referenceAllele
+                : { sequence: region.ref },
+            alt: motifScoresRow
+                ? motifScoresRow.alt
+                : { sequence: region.alt },
+            motifID: motifScoresRow?.motifID,
+            numOverlappingMotifs:
+                numOverlappingMotifsRow?.numOverlappingMotifs,
+            motifs: numOverlappingMotifsRow?.motifs,
+        };
+    });
 };

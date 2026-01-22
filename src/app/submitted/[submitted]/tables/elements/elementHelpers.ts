@@ -1,4 +1,5 @@
-import { AssayRankEntry, CCREAssays, CCREClasses, ElementTableRow, RankedRegions } from "../../../../types";
+import { OrthoQueryQuery } from "../../../../../graphql/__generated__/graphql";
+import { AssayRankEntry, CCREAssays, CCREClasses, ElementFilterState, ElementTableRow, RankedRegions } from "../../../../types";
 
 const assayNames = ["dnase", "h3k4me3", "h3k27ac", "ctcf", "atac"]
 
@@ -150,4 +151,56 @@ export const generateElementRanks = (rows: ElementTableRow[], classes: CCREClass
         });
     });
     return rankedRegions
+};
+
+export const buildOrthologMap = (
+    orthoData?: OrthoQueryQuery
+): Record<string, string> => {
+    if (!orthoData) return {};
+
+    return orthoData.orthologQuery.reduce<Record<string, string>>(
+        (acc, entry) => {
+            if (entry.ortholog.length > 0) {
+                acc[entry.accession] = entry.ortholog[0].accession;
+            }
+            return acc;
+        },
+        {}
+    );
+};
+
+interface FilterElementsArgs {
+    allElementData: ElementTableRow[];
+    orthoData?: OrthoQueryQuery;
+    elementFilterVariables: ElementFilterState;
+}
+
+export const filterElements = ({
+    allElementData,
+    orthoData,
+    elementFilterVariables,
+}: FilterElementsArgs): ElementTableRow[] | null => {
+    let data = allElementData;
+
+    const orthoMap = buildOrthologMap(orthoData);
+
+    //Ortholog filter
+    if (
+        elementFilterVariables.mustHaveOrtholog &&
+        elementFilterVariables.cCREAssembly !== 'mm10'
+    ) {
+        data = data
+            .map(row => ({
+                ...row,
+                ortholog: orthoMap[row.accession],
+            }))
+            .filter(row => row.ortholog);
+    }
+
+    //Class filter
+    const filteredByClass = data.filter(
+        row => elementFilterVariables.classes[row.class] !== false
+    );
+
+    return filteredByClass.length > 0 ? filteredByClass : null;
 };

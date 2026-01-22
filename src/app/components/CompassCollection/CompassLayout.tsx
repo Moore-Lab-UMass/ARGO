@@ -9,9 +9,10 @@ import RankBand from "./RankBand";
 
 interface CompassLayoutProps {
     mainRows: MainTableRow[];
+    open: boolean;
 }
 
-const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
+const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows, open }) => {
     const [collection, setCollection] = useState<string>("Something");
     const chartRef = useRef<HTMLDivElement>(null);
 
@@ -41,9 +42,8 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows }) => {
     const negativeDummy = dummyX.map(x => 5 + x * 0.05);
 
 
-
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 2, display: open ? "block" : "none" }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <Tooltip

@@ -34,9 +34,9 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({ mainRows }) => {
                     bgcolor: "background.paper",
                 }}
             >
-                {open && (
-                    <CompassLayout mainRows={mainRows} />
-                )}
+                {/* {open && ( */}
+                    <CompassLayout mainRows={mainRows} open={open} />
+                {/* )} */}
                 <Tooltip title="Compass Collection" arrow>
                     <Fab
                         size="medium"

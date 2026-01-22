@@ -1,5 +1,7 @@
 import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../../../types";
-import { GeneOrthologQueryQuery, GeneSpecificityQuery, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
+import { ClosestAndLinkedQuery, ComputationalGeneLinksQuery, Exact, GeneOrthologQueryQuery, GeneSpecificityQuery, GetLinkedGenesQuery, InputMaybe, Scalars, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
+import { client } from "../../../../client";
+import { LazyQueryExecFunction } from "@apollo/client";
 
 type ComputationalGenes = {
     __typename?: "ComputationalGeneLinks";
@@ -12,6 +14,15 @@ type ComputationalGenes = {
     fileaccession: string;
     gene: string;
 }[]
+
+export const computationalMethods: ComputationalMethod[] = [
+    "ABC_(DNase_only)",
+    "ABC_(full)",
+    "EPIraction",
+    "GraphRegLR",
+    "rE2G_(DNase_only)",
+    "rE2G_(extended)"
+];
 
 export const getSpecificityScores = (allGenes: AllLinkedGenes, accessions: CCREs, geneSpecificity: GeneSpecificityQuery, geneFilterVariables: GeneFilterState): GeneTableRow[] => {
 
@@ -345,13 +356,13 @@ export const generateGeneRanks = (geneRows: GeneTableRow[], rankLinkedBy: "most"
             const bLen = b.linkedGenes?.length ?? 0;
             return rankLinkedBy === "most" ? bLen - aLen : aLen - bLen;
         });
-        
+
         let rank = 1;
         return sortedRows.map((row, index) => {
             if (
                 index > 0 &&
                 (sortedRows[index].linkedGenes?.length ?? 0) !==
-                    (sortedRows[index - 1].linkedGenes?.length ?? 0)
+                (sortedRows[index - 1].linkedGenes?.length ?? 0)
             ) {
                 rank = index + 1;
             }
@@ -399,4 +410,120 @@ export const generateGeneRanks = (geneRows: GeneTableRow[], rankLinkedBy: "most"
     });
 
     return rankedRegions;
+};
+
+interface FilterGenesArgs {
+    closestData: ClosestAndLinkedQuery;
+    linkedData: GetLinkedGenesQuery;
+    computationalData: ComputationalGeneLinksQuery;
+    intersectingCcres?: CCREs;
+    geneFilterVariables: GeneFilterState;
+    getOrthoGenes: LazyQueryExecFunction<GeneOrthologQueryQuery, Exact<{
+        name: Array<InputMaybe<Scalars["String"]["input"]>> | InputMaybe<Scalars["String"]["input"]>;
+        assembly: Scalars["String"]["input"];
+    }>>;
+    orthoGenes: GeneOrthologQueryQuery;
+}
+
+export const filterGenes = ({
+    closestData,
+    linkedData,
+    computationalData,
+    intersectingCcres,
+    geneFilterVariables,
+    getOrthoGenes,
+    orthoGenes,
+}: FilterGenesArgs): AllLinkedGenes | null => {
+    let linkedGenes: AllLinkedGenes = [];
+
+    //Distance-based genes
+    if (geneFilterVariables.methodOfLinkage === 'distance') {
+        let closestGenes =
+            closestData.closestGenetocCRE.filter(
+                (gene) => gene.gene.type === 'ALL'
+            );
+
+        if (geneFilterVariables.mustBeProteinCoding) {
+            closestGenes =
+                closestData.closestGenetocCRE.filter(
+                    (gene) => gene.gene.type === 'PC'
+                );
+        }
+
+        linkedGenes = parseClosestGenes(closestGenes);
+    }
+
+    //Computational genes
+    else if (
+        computationalMethods.includes(
+            geneFilterVariables.methodOfLinkage as ComputationalMethod
+        )
+    ) {
+        const computationalGenes =
+            geneFilterVariables.mustBeProteinCoding
+                ? computationalData?.ComputationalGeneLinksQuery.filter(
+                    (gene) =>
+                        gene.genetype === 'protein_coding'
+                )
+                : computationalData?.ComputationalGeneLinksQuery;
+
+        linkedGenes = parseComputationalGenes(
+            computationalGenes,
+            geneFilterVariables.methodOfLinkage as ComputationalMethod,
+            intersectingCcres
+        );
+    }
+
+    //Experimental linked genes
+    else {
+        const initialFilter =
+            linkedData.linkedGenesQuery.filter(
+                (gene) =>
+                    gene.assay !== 'CRISPRi-FlowFISH' ||
+                    (gene.assay === 'CRISPRi-FlowFISH' &&
+                        gene.p_val < 0.05)
+            );
+
+        const filteredLinkedGenes =
+            geneFilterVariables.mustBeProteinCoding
+                ? initialFilter.filter(
+                    (gene) =>
+                        gene.genetype === 'protein_coding'
+                )
+                : initialFilter;
+
+        linkedGenes = parseLinkedGenes(
+            filteredLinkedGenes,
+            geneFilterVariables.methodOfLinkage
+        );
+    }
+
+    //Ortholog filtering
+    if (geneFilterVariables.mustHaveOrtholog) {
+        const uniqueGeneNames = Array.from(
+            new Set(
+                linkedGenes.flatMap(item =>
+                    item.genes.map(g => g.name.trim())
+                )
+            )
+        );
+
+        getOrthoGenes({
+            variables: {
+                name: uniqueGeneNames,
+                assembly: 'grch38',
+            },
+            client,
+            fetchPolicy: 'cache-and-network',
+        });
+
+        if (orthoGenes) {
+            linkedGenes = filterOrthologGenes(
+                orthoGenes,
+                linkedGenes
+            );
+        }
+    }
+
+    return linkedGenes.length > 0 ? linkedGenes : null;
 };
