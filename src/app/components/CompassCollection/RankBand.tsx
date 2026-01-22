@@ -11,7 +11,7 @@ const RankBand: React.FC<RankBandProps> = ({ mainRows, compassRows }) => {
     const width = 715;
     const bandHeight = 14;
     const tickHeight = 18;
-    const offset = 85
+    const offset = 83
 
     const ranks = compassRows
         .map(r => r.aggregateRank)
@@ -49,6 +49,7 @@ const RankBand: React.FC<RankBandProps> = ({ mainRows, compassRows }) => {
                             rx={1}
                             fill={row.aggregateRank > 67 ? "grey" : "green"}
                         />
+                        
                     );
                 })}
             </svg>

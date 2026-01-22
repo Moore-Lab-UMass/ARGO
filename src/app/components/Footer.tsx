@@ -1,8 +1,7 @@
 "use client";
-import { Typography, Box, Link as MuiLink, Stack } from "@mui/material";
+import { Typography, Box, Link as MuiLink, Stack, Grid } from "@mui/material";
 import Image from "next/image";
 import { LinkComponent } from "./LinkComponent";
-import Grid from "@mui/material/Grid2"
 
 export default function Footer() {
     const sections = [

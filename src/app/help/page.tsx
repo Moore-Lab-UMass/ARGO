@@ -1,7 +1,6 @@
 "use client";
-import { Box, Divider, Link, Typography } from "@mui/material";
+import { Box, Divider, Grid, Link, Typography } from "@mui/material";
 import React from "react";
-import Grid from "@mui/material/Grid2"
 import Image from "next/image";
 import exampleCards from "../../../public/help/exampleCards.png";
 import requiredFields from "../../../public/help/requiredFields.png";

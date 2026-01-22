@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
-import { Grow, Box, Typography, Stack, Button } from "@mui/material";
+import { Grow, Box, Typography, Stack, Button, Grid } from "@mui/material";
 import { useGrowOnScroll } from "../../_utility/useGrowOnScroll";
-import Grid from "@mui/material/Grid2"
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { parseDataInput } from "../../_utility/uploadHelpers";

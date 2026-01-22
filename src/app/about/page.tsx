@@ -1,7 +1,6 @@
 "use client";
-import { Divider, Typography, Link } from "@mui/material";
+import { Divider, Typography, Link, Grid } from "@mui/material";
 import React from "react";
-import Grid from "@mui/material/Grid2"
 import Image from "next/image";
 import encodeEncyclopedia from "../../../public/about/encodeencyclopedia.png";
 import Argo from "../../../public/Argo.png";
