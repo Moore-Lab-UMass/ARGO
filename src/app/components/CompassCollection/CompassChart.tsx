@@ -62,7 +62,12 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                             showMark: false
                         },
                     ]}
-                    height={200}
+                height={200}
+                slotProps={{
+                    tooltip: {
+                        trigger: 'none', // Disables the tooltip on hover
+                    },
+                }}
                 />
             <RankBand rows={rows} loading={loading} />
             </div>
