@@ -1,46 +1,51 @@
 'use client';
 import { Box, Button, FormControl, FormGroup, MenuItem, Select, Stack, Tooltip, Typography } from "@mui/material";
-import { MainTableRow } from "../../types";
-import { useMemo, useRef, useState } from "react";
+import { ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState, SequenceTableRow } from "../../types";
+import { useRef } from "react";
 import { Download, InfoOutlined } from "@mui/icons-material";
-import { LineChart } from "@mui/x-charts";
 import { downloadChart } from "../../_utility/downloads";
-import RankBand from "./RankBand";
+import { useCompassMainRows } from "../../hooks/useCompassMainRows";
+import CompassChart from "./CompassChart";
 
 interface CompassLayoutProps {
-    mainRows: MainTableRow[];
+    regions: InputRegions;
     open: boolean;
+    collection: string;
+    setCollection: (collection: string) => void;
+    sequenceRows: SequenceTableRow[];
+    elementRows: ElementTableRow[];
+    geneRows: GeneTableRow[];
+    sequenceFilterVariables: SequenceFilterState;
+    elementFilterVariables: ElementFilterState;
+    geneFilterVariables: GeneFilterState;
+    loadingScores: boolean;
 }
 
-const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows, open }) => {
-    const [collection, setCollection] = useState<string>("Something");
+const CompassLayout: React.FC<CompassLayoutProps> = ({ 
+    regions,
+    open, 
+    collection, 
+    setCollection,
+    sequenceRows,
+    elementRows,
+    geneRows,
+    sequenceFilterVariables,
+    elementFilterVariables,
+    geneFilterVariables,
+    loadingScores
+}) => {
     const chartRef = useRef<HTMLDivElement>(null);
 
-    const ranks = useMemo(
-        () =>
-            mainRows
-                .map(r => r.aggregateRank)
-                .filter((r): r is number => r != null),
-        [mainRows]
-    );
-
-    const minRank = Math.min(...ranks);
-    const maxRank = Math.max(...ranks);
-
-    const generateCompassRows = (count = 100): MainTableRow[] =>
-        Array.from({ length: count }, (_, i) => ({
-            regionID: `test${i + 1}`,
-            inputRegion: { chr: "1", start: 1, end: 1 },
-            aggregateRank: Math.floor(Math.random() * 100) + 1, // 1–100, duplicates allowed
-        }));
-
-    const compassRows = generateCompassRows(100);
-
-    const dummyX = mainRows.map(r => r.aggregateRank)
-
-    const positiveDummy = dummyX.map(x => 10 * Math.exp(-x / 30));
-    const negativeDummy = dummyX.map(x => 5 + x * 0.05);
-
+    const { mainRows, loading: loadingMainRows } = useCompassMainRows({
+        regions,
+        sequenceRows,
+        elementRows,
+        geneRows,
+        sequenceFilterVariables,
+        elementFilterVariables,
+        geneFilterVariables,
+        loadingScores,
+    });
 
     return (
         <Box sx={{ p: 2, display: open ? "block" : "none" }}>
@@ -60,7 +65,7 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows, open }) => {
                     <FormGroup>
                         <FormControl fullWidth>
                             <Select sx={{ height: "30px", width: "160px" }} value={collection} onChange={(event) => setCollection(event.target.value)}>
-                                <MenuItem value={"Something else"}>Something else</MenuItem>
+                                <MenuItem value={"Default"}>Default</MenuItem>
                                 <MenuItem value={"Something"}>Something</MenuItem>
                             </Select>
                         </FormControl>
@@ -75,34 +80,7 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({ mainRows, open }) => {
                     Download
                 </Button>
             </Stack>
-            <div ref={chartRef}>
-                <LineChart
-                    xAxis={[
-                        {
-                            data: dummyX,
-                            min: minRank,
-                            max: maxRank,
-                        },
-                    ]}
-                    yAxis={[{ label: 'Density' }]}
-                    series={[
-                        {
-                            data: positiveDummy,
-                            label: "Positive compass variant",
-                            color: "#1fa718",
-                            showMark: false
-                        },
-                        {
-                            data: negativeDummy,
-                            label: "Negative compass variant",
-                            color: "grey",
-                            showMark: false
-                        },
-                    ]}
-                    height={200}
-                />
-            </div>
-            <RankBand mainRows={mainRows} compassRows={compassRows} />
+            <CompassChart rows={mainRows} loading={loadingMainRows} chartRef={chartRef} />
         </Box>
     )
 }

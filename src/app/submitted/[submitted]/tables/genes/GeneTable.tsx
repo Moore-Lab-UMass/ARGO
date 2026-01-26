@@ -39,7 +39,10 @@ const GeneTable: React.FC<GeneTableProps> = ({
     });
 
     const filteredGenes = useMemo<AllLinkedGenes>(() => {
-        if (!intersectingCcres || (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) || (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) || (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !computational.data)) {
+        if (!intersectingCcres || 
+            (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) || 
+            (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) || 
+            (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !computational.data)) {
             return [];
         }
 

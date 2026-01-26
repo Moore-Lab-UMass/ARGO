@@ -6,7 +6,6 @@ import { InputRegions, MainTableRow, RankedRegions } from "../../../../types";
 import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, GridSortDirection, GridSortModel, Table, useGridApiRef } from "@weng-lab/ui-components";
 import { calculateAggregateRanks, matchRanks } from "./helpers";
 import AutoSortSwitch from "../../../../components/AutoSortSwitch";
-import CompassCollection from "./CompassCollection";
 
 export interface RankedRegionsTableProps {
     inputRegions: InputRegions;
@@ -204,7 +203,6 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
                     downloadFileName="AggregateRanks.tsv"
                 />
             </Box>
-            <CompassCollection mainRows={mainRows} />
         </>
     );
 };

@@ -57,7 +57,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
         ortho.data,
     ]);
 
-
     // Filter cCREs based on class and ortholog
     const elementRows: ElementTableRow[] | null = useMemo(() => {
         if (loading || error || allElementData.length === 0) {
@@ -72,7 +71,6 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
         return filteredElements;
     }, [loading, error, allElementData, ortho.data, elementFilterVariables]);
-
 
     useEffect(() => {
         if (!elementRows) return
