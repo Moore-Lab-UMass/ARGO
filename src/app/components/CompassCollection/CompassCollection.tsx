@@ -39,7 +39,7 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
     const [collection, setCollection] = useState("Default");
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
-    const { compassRegions, loading } = useCompassRegions();
+    const { compassRegions, loading } = useCompassRegions(collection);
     const allRegions = [...inputRegions, ...compassRegions];
 
     useEffect(() => {

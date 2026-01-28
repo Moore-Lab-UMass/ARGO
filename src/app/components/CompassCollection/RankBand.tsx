@@ -1,6 +1,8 @@
 import { Box, Skeleton, Stack, Typography } from "@mui/material";
 import { MainTableRow } from "../../types";
 import { TooltipWithBounds, useTooltip } from "@visx/tooltip";
+import { useMemo } from "react";
+import { topKAccuracyFromRanks } from "./helpers";
 
 interface RankBandProps {
     rows: MainTableRow[];
@@ -29,6 +31,11 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
 
     const scaleX = (rank: number) =>
         ((rank - minRank) / (maxRank - minRank)) * width;
+
+    const topKAccuracy = useMemo(
+        () => topKAccuracyFromRanks(rows),
+        [rows]
+    );
 
     return (
         <Box width="100%" pl={`${offset}px`} pr={"15px"}>
@@ -66,7 +73,7 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
                                 width={hoveredRow ? 5 : 3}
                                 height={hoveredRow ? tickHeight + 2 : tickHeight}
                                 rx={1}
-                                fill={category === "Pathogenic" ? "grey" : "green"}
+                                fill={category === "Pathogenic" ? "green" : "grey"}
                                 onMouseMove={() =>
                                     showTooltip({
                                         tooltipData: row,
@@ -89,16 +96,18 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
                     <div>
                         <strong>{String(tooltipData.regionID).split("_")[0]}</strong>
                     </div>
-                    <br/>
+                    <br />
                     <div>Aggregate rank: {tooltipData.aggregateRank}</div>
-                    <div>Sequence rank: {tooltipData.sequenceRank}</div>
-                    <div>Element rank: {tooltipData.elementRank}</div>
-                    <div>Gene rank: {tooltipData.geneRank}</div>
+                    <div>Sequence rank: {tooltipData.sequenceRank === 0 ? "N/A" : tooltipData.sequenceRank}</div>
+                    <div>Element rank: {tooltipData.elementRank === 0 ? "N/A" : tooltipData.elementRank}</div>
+                    <div>Gene rank: {tooltipData.geneRank === 0 ? "N/A" : tooltipData.geneRank}</div>
                 </TooltipWithBounds>
             )}
             <Stack direction={"row"} justifyContent={"space-between"}>
                 <Typography>Rank</Typography>
-                <Typography sx={{ mr: 3 }}>Top k-accuracy: 71.4%</Typography>
+                <Typography sx={{ mr: 3 }}>
+                    Top-k accuracy: {loading ?  `--.-` : (topKAccuracy * 100).toFixed(1)}%
+                </Typography>
             </Stack>
         </Box>
     );

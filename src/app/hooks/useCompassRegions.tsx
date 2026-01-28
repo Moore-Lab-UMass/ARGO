@@ -28,19 +28,28 @@ function parseVCFToRegions(vcfText: string): InputRegions {
     return regions;
 }
 
-export function useCompassRegions() {
+const collectionFileMap: { [key: string]: string } = {
+  "Default": "/compassTesting.vcf",
+  "Migraine": "/filteredMigraine.vcf",
+  "Xeroderma Pigmentosum": "/Xeroderma_pigmentosum.vcf",
+  "Meckel Syndrome": "/Meckel_syndrome.vcf",
+};
+
+export function useCompassRegions(collection: string = "Default") {
   const [compassRegions, setCompassRegions] = useState<InputRegions>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log(collectionFileMap[collection]);
+
   useEffect(() => {
-    fetch('/compassTesting.vcf')
+    fetch(collectionFileMap[collection])
       .then(res => res.text())
       .then(text => {
         setCompassRegions(parseVCFToRegions(text));
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [collection]);
 
   return { compassRegions, loading };
 }
