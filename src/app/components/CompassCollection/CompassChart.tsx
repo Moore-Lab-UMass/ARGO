@@ -2,6 +2,7 @@ import { LineChart } from "@mui/x-charts";
 import { MainTableRow } from "../../types";
 import RankBand from "./RankBand";
 import { cumulativeKDE } from "./helpers";
+import { Box } from "@mui/material";
 
 interface RankBandProps {
     rows: MainTableRow[];
@@ -29,19 +30,31 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
         .map(r => r.aggregateRank)
         .filter((r): r is number => r != null);
 
-    const benignDensity = cumulativeKDE(benignRanks, sharedX, 1.5);
-    const pathogenicDensity = cumulativeKDE(pathogenicRanks, sharedX, 1.5);
+    const minRank = Math.min(...sharedX);
+    const maxRank = Math.max(...sharedX);
+
+    const xs = Array.from({ length: 200 }, (_, i) =>
+        minRank + (i / 199) * (maxRank - minRank)
+    );
+
+    const benignDensity = cumulativeKDE(benignRanks, xs, 1.5);
+    const pathogenicDensity = cumulativeKDE(pathogenicRanks, xs, 1.5);
+
+    const DOMAIN_PAD = 0.01;
+
+    const paddedMinRank = minRank - (maxRank - minRank) * DOMAIN_PAD;
+    const paddedMaxRank = maxRank + (maxRank - minRank) * DOMAIN_PAD;
 
 
     return (
-        <div ref={chartRef}>
+        <Box ref={chartRef}>
             <LineChart
                 loading={loading}
                 xAxis={[
                     {
-                        data: sharedX,
-                        min: sharedX.length > 0 ? Math.min(...sharedX) : 0,
-                        max: sharedX.length > 0 ? Math.max(...sharedX) : 1,
+                        data: xs,
+                        min: paddedMinRank,
+                        max: paddedMaxRank,
                     },
                 ]}
                 yAxis={[{ label: 'Density' }]}
@@ -72,8 +85,8 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                     },
                 }}
             />
-            <RankBand rows={rows} loading={loading} />
-        </div>
+            <RankBand rows={rows} loading={loading} min={paddedMinRank} max={paddedMaxRank} />
+        </Box>
     )
 }
 

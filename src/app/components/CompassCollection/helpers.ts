@@ -1,43 +1,36 @@
 import { MainTableRow } from "../../types";
 
 export function cumulativeKDE(
-    values: number[],
-    xs: number[],
-    bandwidth = 1
+  values: number[],
+  xs: number[],
+  bandwidth = 1
 ) {
-    if (values.length === 0 || xs.length === 0) return [];
+  if (values.length === 0 || xs.length === 0) return [];
 
-    const kernel = (u: number) =>
-        Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
+  const kernel = (u: number) =>
+    Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
 
-    // Sort X values
-    const sortedXs = [...xs].sort((a, b) => a - b);
+  const densities = xs.map(x =>
+    values.reduce(
+      (sum, v) => sum + kernel((x - v) / bandwidth),
+      0
+    ) / (values.length * bandwidth)
+  );
 
-    // Compute KDE values
-    const densities = sortedXs.map(x =>
-        values.reduce(
-            (sum, v) => sum + kernel((x - v) / bandwidth),
-            0
-        ) / (values.length * bandwidth)
-    );
+  const cdf: number[] = [];
+  let cumulative = 0;
 
-    // Numerical integration (trapezoidal rule)
-    const cdf: number[] = [];
-    let cumulative = 0;
-
-    for (let i = 0; i < densities.length; i++) {
-        if (i > 0) {
-            const dx = sortedXs[i] - sortedXs[i - 1];
-            cumulative += densities[i] * dx;
-        }
-        cdf.push(cumulative);
+  for (let i = 0; i < densities.length; i++) {
+    if (i > 0) {
+      const dx = xs[i] - xs[i - 1];
+      cumulative += densities[i] * dx;
     }
+    cdf.push(cumulative);
+  }
 
-    // Normalize to [0, 1]
-    const max = cdf[cdf.length - 1] || 1;
-    return cdf.map(v => v / max);
+  // Normalize by count → probability in [0, 1]
+  return cdf.map(v => Math.min(v, 1));
 }
-
 
 export function topKAccuracyFromRanks(rows: MainTableRow[]): number {
     const benign = rows.filter(

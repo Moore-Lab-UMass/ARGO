@@ -3,7 +3,7 @@ import { DataScource, GenomicRegion, InputRegions, MotifQuality, MotifRanking, R
 
 // switch between min, max, avg for conservation scores, calculate each respectivley
 export const calculateConservationScores = (scores, rankBy: string, inputRegions: InputRegions): SequenceTableRow[] => {
-    const filteredScores = scores.filter((request) => request.data.length > 0)
+    const filteredScores = scores.filter((request) => request.data?.length > 0)
 
     const conservationScores = filteredScores.map((request) => {
         const data = request.data;

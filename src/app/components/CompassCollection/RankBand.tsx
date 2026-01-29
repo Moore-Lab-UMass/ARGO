@@ -7,9 +7,11 @@ import { topKAccuracyFromRanks } from "./helpers";
 interface RankBandProps {
     rows: MainTableRow[];
     loading: boolean;
+    min: number;
+    max: number;
 }
 
-const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
+const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
     const width = 715;
     const bandHeight = 14;
     const tickHeight = 18;
@@ -22,15 +24,8 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
         hideTooltip,
     } = useTooltip<MainTableRow>();
 
-    const ranks = rows
-        .map(r => r.aggregateRank)
-        .filter((r): r is number => r != null);
-
-    const minRank = Math.min(...ranks);
-    const maxRank = Math.max(...ranks);
-
     const scaleX = (rank: number) =>
-        ((rank - minRank) / (maxRank - minRank)) * width;
+        ((rank - min) / (max - min)) * width;
 
     const topKAccuracy = useMemo(
         () => topKAccuracyFromRanks(rows),
@@ -52,28 +47,29 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
                         fill="black"
                     />
 
-                    {/* ticks */}
+                    {/* benign ticks */}
                     {rows.map(row => {
                         const category = String(row.regionID).split("_")[0];
                         if (
                             row.aggregateRank == null ||
-                            (category !== "Benign" && category !== "Pathogenic")
+                            category !== "Benign"
                         ) {
                             return null;
                         }
 
-                        const hoveredRow = tooltipData && tooltipData.regionID === row.regionID;
+                        const hoveredRow =
+                            tooltipData && tooltipData.regionID === row.regionID;
                         const x = scaleX(row.aggregateRank);
 
                         return (
                             <rect
                                 key={row.regionID}
-                                x={scaleX(row.aggregateRank)}
+                                x={x}
                                 y={0}
                                 width={hoveredRow ? 5 : 3}
                                 height={hoveredRow ? tickHeight + 2 : tickHeight}
                                 rx={1}
-                                fill={category === "Pathogenic" ? "green" : "grey"}
+                                fill="grey"
                                 onMouseMove={() =>
                                     showTooltip({
                                         tooltipData: row,
@@ -83,9 +79,44 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
                                 }
                                 onMouseLeave={hideTooltip}
                             />
-
                         );
                     })}
+
+                    {/* Render pathogenic on top in case of tie */}
+                    {rows.map(row => {
+                        const category = String(row.regionID).split("_")[0];
+                        if (
+                            row.aggregateRank == null ||
+                            category !== "Pathogenic"
+                        ) {
+                            return null;
+                        }
+
+                        const hoveredRow =
+                            tooltipData && tooltipData.regionID === row.regionID;
+                        const x = scaleX(row.aggregateRank);
+
+                        return (
+                            <rect
+                                key={row.regionID}
+                                x={x}
+                                y={0}
+                                width={hoveredRow ? 5 : 3}
+                                height={hoveredRow ? tickHeight + 2 : tickHeight}
+                                rx={1}
+                                fill="green"
+                                onMouseMove={() =>
+                                    showTooltip({
+                                        tooltipData: row,
+                                        tooltipLeft: x,
+                                        tooltipTop: 0,
+                                    })
+                                }
+                                onMouseLeave={hideTooltip}
+                            />
+                        );
+                    })}
+
                 </svg>
             )}
             {tooltipData && (
@@ -106,7 +137,7 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading }) => {
             <Stack direction={"row"} justifyContent={"space-between"}>
                 <Typography>Rank</Typography>
                 <Typography sx={{ mr: 3 }}>
-                    Top-k accuracy: {loading ?  `--.-` : (topKAccuracy * 100).toFixed(1)}%
+                    Top-k accuracy: {loading ? `--.-` : (topKAccuracy * 100).toFixed(1)}%
                 </Typography>
             </Stack>
         </Box>

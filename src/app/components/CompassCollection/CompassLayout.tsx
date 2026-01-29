@@ -66,9 +66,11 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
                         <FormControl fullWidth>
                             <Select sx={{ height: "30px", width: "160px" }} value={collection} onChange={(event) => setCollection(event.target.value)}>
                                 <MenuItem value={"Default"}>Default</MenuItem>
-                                <MenuItem value={"Migraine"}>Migraine</MenuItem>
-                                <MenuItem value={"Xeroderma Pigmentosum"}>Xeroderma Pigmentosum</MenuItem>
-                                <MenuItem value={"Meckel Syndrome"}>Meckel Syndrome</MenuItem>
+                                <MenuItem value={"Inborn Genetic Diseases"}>Inborn Genetic Diseases</MenuItem>
+                                <MenuItem value={"Melanoma Pancreatic Cancer"}>Melanoma Pancreatic Cancer</MenuItem>
+                                <MenuItem value={"Primary Ciliary Dyskinesia"}>Primary Ciliary Dyskinesia</MenuItem>
+                                <MenuItem value={"Hereditary Breast and Ovarian Cancer Syndrome"}>Hereditary Breast and Ovarian Cancer Syndrome</MenuItem>
+                                <MenuItem value={"Spastic Paraplegia"}>Spastic Paraplegia</MenuItem>
                             </Select>
                         </FormControl>
                     </FormGroup>
