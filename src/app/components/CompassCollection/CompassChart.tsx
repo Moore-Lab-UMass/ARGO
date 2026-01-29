@@ -66,13 +66,13 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                         showMark: false
                     },
                     {
-                        data: pathogenicDensity,
+                        data: loading ? [] : pathogenicDensity,
                         label: "Positive compass variant",
                         color: "#1fa718",
                         showMark: false
                     },
                     {
-                        data: benignDensity,
+                        data: loading ? [] : benignDensity,
                         label: "Negative compass variant",
                         color: "grey",
                         showMark: false

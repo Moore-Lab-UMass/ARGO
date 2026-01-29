@@ -69,7 +69,7 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
                                 <MenuItem value={"Inborn Genetic Diseases"}>Inborn Genetic Diseases</MenuItem>
                                 <MenuItem value={"Melanoma Pancreatic Cancer"}>Melanoma Pancreatic Cancer</MenuItem>
                                 <MenuItem value={"Primary Ciliary Dyskinesia"}>Primary Ciliary Dyskinesia</MenuItem>
-                                <MenuItem value={"Hereditary Breast and Ovarian Cancer Syndrome"}>Hereditary Breast and Ovarian Cancer Syndrome</MenuItem>
+                                <MenuItem value={"Hereditary Breast Ovarian Cancer Syndrome"}>Hereditary Breast Ovarian Cancer Syndrome</MenuItem>
                                 <MenuItem value={"Spastic Paraplegia"}>Spastic Paraplegia</MenuItem>
                             </Select>
                         </FormControl>
