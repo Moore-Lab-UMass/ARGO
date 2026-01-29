@@ -22,7 +22,6 @@ function parseVCFToRegions(vcfText: string): InputRegions {
         let end: number;
 
         if (ref.length === alt.length) {
-            // SNV or MNV
             end = start + ref.length;
         } else if (ref.length > alt.length) {
             // Deletion

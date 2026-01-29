@@ -1,17 +1,10 @@
 import { useQuery } from '@apollo/client';
-import { SequenceFilterState } from '../types';
+import { InputRegions, SequenceFilterState } from '../types';
 import { client } from '../client';
 import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from '../queries';
 
 interface UseSequenceDataArgs {
-    inputRegions: Array<{
-        chr: string;
-        start: number;
-        end: number;
-        regionID: number | string;
-        ref?: string;
-        alt?: string;
-    }>;
+    inputRegions: InputRegions;
     sequenceFilterVariables: SequenceFilterState;
 }
 
@@ -81,3 +74,4 @@ export const useSequenceData = ({
             conservationQuery.error || motifRankingQuery.error,
     };
 };
+//{regionid: "Benign_4294112", start: 21968262, end: 21968263, chrom: "chr9", alt: "G", ref: "A"}

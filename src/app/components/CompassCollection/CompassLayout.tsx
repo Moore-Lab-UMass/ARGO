@@ -65,12 +65,12 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
                     <FormGroup>
                         <FormControl fullWidth>
                             <Select sx={{ height: "30px", width: "160px" }} value={collection} onChange={(event) => setCollection(event.target.value)}>
-                                <MenuItem value={"Default"}>Default</MenuItem>
-                                <MenuItem value={"Inborn Genetic Diseases"}>Inborn Genetic Diseases</MenuItem>
-                                <MenuItem value={"Melanoma Pancreatic Cancer"}>Melanoma Pancreatic Cancer</MenuItem>
-                                <MenuItem value={"Primary Ciliary Dyskinesia"}>Primary Ciliary Dyskinesia</MenuItem>
-                                <MenuItem value={"Hereditary Breast Ovarian Cancer Syndrome"}>Hereditary Breast Ovarian Cancer Syndrome</MenuItem>
-                                <MenuItem value={"Spastic Paraplegia"}>Spastic Paraplegia</MenuItem>
+                                <MenuItem value={"Default"}>Default (50)</MenuItem>
+                                <MenuItem value={"Inborn Genetic Diseases"}>Inborn Genetic Diseases (96)</MenuItem>
+                                <MenuItem value={"Melanoma Pancreatic Cancer"}>Melanoma Pancreatic Cancer (71)</MenuItem>
+                                <MenuItem value={"Primary Ciliary Dyskinesia"}>Primary Ciliary Dyskinesia (250)</MenuItem>
+                                <MenuItem value={"Hereditary Breast Ovarian Cancer Syndrome"}>Hereditary Breast Ovarian Cancer Syndrome (230)</MenuItem>
+                                <MenuItem value={"Spastic Paraplegia"}>Spastic Paraplegia (151)</MenuItem>
                             </Select>
                         </FormControl>
                     </FormGroup>

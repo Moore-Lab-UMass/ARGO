@@ -12,7 +12,7 @@ interface RankBandProps {
 }
 
 const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
-    const width = 715;
+    const width = 710;
     const bandHeight = 14;
     const tickHeight = 18;
     const offset = 83
@@ -37,15 +37,39 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
             {loading ? (
                 <Skeleton variant="rounded" width={width} height={bandHeight} />
             ) : (
-                <svg width={width} height={tickHeight}>
+                <svg width={width + 10} height={tickHeight}>
                     {/* black band */}
                     <rect
-                        x={0}
+                        x={5}
                         y={2}
                         width={width}
                         height={bandHeight}
-                        fill="black"
+                        fill="white"
+                        stroke="black"
                     />
+
+                    {/* Input ticks */}
+                    {rows.map(row => {
+                        const category = String(row.regionID).split("_")[0];
+                        if (
+                            row.aggregateRank == null ||
+                            category === "Benign" || category === "Pathogenic"
+                        ) {
+                            return null;
+                        }
+                        const x = scaleX(row.aggregateRank);
+
+                        return (
+                            <rect
+                                key={row.regionID}
+                                x={x}
+                                y={2}
+                                width={10}
+                                height={bandHeight}
+                                fill="black"
+                            />
+                        );
+                    })}
 
                     {/* benign ticks */}
                     {rows.map(row => {
@@ -104,7 +128,7 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
                                 width={hoveredRow ? 5 : 3}
                                 height={hoveredRow ? tickHeight + 2 : tickHeight}
                                 rx={1}
-                                fill="green"
+                                fill="#1fa718"
                                 onMouseMove={() =>
                                     showTooltip({
                                         tooltipData: row,

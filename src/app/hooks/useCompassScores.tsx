@@ -40,7 +40,7 @@ export function useCompassScores({
   });
 
   const sequenceRows = useMemo(() => {
-    if (errorSequence) return null;
+    if (conservation.error && motifs.error) return null;
     if ((!conservation.data && !motifs.data) || regions.length === 0 || loadingSequence)
       return [];
 
@@ -50,7 +50,7 @@ export function useCompassScores({
       motifData: motifs.data,
       sequenceFilterVariables,
     });
-  }, [errorSequence, conservation.data, motifs.data, regions, loadingSequence, sequenceFilterVariables]);
+  }, [conservation.error, conservation.data, motifs.error, motifs.data, regions, loadingSequence, sequenceFilterVariables]);
 
   //element data
   const {
