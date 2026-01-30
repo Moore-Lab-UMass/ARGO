@@ -40,11 +40,11 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
                 <svg width={width + 10} height={tickHeight}>
                     {/* black band */}
                     <rect
-                        x={5}
+                        x={0}
                         y={2}
                         width={width}
                         height={bandHeight}
-                        fill="white"
+                        fill="black"
                         stroke="black"
                     />
 
@@ -63,10 +63,10 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
                             <rect
                                 key={row.regionID}
                                 x={x}
-                                y={2}
-                                width={10}
-                                height={bandHeight}
-                                fill="black"
+                                y={4.5}
+                                width={3}
+                                height={bandHeight - 5}
+                                fill="white"
                             />
                         );
                     })}

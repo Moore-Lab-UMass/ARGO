@@ -45,13 +45,30 @@ function parseVCFToRegions(vcfText: string): InputRegions {
     return regions;
 }
 
-const collectionFileMap: { [key: string]: string } = {
-  "Default": "/compassTesting.vcf",
-  "Inborn Genetic Diseases": "/Inborn_genetic_diseases.vcf",
-  "Melanoma Pancreatic Cancer": "/Melanoma-pancreatic_cancer_syndrome.vcf",
-  "Primary Ciliary Dyskinesia": "/Primary_ciliary_dyskinesia.vcf",
-  "Hereditary Breast Ovarian Cancer Syndrome": "/Hereditary_breast_ovarian_cancer_syndrome.vcf",
-  "Spastic Paraplegia": "/Spastic_paraplegia.vcf",
+export const collectionFileMap: Record<
+  string,
+  { file: string; count: number }
+> = {
+  Default: {
+    file: "/compassTesting.vcf",
+    count: 50,
+  },
+  "Inborn Genetic Diseases": {
+    file: "/Inborn_genetic_diseases.vcf",
+    count: 96,
+  },
+  "Primary Ciliary Dyskinesia": {
+    file: "/Primary_ciliary_dyskinesia.vcf",
+    count: 250,
+  },
+  "Hereditary Breast Ovarian Cancer Syndrome": {
+    file: "/Hereditary_breast_ovarian_cancer_syndrome.vcf",
+    count: 230,
+  },
+  "Spastic Paraplegia": {
+    file: "/Spastic_paraplegia.vcf",
+    count: 151,
+  },
 };
 
 export function useCompassRegions(collection: string = "Default") {
@@ -59,7 +76,7 @@ export function useCompassRegions(collection: string = "Default") {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(collectionFileMap[collection])
+    fetch(collectionFileMap[collection].file)
       .then(res => res.text())
       .then(text => {
         setCompassRegions(parseVCFToRegions(text));

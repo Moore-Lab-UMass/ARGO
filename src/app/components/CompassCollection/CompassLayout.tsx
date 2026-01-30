@@ -1,11 +1,12 @@
 'use client';
-import { Box, Button, FormControl, FormGroup, MenuItem, Select, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, Divider, FormControl, FormGroup, IconButton, MenuItem, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState, SequenceTableRow } from "../../types";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Download, InfoOutlined } from "@mui/icons-material";
-import { downloadChart } from "../../_utility/downloads";
+import { downloadChart, downloadCollectionFile } from "../../_utility/downloads";
 import { useCompassMainRows } from "../../hooks/useCompassMainRows";
 import CompassChart from "./CompassChart";
+import { collectionFileMap } from "../../hooks/useCompassRegions";
 
 interface CompassLayoutProps {
     regions: InputRegions;
@@ -21,10 +22,10 @@ interface CompassLayoutProps {
     loadingScores: boolean;
 }
 
-const CompassLayout: React.FC<CompassLayoutProps> = ({ 
+const CompassLayout: React.FC<CompassLayoutProps> = ({
     regions,
-    open, 
-    collection, 
+    open,
+    collection,
     setCollection,
     sequenceRows,
     elementRows,
@@ -34,6 +35,7 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
     geneFilterVariables,
     loadingScores
 }) => {
+    const [downloadOpen, setDownloadOpen] = useState(false);
     const chartRef = useRef<HTMLDivElement>(null);
 
     const { mainRows, loading: loadingMainRows } = useCompassMainRows({
@@ -64,13 +66,18 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
                     </Typography>
                     <FormGroup>
                         <FormControl fullWidth>
-                            <Select sx={{ height: "30px", width: "160px" }} value={collection} onChange={(event) => setCollection(event.target.value)}>
-                                <MenuItem value={"Default"}>Default (50)</MenuItem>
-                                <MenuItem value={"Inborn Genetic Diseases"}>Inborn Genetic Diseases (96)</MenuItem>
-                                <MenuItem value={"Melanoma Pancreatic Cancer"}>Melanoma Pancreatic Cancer (71)</MenuItem>
-                                <MenuItem value={"Primary Ciliary Dyskinesia"}>Primary Ciliary Dyskinesia (250)</MenuItem>
-                                <MenuItem value={"Hereditary Breast Ovarian Cancer Syndrome"}>Hereditary Breast Ovarian Cancer Syndrome (230)</MenuItem>
-                                <MenuItem value={"Spastic Paraplegia"}>Spastic Paraplegia (151)</MenuItem>
+                            <Select
+                                sx={{ height: "30px", width: "160px" }}
+                                value={collection}
+                                onChange={(event) => setCollection(event.target.value)}
+                            >
+                                {Object.entries(collectionFileMap).map(
+                                    ([name, { count }]) => (
+                                        <MenuItem key={name} value={name}>
+                                            {name} ({count})
+                                        </MenuItem>
+                                    )
+                                )}
                             </Select>
                         </FormControl>
                     </FormGroup>
@@ -79,12 +86,62 @@ const CompassLayout: React.FC<CompassLayoutProps> = ({
                     variant="outlined"
                     endIcon={<Download />}
                     sx={{ height: "30px" }}
-                    onClick={() => downloadChart(chartRef.current, "compass_collection.png")}
+                    onClick={() => setDownloadOpen(true)}
                 >
                     Download
                 </Button>
             </Stack>
             <CompassChart rows={mainRows} loading={loadingMainRows} chartRef={chartRef} />
+            <Dialog
+                open={downloadOpen}
+                onClose={() => setDownloadOpen(false)}
+                maxWidth="xs"
+            >
+                <DialogContent sx={{ p: 2 }}>
+                    <Stack spacing={1}>
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                        >
+                            <Typography>
+                                Download <i>{collection}</i> collection data
+                            </Typography>
+                            <IconButton
+                                onClick={() => {
+                                    downloadCollectionFile(collection);
+                                    setDownloadOpen(false);
+                                }}
+                            >
+                                <Download />
+                            </IconButton>
+                        </Stack>
+                        <Divider />
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                        >
+                            <Typography>
+                                Download chart
+                            </Typography>
+                            <IconButton
+                                onClick={() => {
+                                    downloadChart(chartRef.current, "compass_collection.png");
+                                    setDownloadOpen(false);
+                                }}
+                            >
+                                <Download />
+                            </IconButton>
+                        </Stack>
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ pr: 2, pb: 2 }}>
+                    <Button onClick={() => setDownloadOpen(false)}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }

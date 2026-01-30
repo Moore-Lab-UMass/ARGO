@@ -1,35 +1,53 @@
 import { MainTableRow } from "../../types";
 
-export function cumulativeKDE(
-  values: number[],
-  xs: number[],
-  bandwidth = 1
+export function buildPercentageSteps(
+  variants: { rank: number; type: string }[],
+  xs: number[]
 ) {
-  if (values.length === 0 || xs.length === 0) return [];
+  let pathogenicCount = 0;
+  let benignCount = 0;
+  let variantIndex = 0;
 
-  const kernel = (u: number) =>
-    Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI);
+  const pathogenicPct: number[] = [];
+  const benignPct: number[] = [];
 
-  const densities = xs.map(x =>
-    values.reduce(
-      (sum, v) => sum + kernel((x - v) / bandwidth),
-      0
-    ) / (values.length * bandwidth)
-  );
-
-  const cdf: number[] = [];
-  let cumulative = 0;
-
-  for (let i = 0; i < densities.length; i++) {
-    if (i > 0) {
-      const dx = xs[i] - xs[i - 1];
-      cumulative += densities[i] * dx;
+  for (const x of xs) {
+    // Consume variants whose rank ≤ current x
+    while (
+      variantIndex < variants.length &&
+      variants[variantIndex].rank <= x
+    ) {
+      if (variants[variantIndex].type === "pathogenic") {
+        pathogenicCount++;
+      } else {
+        benignCount++;
+      }
+      variantIndex++;
     }
-    cdf.push(cumulative);
+
+    const total = pathogenicCount + benignCount;
+
+    if (total === 0) {
+      pathogenicPct.push(0);
+      benignPct.push(0);
+    } else {
+      const p = pathogenicCount / total;
+      pathogenicPct.push(p);
+      benignPct.push(1 - p);
+    }
   }
 
-  // Normalize by count → probability in [0, 1]
-  return cdf.map(v => Math.min(v, 1));
+  return { pathogenicPct, benignPct };
+}
+
+export function movingAverage(values: number[], window = 5) {
+  const half = Math.floor(window / 2);
+  return values.map((_, i) => {
+    const start = Math.max(0, i - half);
+    const end = Math.min(values.length, i + half + 1);
+    const slice = values.slice(start, end);
+    return slice.reduce((a, b) => a + b, 0) / slice.length;
+  });
 }
 
 export function topKAccuracyFromRanks(rows: MainTableRow[]): number {

@@ -1,7 +1,7 @@
 import { LineChart } from "@mui/x-charts";
 import { MainTableRow } from "../../types";
 import RankBand from "./RankBand";
-import { cumulativeKDE } from "./helpers";
+import { buildPercentageSteps, movingAverage } from "./helpers";
 import { Box } from "@mui/material";
 
 interface RankBandProps {
@@ -12,19 +12,15 @@ interface RankBandProps {
 
 const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
 
-    const benignRanks = rows
-        .filter(r =>
-            r.aggregateRank != null &&
-            String(r.regionID).startsWith("Benign")
-        )
-        .map(r => r.aggregateRank as number);
-
-    const pathogenicRanks = rows
-        .filter(r =>
-            r.aggregateRank != null &&
-            String(r.regionID).startsWith("Pathogenic")
-        )
-        .map(r => r.aggregateRank as number);
+    const variants = rows
+        .filter(r => r.aggregateRank != null)
+        .map(r => ({
+            rank: r.aggregateRank as number,
+            type: String(r.regionID).startsWith("Pathogenic")
+                ? "pathogenic"
+                : "benign",
+        }))
+        .sort((a, b) => a.rank - b.rank);
 
     const sharedX = rows
         .map(r => r.aggregateRank)
@@ -37,12 +33,15 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
         minRank + (i / 199) * (maxRank - minRank)
     );
 
-    const benignDensity = cumulativeKDE(benignRanks, xs, 1.5);
-    const pathogenicDensity = cumulativeKDE(pathogenicRanks, xs, 1.5);
+    const { pathogenicPct, benignPct } = buildPercentageSteps(variants, xs);
+
+    //smooth the curves
+    const smoothPathogenic = movingAverage(pathogenicPct, 7);
+    const smoothBenign = movingAverage(benignPct, 7);
 
     const DOMAIN_PAD = 0.01;
 
-    const paddedMinRank = minRank - (maxRank - minRank) * DOMAIN_PAD;
+    const paddedMinRank = minRank;
     const paddedMaxRank = maxRank + (maxRank - minRank) * DOMAIN_PAD;
 
 
@@ -62,17 +61,17 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                     {
                         data: [],
                         label: "Input Region",
-                        color: "black",
+                        color: "white",
                         showMark: false
                     },
                     {
-                        data: loading ? [] : pathogenicDensity,
+                        data: loading ? [] : smoothPathogenic,
                         label: "Positive compass variant",
                         color: "#1fa718",
                         showMark: false
                     },
                     {
-                        data: loading ? [] : benignDensity,
+                        data: loading ? [] : smoothBenign,
                         label: "Negative compass variant",
                         color: "grey",
                         showMark: false
@@ -83,7 +82,17 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                     tooltip: {
                         trigger: 'none', // Disables the tooltip on hover
                     },
-                }}
+                    legend: {
+                        sx: {
+                            // target legend marker rectangles
+                            "& .MuiChartsLegend-mark": {
+                                stroke: "black",
+                                strokeWidth: 3,
+                            },
+                        },
+                    }
+                }
+                }
             />
             <RankBand rows={rows} loading={loading} min={paddedMinRank} max={paddedMaxRank} />
         </Box>

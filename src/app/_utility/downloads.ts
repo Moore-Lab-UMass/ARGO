@@ -1,4 +1,5 @@
 import html2canvas from "html2canvas";
+import { collectionFileMap } from "../hooks/useCompassRegions";
 
 //Imported from old SCREEN
 function downloadBlob(blob, filename) {
@@ -46,3 +47,15 @@ export async function downloadChart(
     console.error("Failed to download chart", err);
   }
 }
+
+export const downloadCollectionFile = (collection: string) => {
+  const filePath = collectionFileMap[collection].file;
+  if (!filePath) return;
+
+  const link = document.createElement("a");
+  link.href = filePath;
+  link.download = filePath.split("/").pop() ?? "collection.vcf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
