@@ -4,11 +4,11 @@ import { useDropzone } from "react-dropzone"
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
-import { InputRegions } from "../types";
+import { InputRegions } from "../../types";
 import { useLazyQuery } from "@apollo/client";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { REF_CHECK_QUERY } from "../queries";
-import { encodeRegions } from "../_utility/coding";
+import { REF_CHECK_QUERY } from "../../queries";
+import { encodeRegions } from "../../_utility/coding";
 
 const ArgoUpload: React.FC = ({
 }) => {

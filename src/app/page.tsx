@@ -1,9 +1,9 @@
 "use client";
 import { Box, Button, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useState } from "react";
-import ArgoUpload from "./components/ArgoUpload";
-import ExampleFiles from "./components/ExampleFiles";
-import SnpUpload from "./components/SnpUpload";
+import ArgoUpload from "./components/Landing/ArgoUpload";
+import ExampleFiles from "./components/Landing/ExampleFiles";
+import SnpUpload from "./components/Landing/SnpUpload";
 import Link from "next/link";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 

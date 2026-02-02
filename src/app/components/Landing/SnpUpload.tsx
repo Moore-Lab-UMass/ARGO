@@ -4,11 +4,11 @@ import { useDropzone } from "react-dropzone"
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
-import { InputRegions, ReturnedSnps } from "../types";
+import { InputRegions, ReturnedSnps } from "../../types";
 import { useLazyQuery } from "@apollo/client";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { SNP_QUERY } from "../queries";
-import { encodeRegions } from "../_utility/coding";
+import { SNP_QUERY } from "../../queries";
+import { encodeRegions } from "../../_utility/coding";
 
 const ArgoUpload: React.FC = ({
 }) => {
@@ -18,7 +18,7 @@ const ArgoUpload: React.FC = ({
     }, [])
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState([false, ""]); // status, message
+    const [error, setError] = useState<[boolean, string]>([false, ""]); // status, message
     const [filesSubmitted, setFilesSubmitted] = useState(false);
     const [textValue, setTextValue] = useState(""); // State to control the TextField value
     const [textChanged, setTextChanged] = useState(true);
@@ -40,12 +40,12 @@ const ArgoUpload: React.FC = ({
     };
 
     //Allow the user to insert a tab in the text box
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === 'Tab') {
             event.preventDefault();
-            const target = event.target as HTMLTextAreaElement;
-            const start = target.selectionStart;
-            const end = target.selectionEnd;
+            const target = event.currentTarget;
+            const start = target.selectionStart ?? 0;
+            const end = target.selectionEnd ?? start;
 
             // Insert tab character at the cursor position
             target.value =
@@ -267,7 +267,7 @@ const ArgoUpload: React.FC = ({
                                     fullWidth
                                     rows={6}
                                     placeholder="Copy and paste your data from Excel here"
-                                    onKeyDown={handleKeyDown}
+                                    inputProps={{ onKeyDown: handleKeyDown }}
                                     value={textValue}
                                     onChange={(e) => setTextValue(e.target.value)}
                                 />

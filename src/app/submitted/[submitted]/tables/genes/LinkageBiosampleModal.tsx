@@ -99,6 +99,25 @@ export const LinkageBiosampleModal: React.FC<BiosampleSelectProps> = ({
         return "";
     };
 
+    const createEmptyBiosample = (name: string) => ({
+        name,
+        ontology: name,
+        displayname: name,
+        lifeStage: "other",
+        sampleType: "other",
+        dnase_experiment_accession: null,
+        h3k4me3_experiment_accession: null,
+        h3k27ac_experiment_accession: null,
+        ctcf_experiment_accession: null,
+        atac_experiment_accession: null,
+        dnase_file_accession: null,
+        h3k4me3_file_accession: null,
+        h3k27ac_file_accession: null,
+        ctcf_file_accession: null,
+        atac_file_accession: null,
+        rna_seq_tracks: [],
+    });
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth keepMounted>
             <DialogContent>
@@ -155,24 +174,7 @@ export const LinkageBiosampleModal: React.FC<BiosampleSelectProps> = ({
                 ) : (
                     <TissueList
                         onSelect={(t) =>
-                            setSelected({
-                                name: t,
-                                ontology: t,
-                                displayname: t,
-                                lifeStage: "other",
-                                sampleType: "other",
-                                dnase_experiment_accession: null,
-                                h3k4me3_experiment_accession: null,
-                                h3k27ac_experiment_accession: null,
-                                ctcf_experiment_accession: null,
-                                atac_experiment_accession: null,
-                                dnase_file_accession: null,
-                                h3k4me3_file_accession: null,
-                                h3k27ac_file_accession: null,
-                                ctcf_file_accession: null,
-                                atac_file_accession: null,
-                                rna_seq_tracks: [],
-                            })
+                            setSelected(createEmptyBiosample(t))
                         }
                         selected={selected}
                     />

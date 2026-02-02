@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { CCREAssays, CCREClasses, ElementAccordianProps } from "../../../../types";
-import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid2"
+import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, Grid, IconButton, Paper, Radio, RadioGroup, Stack, Tooltip, Typography } from "@mui/material";
 import { CancelRounded, InfoOutlined, ExpandMore } from "@mui/icons-material"
 import BiotechIcon from '@mui/icons-material/Biotech';
 import { BiosampleModal } from "../../../../components/BiosampleModal";

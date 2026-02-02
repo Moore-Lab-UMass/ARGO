@@ -1,41 +1,49 @@
-import { Box, Typography, Divider } from "@mui/material";
+import { GridColDef, Table, useGridApiRef } from "@weng-lab/ui-components";
+import { useMemo } from "react";
+import { CompBiosample } from "../../../../types";
 
-export default function TissueList({ onSelect, selected }) {
+interface TissueListProps {
+  selected: CompBiosample | null;
+  onSelect: (tissue: string) => void;
+}
+
+export default function TissueList({ onSelect, selected }: TissueListProps) {
+  const rows = useMemo(
+    () =>
+      tissues.map((tissue) => ({
+        id: tissue,
+        tissue,
+      })),
+    []
+  );
+
+  const columns: GridColDef[] = [
+    {
+      field: "tissue",
+      headerName: "Tissue",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+    },
+  ];
+
+  const apiRef = useGridApiRef();
+
   return (
-    <Box
-      sx={{
-        maxHeight: 600,
-        overflowY: "auto",
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 1,
-      }}
-    >
-      {tissues.map((tissue, index) => {
-        const isSelected = selected === tissue;
-
-        return (
-          <Box key={tissue}>
-            <Typography
-              onClick={() => onSelect(tissue)}
-              sx={{
-                cursor: "pointer",
-                p: 1.5,
-                backgroundColor: isSelected ? "action.hover" : "transparent",
-                fontWeight: isSelected ? "bold" : "normal",
-                "&:hover": {
-                  backgroundColor: "action.hover",
-                },
-              }}
-            >
-              {tissue}
-            </Typography>
-
-            {index < tissues.length - 1 && <Divider />}
-          </Box>
-        );
-      })}
-    </Box>
+    <Table
+      apiRef={apiRef}
+      rows={rows}
+      columns={columns}
+      onRowClick={(row) => onSelect(row.id as string)}
+      rowSelectionModel={
+        selected
+          ? { type: "include", ids: new Set([selected.name]) }
+          : { type: "include", ids: new Set() }
+      }
+      getRowId={(row) => row.id}
+      divHeight={{ height: "600px" }}
+      label={"Select a Tissue"}
+    />
   );
 }
 

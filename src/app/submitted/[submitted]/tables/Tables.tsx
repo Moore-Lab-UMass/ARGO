@@ -1,3 +1,4 @@
+'use client';
 import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, IsolatedRows, MainTableRow, RankedRegions, SequenceFilterState, SequenceTableRow, Table } from "../../../types";
 import SequenceTable from "./sequence/SequenceTable"
 import ElementTable from "./elements/ElementTable"
@@ -10,6 +11,7 @@ import { generateSequenceRanks } from "./sequence/sequenceHelpers"
 import { generateElementRanks, handleSameInputRegion } from "./elements/elementHelpers"
 import { generateGeneRanks } from "./genes/geneHelpers"
 import TableToTop from "../../../components/TableToTop";
+import CompassCollection from "../../../components/CompassCollection/CompassCollection";
 
 export interface RankedRegionTablesContainerProps {
     sequenceFilterVariables: SequenceFilterState;
@@ -227,6 +229,18 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                     )}
                 </Droppable>
             </DragDropContext>
+            {!loadingMainRows && (
+                <CompassCollection
+                    inititalIntersect={intersectingCcres}
+                    inputRegions={inputRegions}
+                    sequenceFilterVariables={sequenceFilterVariables}
+                    elementFilterVariables={elementFilterVariables}
+                    geneFilterVariables={geneFilterVariables}
+                    inputElementRows={elementRows}
+                    inputSequenceRows={sequenceRows}
+                    inputGeneRows={geneRows}
+                />
+            )}
         </>
     )
 }

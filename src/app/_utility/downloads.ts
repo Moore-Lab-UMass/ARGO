@@ -1,3 +1,6 @@
+import html2canvas from "html2canvas";
+import { collectionFileMap } from "../hooks/useCompassRegions";
+
 //Imported from old SCREEN
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob)
@@ -24,3 +27,35 @@ export const fetchFileSize = async (url: string, setFileSize: React.Dispatch<Rea
     console.log("error fetching file size for ", url, error)
   }
 }
+
+export async function downloadChart(
+  chartContainer: HTMLElement | null,
+  filename = "chart.png"
+) {
+  if (!chartContainer) return;
+
+  try {
+    const canvas = await html2canvas(chartContainer, {
+      backgroundColor: null,
+    });
+
+    const link = document.createElement("a");
+    link.download = filename;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (err) {
+    console.error("Failed to download chart", err);
+  }
+}
+
+export const downloadCollectionFile = (collection: string) => {
+  const filePath = collectionFileMap[collection].file;
+  if (!filePath) return;
+
+  const link = document.createElement("a");
+  link.href = filePath;
+  link.download = filePath.split("/").pop() ?? "collection.vcf";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
