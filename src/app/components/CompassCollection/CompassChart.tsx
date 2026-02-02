@@ -1,8 +1,9 @@
 import { LineChart } from "@mui/x-charts";
 import { MainTableRow } from "../../types";
 import RankBand from "./RankBand";
-import { buildPercentageSteps, movingAverage } from "./helpers";
+import { kdePDF } from "./helpers";
 import { Box } from "@mui/material";
+import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
 
 interface RankBandProps {
     rows: MainTableRow[];
@@ -11,6 +12,18 @@ interface RankBandProps {
 }
 
 const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
+
+    const firstNARank = rows
+        .filter(r =>
+            r.aggregateRank != null && !String(r.regionID).startsWith("Input_") &&
+            (
+                r.sequenceRank == 0 ||
+                r.elementRank == 0 ||
+                r.geneRank == 0
+            )
+        )
+        .map(r => r.aggregateRank as number)
+        .sort((a, b) => a - b)[0];
 
     const variants = rows
         .filter(r => r.aggregateRank != null)
@@ -33,17 +46,21 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
         minRank + (i / 199) * (maxRank - minRank)
     );
 
-    const { pathogenicPct, benignPct } = buildPercentageSteps(variants, xs);
+    const pathogenicRanks = variants
+        .filter(v => v.type === "pathogenic")
+        .map(v => v.rank);
 
-    //smooth the curves
-    const smoothPathogenic = movingAverage(pathogenicPct, 7);
-    const smoothBenign = movingAverage(benignPct, 7);
+    const benignRanks = variants
+        .filter(v => v.type === "benign")
+        .map(v => v.rank);
+
+    const pathogenicPDF = kdePDF(pathogenicRanks, xs, 2);
+    const benignPDF = kdePDF(benignRanks, xs, 2);
 
     const DOMAIN_PAD = 0.01;
 
     const paddedMinRank = minRank;
     const paddedMaxRank = maxRank + (maxRank - minRank) * DOMAIN_PAD;
-
 
     return (
         <Box ref={chartRef}>
@@ -65,13 +82,13 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                         showMark: false
                     },
                     {
-                        data: loading ? [] : smoothPathogenic,
+                        data: loading ? [] : pathogenicPDF,
                         label: "Positive compass variant",
                         color: "#1fa718",
                         showMark: false
                     },
                     {
-                        data: loading ? [] : smoothBenign,
+                        data: loading ? [] : benignPDF,
                         label: "Negative compass variant",
                         color: "grey",
                         showMark: false
@@ -79,22 +96,35 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                 ]}
                 height={185}
                 slotProps={{
-                    tooltip: {
-                        trigger: 'none', // Disables the tooltip on hover
-                    },
+                    tooltip: { trigger: 'none' },
                     legend: {
                         sx: {
-                            // target legend marker rectangles
                             "& .MuiChartsLegend-mark": {
                                 stroke: "black",
                                 strokeWidth: 3,
                             },
                         },
-                    }
-                }
-                }
+                    },
+                }}
+            >
+                {firstNARank != null && (
+                    <ChartsReferenceLine
+                        x={firstNARank}
+                        lineStyle={{
+                            stroke: "black",
+                            strokeDasharray: "4 4",
+                            strokeWidth: 2,
+                        }}
+                    />
+                )}
+            </LineChart>
+            <RankBand 
+                rows={rows} 
+                loading={loading} 
+                min={paddedMinRank} 
+                max={paddedMaxRank} 
+                firstNa={firstNARank}
             />
-            <RankBand rows={rows} loading={loading} min={paddedMinRank} max={paddedMaxRank} />
         </Box>
     )
 }

@@ -9,13 +9,14 @@ interface RankBandProps {
     loading: boolean;
     min: number;
     max: number;
+    firstNa: number;
 }
 
-const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
+const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max, firstNa }) => {
     const width = 710;
     const bandHeight = 14;
     const tickHeight = 18;
-    const offset = 83
+    const offset = 87
 
     const {
         tooltipData,
@@ -142,6 +143,20 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max }) => {
                     })}
 
                 </svg>
+            )}
+            {firstNa != null && (
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: 100,
+                        bottom: 50,
+                        left: scaleX(firstNa) + offset + 15,
+                        width: width - scaleX(firstNa) + 15,
+                        pointerEvents: "none",
+                        bgcolor: "white",
+                        opacity: 0.5,
+                    }}
+                />
             )}
             {tooltipData && (
                 <TooltipWithBounds

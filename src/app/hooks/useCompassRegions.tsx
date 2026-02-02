@@ -49,21 +49,17 @@ export const collectionFileMap: Record<
   string,
   { file: string; count: number }
 > = {
-  Default: {
-    file: "/compassTesting.vcf",
-    count: 50,
-  },
-  "Inborn Genetic Diseases": {
-    file: "/Inborn_genetic_diseases.vcf",
-    count: 96,
+  "Hereditary Breast Ovarian Cancer Syndrome": {
+    file: "/Hereditary_breast_ovarian_cancer_syndrome.vcf",
+    count: 230,
   },
   "Primary Ciliary Dyskinesia": {
     file: "/Primary_ciliary_dyskinesia.vcf",
     count: 250,
   },
-  "Hereditary Breast Ovarian Cancer Syndrome": {
-    file: "/Hereditary_breast_ovarian_cancer_syndrome.vcf",
-    count: 230,
+  "Inborn Genetic Diseases": {
+    file: "/Inborn_genetic_diseases.vcf",
+    count: 96,
   },
   "Spastic Paraplegia": {
     file: "/Spastic_paraplegia.vcf",
