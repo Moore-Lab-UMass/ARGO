@@ -73,6 +73,7 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
 
     // const paddedMinRank = minRank;
     // const paddedMaxRank = maxRank + (maxRank - minRank) * DOMAIN_PAD;
+    
 
     return (
         <Box ref={chartRef}>
