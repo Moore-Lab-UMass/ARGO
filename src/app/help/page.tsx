@@ -2,7 +2,7 @@
 import { Box, Divider, Grid, Link, Typography } from "@mui/material";
 import React from "react";
 import Image from "next/image";
-import exampleCards from "../../../public/help/exampleCards.png";
+// import exampleCards from "../../../public/help/exampleCards.png";
 import requiredFields from "../../../public/help/requiredFields.png";
 import snpUpload from "../../../public/help/snpUpload.png";
 import ContactForm from "./contactForm";
@@ -19,25 +19,30 @@ export default function About() {
                 <Grid size={12}>
                     <Typography variant="h2">Don&apos;t know where to start?</Typography>
                     <Divider />
-                    <Typography mt={1} variant="body1" paragraph>
+                    {/* <Typography mt={1} variant="body1" paragraph>
                         If you are unsure how to use ARGO, you may begin with one of our example files, which have 100 variants each, all ready to rank.
                         Just click &quot;Use File&quot; on the card, and ARGO will automatically load it and rank the variants for you.
+                    </Typography> */}
+                    <Typography mt={1} variant="body1" paragraph>
+                        ARGO accepts a very specific file format when uploading. You will have to upload a TSV file containing all required fields
+                        in order to successfully run the ranking algorithm.
+                        The required fields are shown below and will highlight red on the homepage if they are missing.
                     </Typography>
                 </Grid>
-                <Grid
+                {/* <Grid
                     size={12}
                     justifyContent={"center"}
                     alignItems={"center"}
                     display={"flex"}
                 >
                     <Image src={exampleCards} alt={"example"} style={{ width: "80%", height: "100%" }} />
-                </Grid>
-                <Grid size={12}>
+                </Grid> */}
+                {/* <Grid size={12}>
                     <Typography mt={1} variant="body1" paragraph>
                         You are also able to download the example file if you want to view the standard input format ARGO accepts.
                         The required fields are shown below and will highlight red on the homepage if they are missing.
                     </Typography>
-                </Grid>
+                </Grid> */}
                 <Grid
                     size={12}
                     justifyContent={"center"}

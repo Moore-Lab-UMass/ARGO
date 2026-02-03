@@ -85,7 +85,7 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                         max: paddedMaxRank,
                     },
                 ]}
-                yAxis={[{ label: 'Density' }]}
+                yAxis={[{ label: 'Fraction of variants' }]}
                 series={[
                     {
                         data: [],

@@ -2,7 +2,7 @@
 import { Box, Button, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
 import React, { useState } from "react";
 import ArgoUpload from "./components/Landing/ArgoUpload";
-import ExampleFiles from "./components/Landing/ExampleFiles";
+// import ExampleFiles from "./components/Landing/ExampleFiles";
 import SnpUpload from "./components/Landing/SnpUpload";
 import Link from "next/link";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -151,7 +151,7 @@ export default function Home() {
           )}
         </Box>
       </Box>
-      <Box
+      {/* <Box
         width={"100%"}
         justifyContent={"center"}
         alignItems={"center"}
@@ -179,14 +179,14 @@ export default function Home() {
           Download them to see the correct format or upload directly to test ARGO
         </Typography>
         <ExampleFiles />
-      </Box>
+      </Box> */}
       <Box
         width={"100%"}
         justifyContent={"center"}
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 }, backgroundColor: "secondary.dark" }}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 } }}
       >
         <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
           New to ARGO?
@@ -210,7 +210,7 @@ export default function Home() {
         alignItems={"center"}
         display={"flex"}
         flexDirection={"column"}
-        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 } }}
+        sx={{ paddingY: 8, paddingX: { xs: 5, md: 20 }, backgroundColor: "secondary.dark"}}
       >
         <Typography variant="h4" sx={{ fontWeight: 600, mb: 1 }}>
           Learn more about ARGO
