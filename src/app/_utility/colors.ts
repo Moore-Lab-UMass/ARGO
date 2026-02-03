@@ -12,7 +12,7 @@ export const GROUP_COLOR_MAP: Map<string, string> = new Map([
 ])
 
 export const DATA_SOURCE_COLOR_MAP: Map<string, string> = new Map([
-  ["P", "Chip-seq:#1161eb"],
+  ["P", "ChIP-seq:#1161eb"],
   ["S", "HT-SELEX:#c211eb"],
   ["M", "Methyl HT-SELEX:#eb1161"],
   ["G", "Genomic HT-SELEX:#8beb11"],
@@ -22,8 +22,8 @@ export const DATA_SOURCE_COLOR_MAP: Map<string, string> = new Map([
 ])
 
 export const QUALITY_COLOR_MAP: Map<string, string> = new Map([
-  ["A", "Found in both Chip-seq and Ht-SELEX:#6a43eb"],
-  ["B", "Reproducible in Chip-seq or HT-SELEX:#9b31eb"],
+  ["A", "Found in both ChIP-seq and Ht-SELEX:#6a43eb"],
+  ["B", "Reproducible in ChIP-seq or HT-SELEX:#9b31eb"],
   ["C", "Found in a single dataset:#f58f8f"],
   ["D", "Subtypes built from motifs exclusively inherited from HOCOMOCO-v12:#ec4ce0"],
   ["none", "None:grey"],

@@ -170,8 +170,8 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                             placement="right-end"
                                             title={
                                                 <div>
-                                                    <b>A:</b> Found in both Chip-seq and Ht-SELEX <br />
-                                                    <b>B:</b> Reproducible in Chip-seq or HT-SELEX <br />
+                                                    <b>A:</b> Found in both ChIP-seq and Ht-SELEX <br />
+                                                    <b>B:</b> Reproducible in ChIP-seq or HT-SELEX <br />
                                                     <b>C:</b> Found in a single dataset <br />
                                                     <b>D:</b> Subtypes built from motifs exclusively inherited from HOCOMOCO-v12
                                                 </div>
@@ -235,7 +235,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                             placement="right-end"
                                             title={
                                                 <div>
-                                                    <b>P:</b> Chip-seq <br />
+                                                    <b>P:</b> ChIP-seq <br />
                                                     <b>S:</b> HT-SELEX <br />
                                                     <b>M:</b> Methyl HT-SELEX <br />
                                                     <b>G:</b> Genomic HT-SELEX <br />
@@ -265,7 +265,7 @@ const SequenceFilters: React.FC<SequenceAccordianProps> = ({
                                                     checked={sequenceFilterVariables.dataSource.p}
                                                     onChange={() => toggleDataSource('p')}
                                                     control={<Checkbox />}
-                                                    label="Chip-seq"
+                                                    label="ChIP-seq"
                                                     value="p"
                                                     disabled={!sequenceFilterVariables.useMotifs}
                                                 />
