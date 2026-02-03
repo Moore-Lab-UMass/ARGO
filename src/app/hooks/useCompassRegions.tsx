@@ -49,20 +49,24 @@ export const collectionFileMap: Record<
   string,
   { file: string; count: number }
 > = {
+  "Clinvar Test": {
+    file: "/Test-Clinvar-Subset.vcf",
+    count: 250,
+  },
   "Hereditary Breast Ovarian Cancer Syndrome": {
-    file: "/Hereditary_breast_ovarian_cancer_syndrome.vcf",
-    count: 230,
+    file: "/Hereditary_breast_ovarian_cancer_syndrome_cleaned.vcf",
+    count: 43,
   },
   "Primary Ciliary Dyskinesia": {
-    file: "/Primary_ciliary_dyskinesia.vcf",
+    file: "/Primary_ciliary_dyskinesia_cleaned.vcf",
     count: 250,
   },
   "Inborn Genetic Diseases": {
-    file: "/Inborn_genetic_diseases.vcf",
+    file: "/Inborn_genetic_diseases_cleaned.vcf",
     count: 96,
   },
   "Spastic Paraplegia": {
-    file: "/Spastic_paraplegia.vcf",
+    file: "/Spastic_paraplegia_cleaned.vcf",
     count: 151,
   },
 };

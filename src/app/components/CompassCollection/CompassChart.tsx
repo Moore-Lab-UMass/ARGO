@@ -3,7 +3,7 @@ import { MainTableRow } from "../../types";
 import RankBand from "./RankBand";
 import { kdePDF } from "./helpers";
 import { Box } from "@mui/material";
-import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
+// import { ChartsReferenceLine } from '@mui/x-charts/ChartsReferenceLine';
 
 interface RankBandProps {
     rows: MainTableRow[];
@@ -13,17 +13,17 @@ interface RankBandProps {
 
 const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
 
-    const firstNARank = rows
-        .filter(r =>
-            r.aggregateRank != null && !String(r.regionID).startsWith("Input_") &&
-            (
-                r.sequenceRank == 0 ||
-                r.elementRank == 0 ||
-                r.geneRank == 0
-            )
-        )
-        .map(r => r.aggregateRank as number)
-        .sort((a, b) => a - b)[0];
+    // const firstNARank = rows
+    //     .filter(r =>
+    //         r.aggregateRank != null && !String(r.regionID).startsWith("Input_") &&
+    //         (
+    //             r.sequenceRank == 0 ||
+    //             r.elementRank == 0 ||
+    //             r.geneRank == 0
+    //         )
+    //     )
+    //     .map(r => r.aggregateRank as number)
+    //     .sort((a, b) => a - b)[0];
 
     const variants = rows
         .filter(r => r.aggregateRank != null)
@@ -31,7 +31,9 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
             rank: r.aggregateRank as number,
             type: String(r.regionID).startsWith("Pathogenic")
                 ? "pathogenic"
-                : "benign",
+                : String(r.regionID).startsWith("Benign")
+                ? "benign"
+                : "input"
         }))
         .sort((a, b) => a.rank - b.rank);
 
@@ -106,8 +108,8 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                         },
                     },
                 }}
-            >
-                {firstNARank != null && (
+            />
+                {/* {firstNARank != null && (
                     <ChartsReferenceLine
                         x={firstNARank}
                         lineStyle={{
@@ -117,13 +119,13 @@ const CompassChart: React.FC<RankBandProps> = ({ rows, loading, chartRef }) => {
                         }}
                     />
                 )}
-            </LineChart>
+            </LineChart> */}
             <RankBand 
                 rows={rows} 
                 loading={loading} 
                 min={paddedMinRank} 
                 max={paddedMaxRank} 
-                firstNa={firstNARank}
+                // firstNa={firstNARank}
             />
         </Box>
     )

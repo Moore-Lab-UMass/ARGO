@@ -9,10 +9,16 @@ interface RankBandProps {
     loading: boolean;
     min: number;
     max: number;
-    firstNa: number;
+    // firstNa: number;
 }
 
-const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max, firstNa }) => {
+const RankBand: React.FC<RankBandProps> = ({
+    rows,
+    loading,
+    min,
+    max,
+    // firstNa 
+}) => {
     const width = 710;
     const bandHeight = 14;
     const tickHeight = 18;
@@ -144,7 +150,7 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max, firstNa })
 
                 </svg>
             )}
-            {firstNa != null && (
+            {/* {firstNa != null && (
                 <Box
                     sx={{
                         position: "absolute",
@@ -157,7 +163,7 @@ const RankBand: React.FC<RankBandProps> = ({ rows, loading, min, max, firstNa })
                         opacity: 0.5,
                     }}
                 />
-            )}
+            )} */}
             {tooltipData && (
                 <TooltipWithBounds
                     top={285}
