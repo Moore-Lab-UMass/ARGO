@@ -49,7 +49,7 @@ export const collectionFileMap: Record<
   string,
   { file: string; count: number }
 > = {
-  "Clinvar Test": {
+  "Clinvar Disease Agnostic": {
     file: "/Test-Clinvar-Subset.vcf",
     count: 250,
   },
@@ -59,15 +59,15 @@ export const collectionFileMap: Record<
   },
   "Primary Ciliary Dyskinesia": {
     file: "/Primary_ciliary_dyskinesia_cleaned.vcf",
-    count: 250,
+    count: 72,
   },
   "Inborn Genetic Diseases": {
     file: "/Inborn_genetic_diseases_cleaned.vcf",
-    count: 96,
+    count: 39,
   },
   "Spastic Paraplegia": {
     file: "/Spastic_paraplegia_cleaned.vcf",
-    count: 151,
+    count: 72,
   },
 };
 

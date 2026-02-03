@@ -36,7 +36,7 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
     inputSequenceRows,
 }) => {
     const [open, setOpen] = useState(false);
-    const [collection, setCollection] = useState("Clinvar Test");
+    const [collection, setCollection] = useState("Clinvar Disease Agnostic");
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
     const { compassRegions, loading } = useCompassRegions(collection);

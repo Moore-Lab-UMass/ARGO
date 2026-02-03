@@ -27,6 +27,56 @@ export function kdePDF(
   return densities.map(d => d / area);
 }
 
+export function buildPercentageSteps(
+  variants: { rank: number; type: string }[],
+  xs: number[]
+) {
+  let pathogenicCount = 0;
+  let benignCount = 0;
+  let variantIndex = 0;
+
+  const pathogenicPct: number[] = [];
+  const benignPct: number[] = [];
+
+  for (const x of xs) {
+    // Consume variants whose rank ≤ current x
+    while (
+      variantIndex < variants.length &&
+      variants[variantIndex].rank <= x
+    ) {
+      if (variants[variantIndex].type === "pathogenic") {
+        pathogenicCount++;
+      } else if (variants[variantIndex].type === "benign") {
+        benignCount++;
+      }
+      variantIndex++;
+    }
+
+    const total = pathogenicCount + benignCount;
+
+    if (total === 0) {
+      pathogenicPct.push(0);
+      benignPct.push(0);
+    } else {
+      const p = pathogenicCount / total;
+      pathogenicPct.push(p);
+      benignPct.push(1 - p);
+    }
+  }
+
+  return { pathogenicPct, benignPct };
+}
+
+export function movingAverage(values: number[], window = 5) {
+  const half = Math.floor(window / 2);
+  return values.map((_, i) => {
+    const start = Math.max(0, i - half);
+    const end = Math.min(values.length, i + half + 1);
+    const slice = values.slice(start, end);
+    return slice.reduce((a, b) => a + b, 0) / slice.length;
+  });
+}
+
 export function topKAccuracyFromRanks(rows: MainTableRow[]): number {
     const benign = rows.filter(
         r => String(r.regionID).startsWith("Benign") && r.aggregateRank != null
