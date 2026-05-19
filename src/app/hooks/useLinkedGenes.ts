@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { CLOSEST_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY, LINKED_GENES_QUERY } from '../queries';
-import { client } from '../client';
 import { ComputationalMethod, GeneFilterState } from '../types';
 import { computationalMethods } from '../submitted/[submitted]/tables/genes/geneHelpers';
 
@@ -30,7 +29,6 @@ export const useLinkedGenes = ({
     const closestGenesQuery = useQuery(CLOSEST_QUERY, {
         variables: { accessions },
         skip: !intersectingCcres || !isDistance,
-        client,
         fetchPolicy: 'cache-first',
     });
 
@@ -68,7 +66,6 @@ export const useLinkedGenes = ({
             !intersectingCcres ||
             isDistance ||
             computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
-        client,
         fetchPolicy: 'cache-first',
     });
 
@@ -87,7 +84,6 @@ export const useLinkedGenes = ({
             skip:
                 !intersectingCcres ||
                 !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod),
-            client,
             fetchPolicy: 'cache-first',
         }
     );

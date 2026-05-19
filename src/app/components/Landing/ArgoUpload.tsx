@@ -5,10 +5,10 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
 import { InputRegions } from "../../types";
-import { useLazyQuery } from "@apollo/client";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { REF_CHECK_QUERY } from "../../queries";
 import { encodeRegions } from "../../_utility/coding";
+import { useLazyQuery } from "@apollo/client/react";
 
 const ArgoUpload: React.FC = ({
 }) => {
@@ -88,7 +88,6 @@ const ArgoUpload: React.FC = ({
                     strand: region.strand
                 })),
             },
-            fetchPolicy: "cache-first",
         });
 
         // Extract mismatched regions from the response

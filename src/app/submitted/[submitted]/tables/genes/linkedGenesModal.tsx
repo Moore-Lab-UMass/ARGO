@@ -1,7 +1,8 @@
 import { Typography, Modal, Paper, IconButton, Tooltip, Link } from "@mui/material";
-import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import CloseIcon from '@mui/icons-material/Close';
 import { GeneLinkingMethod } from "../../../../types";
+import { GridRenderCellParams } from "@mui/x-data-grid-premium";
 
 type LinkedGenes = {
     accession: string
@@ -28,7 +29,7 @@ const GenesModal: React.FC<GeneModalProps> = ({
     genes,
 }) => {
 
-    const GENE_COLS: GridColDef<LinkedGenes>[] = [
+    const GENE_COLS: TableColDef<LinkedGenes>[] = [
         {
             field: "geneName",
             headerName: "Gene Name",
@@ -106,7 +107,6 @@ const GenesModal: React.FC<GeneModalProps> = ({
                         }}
                         divHeight={{ maxHeight: "600px" }}
                         label={"Linked Genes"}
-                        downloadFileName="LinkedGenes.tsv"
                         emptyTableFallback={"No Linked Genes"}
                     />
                 )}

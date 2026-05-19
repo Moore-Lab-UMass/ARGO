@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
-import { client } from '../client';
+import { useQuery } from '@apollo/client/react';
 import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from '../queries';
 import { ElementFilterState } from '../types';
 
@@ -27,7 +26,6 @@ export const useElementData = ({
             (!elementFilterVariables.mustHaveOrtholog &&
                 elementFilterVariables.cCREAssembly !== 'mm10') ||
             !intersectingCcres,
-        client,
         fetchPolicy: 'cache-first',
     });
 
@@ -60,7 +58,6 @@ export const useElementData = ({
             !intersectingCcres ||
             (elementFilterVariables.cCREAssembly === 'mm10' &&
                 !mouseAccessions),
-        client,
         fetchPolicy: 'cache-first',
     });
 

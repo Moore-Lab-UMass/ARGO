@@ -2,10 +2,11 @@ import React, { useEffect, useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../../../types";
 import { Link, Stack, Tooltip } from "@mui/material";
 import { mapScoresCTSpecific, mapScores, buildOrthologMap, filterElements } from "./elementHelpers";
-import { GridColDef, GridRenderCellParams, Table } from "@weng-lab/ui-components";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { GROUP_COLOR_MAP } from "../../../../_utility/colors";
 import { useElementData } from "../../../../hooks/useElementData";
+import { GridRenderCellParams } from "@mui/x-data-grid-premium";
 
 const ElementTable: React.FC<ElementTableProps> = ({
     elementFilterVariables,
@@ -84,9 +85,9 @@ const ElementTable: React.FC<ElementTableProps> = ({
     }, [loadingRows, updateLoadingElementRows]);
 
     //handle column changes for the Element rank table
-    const elementColumns: GridColDef<ElementTableRow>[] = useMemo(() => {
+    const elementColumns: TableColDef<ElementTableRow>[] = useMemo(() => {
 
-        const classificationFormatting: Partial<GridColDef> = {
+        const classificationFormatting: Partial<TableColDef> = {
             renderCell: (params: GridRenderCellParams) => {
                 const group = params.value as string;
                 if (!group) return null;
@@ -121,7 +122,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
             },
         };
 
-        const cols: GridColDef<ElementTableRow>[] = [
+        const cols: TableColDef<ElementTableRow>[] = [
             {
                 field: "regionID",
                 headerName: "Region ID",
@@ -237,11 +238,12 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 }}
                 loading={loadingRows}
                 label={"Element Details (Overlapping cCREs)"}
-                downloadFileName="ElementRanks.tsv"
-                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                divHeight={{
+                        height: "440px",
+                        maxHeight: "440px",
+                    }}
                 emptyTableFallback={"No Overlapping cCREs"}
-                toolbarSlot={ToolBarIcon}
-                toolbarStyle={{ backgroundColor: "#e7eef8" }}
+                slotProps={{ toolbar: { extra: ToolBarIcon, style: { backgroundColor: "#e7eef8" } } }}
                 error={error ? true : false}
             />
         </Stack>

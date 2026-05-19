@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../../types";
-import { GridColDef, Table } from "@weng-lab/ui-components";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { Link, Stack, Tooltip, Typography } from "@mui/material";
-import { useLazyQuery } from "@apollo/client";
 import { GENE_ORTHO_QUERY } from "../../../../queries";
 import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { useLinkedGenes } from "../../../../hooks/useLinkedGenes";
 import { useGeneScores } from "../../../../hooks/useGeneScores";
+import { useLazyQuery } from "@apollo/client/react";
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,
@@ -122,8 +122,8 @@ const GeneTable: React.FC<GeneTableProps> = ({
     }, [loadingRows, updateLoadingGeneRows]);
 
     //handle column changes for the Gene rank table
-    const geneColumns: GridColDef<GeneTableRow>[] = useMemo(() => {
-        const cols: GridColDef<GeneTableRow>[] = [
+    const geneColumns: TableColDef<GeneTableRow>[] = useMemo(() => {
+        const cols: TableColDef<GeneTableRow>[] = [
             {
                 field: "regionID",
                 headerName: "Region ID",
@@ -271,12 +271,13 @@ const GeneTable: React.FC<GeneTableProps> = ({
                         sortModel: [{ field: "geneExpression", sort: "desc" }],
                     },
                 }}
-                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                divHeight={{
+                        height: "440px",
+                        maxHeight: "440px",
+                    }}
                 label={"Gene Details"}
-                downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Linked Genes"}
-                toolbarSlot={ToolBarIcon}
-                toolbarStyle={{backgroundColor: "#e7eef8"}}
+                slotProps={{ toolbar: { extra: ToolBarIcon, style: { backgroundColor: "#e7eef8" } } }}
                 error={errorGenes ? true : false}
             />
             {modalData && (

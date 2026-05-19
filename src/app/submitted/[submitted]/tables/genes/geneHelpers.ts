@@ -1,7 +1,6 @@
 import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../../../types";
 import { ClosestAndLinkedQuery, ComputationalGeneLinksQuery, Exact, GeneOrthologQueryQuery, GeneSpecificityQuery, GetLinkedGenesQuery, InputMaybe, Scalars, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
-import { client } from "../../../../client";
-import { LazyQueryExecFunction } from "@apollo/client";
+import { LazyQueryExecFunction } from "@apollo/client/react";
 
 type ComputationalGenes = {
     __typename?: "ComputationalGeneLinks";
@@ -513,8 +512,6 @@ export const filterGenes = ({
                 name: uniqueGeneNames,
                 assembly: 'grch38',
             },
-            client,
-            fetchPolicy: 'cache-and-network',
         });
 
         if (orthoGenes) {

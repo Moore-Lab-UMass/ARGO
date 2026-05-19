@@ -3,7 +3,7 @@ import { CompBiosample, ComputationalMethod, GeneAccordianProps, GeneLinkingMeth
 import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../../../queries";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import BiotechIcon from '@mui/icons-material/Biotech';
 import { EncodeBiosample } from "@weng-lab/ui-components";
 import { BiosampleModal } from "../../../../components/BiosampleModal";

@@ -1,4 +1,5 @@
-import { GridColDef, Table, useGridApiRef } from "@weng-lab/ui-components";
+import { useGridApiRef } from "@mui/x-data-grid-premium";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { useMemo } from "react";
 import { CompBiosample } from "../../../../types";
 
@@ -17,7 +18,7 @@ export default function TissueList({ onSelect, selected }: TissueListProps) {
     []
   );
 
-  const columns: GridColDef[] = [
+  const columns: TableColDef[] = [
     {
       field: "tissue",
       headerName: "Tissue",

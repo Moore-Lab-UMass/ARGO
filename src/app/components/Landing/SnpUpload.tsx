@@ -5,10 +5,10 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
 import { InputRegions, ReturnedSnps } from "../../types";
-import { useLazyQuery } from "@apollo/client";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { SNP_QUERY } from "../../queries";
 import { encodeRegions } from "../../_utility/coding";
+import { useLazyQuery } from "@apollo/client/react";
 
 const ArgoUpload: React.FC = ({
 }) => {
@@ -80,7 +80,6 @@ const ArgoUpload: React.FC = ({
             variables: {
                 snp: trimmed,
             },
-            fetchPolicy: "cache-first",
         });
 
         const returnedSnps = response?.data?.getSNPAllele ?? [];

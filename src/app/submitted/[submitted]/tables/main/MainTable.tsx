@@ -3,7 +3,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { InputRegions, MainTableRow, RankedRegions } from "../../../../types";
-import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColDef, GridRowSelectionModel, GridSortDirection, GridSortModel, Table, useGridApiRef } from "@weng-lab/ui-components";
+import { GRID_CHECKBOX_SELECTION_COL_DEF, GridRowSelectionModel, GridSortDirection, GridSortModel, useGridApiRef } from "@mui/x-data-grid-premium";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { calculateAggregateRanks, matchRanks } from "./helpers";
 import AutoSortSwitch from "../../../../components/AutoSortSwitch";
 
@@ -60,10 +61,10 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
     );
 
     //handle column changes for the main rank table
-    const mainColumns: GridColDef<MainTableRow>[] = useMemo(() => {
-        const cols: GridColDef<MainTableRow>[] = [
+    const mainColumns: TableColDef<MainTableRow>[] = useMemo(() => {
+        const cols: TableColDef<MainTableRow>[] = [
             {
-                ...(GRID_CHECKBOX_SELECTION_COL_DEF as GridColDef<MainTableRow>), //Override checkbox column https://mui.com/x/react-data-grid/row-selection/#custom-checkbox-column
+                ...(GRID_CHECKBOX_SELECTION_COL_DEF as TableColDef<MainTableRow>), //Override checkbox column https://mui.com/x/react-data-grid/row-selection/#custom-checkbox-column
                 sortable: true,
                 hideable: false,
                 renderHeader: StopPropagationWrapper,
@@ -178,10 +179,10 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
                         },
                     }}
                     divHeight={{
-                        height: loading ? "440px" : "100%",
+                        height: "440px",
                         maxHeight: "440px",
                     }}
-                    toolbarSlot={AutoSortToolbar}
+                    slotProps={{ toolbar: { extra: AutoSortToolbar } }}
                     label={
                         <Tooltip title="Select a row to isolate it" arrow placement="top-start">
                             <Stack direction="row" spacing={1} alignItems="center">
@@ -200,7 +201,6 @@ const RankedRegionsTable: React.FC<RankedRegionsTableProps> = ({
                         ids: new Set(selected.map((x) => x.regionID)),
                     }}
                     keepNonExistentRowsSelected
-                    downloadFileName="AggregateRanks.tsv"
                 />
             </Box>
         </>

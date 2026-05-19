@@ -1,8 +1,9 @@
 import { IconButton, Modal, Paper, Tooltip, Typography } from '@mui/material';
-import { GridColDef, GridRenderCellParams, Table } from '@weng-lab/ui-components';
+import { TableColDef, Table } from '@weng-lab/ui-components';
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
+import { GridRenderCellParams } from '@mui/x-data-grid-premium';
 
 export type MotifProps = {
     referenceAllele: {
@@ -35,7 +36,7 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
     motifs,
 }) => {
 
-    const MOTIFS_COLS: GridColDef<MotifProps>[] = [
+    const MOTIFS_COLS: TableColDef<MotifProps>[] = [
         {
             field: "referenceScore",
             headerName: "Reference Score",
@@ -180,7 +181,6 @@ const MotifsModal: React.FC<MotifsModalProps> = ({
                         }}
                         divHeight={{ maxHeight: "600px" }}
                         label={"Motifs"}
-                        downloadFileName="OverlappingMotifs.tsv"
                         emptyTableFallback={"No Motifs Found"}
                     />
                 )}
