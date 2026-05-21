@@ -1,6 +1,6 @@
 import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../../../types";
 import { ClosestAndLinkedQuery, ComputationalGeneLinksQuery, Exact, GeneOrthologQueryQuery, GeneSpecificityQuery, GetLinkedGenesQuery, InputMaybe, Scalars, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
-import { LazyQueryExecFunction } from "@apollo/client/react";
+import { useLazyQuery } from "@apollo/client/react";
 
 type ComputationalGenes = {
     __typename?: "ComputationalGeneLinks";
@@ -417,7 +417,7 @@ interface FilterGenesArgs {
     computationalData: ComputationalGeneLinksQuery;
     intersectingCcres?: CCREs;
     geneFilterVariables: GeneFilterState;
-    getOrthoGenes: LazyQueryExecFunction<GeneOrthologQueryQuery, Exact<{
+    getOrthoGenes: useLazyQuery.ExecFunction<GeneOrthologQueryQuery, Exact<{
         name: Array<InputMaybe<Scalars["String"]["input"]>> | InputMaybe<Scalars["String"]["input"]>;
         assembly: Scalars["String"]["input"];
     }>>;
