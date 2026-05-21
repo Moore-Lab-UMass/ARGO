@@ -53,6 +53,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
 
         cellTypes?.getLinkedGenesCelltypesByAssay.forEach((item) => {
             biosamples.set(item.biosample_value, {
+                assembly: "GRCh38",
                 name: item.biosample_value,
                 ontology: item.tissue,
                 displayname: item.displayname,
@@ -76,6 +77,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         compuCellTypes?.getCompuLinkedGenesCelltypes.forEach((item) => {
             if (!biosamples.has(item.biosample_value)) {
                 biosamples.set(item.biosample_value, {
+                    assembly: "GRCh38",
                     name: item.biosample_mapping ?? item.biosample_value,
                     ontology: item.tissue,
                     displayname: item.biosample_value,
