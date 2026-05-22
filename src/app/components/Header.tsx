@@ -58,7 +58,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
             </Stack>
             <AppBar position="static">
                 <Toolbar sx={{ justifyContent: "space-between", backgroundColor: "rgba(249, 248, 244, 1)" }}>
-                    <Stack direction={"row"} spacing={2} alignItems={"center"} component={Link} href={"/"}>
+                    <Stack direction={"row"} spacing={2} alignItems={"center"} component={Link} href={"/"} sx={{ textDecoration: "none" }}>
                         <Box height={45} width={40} position={"relative"}>
                             <Image
                                 priority
