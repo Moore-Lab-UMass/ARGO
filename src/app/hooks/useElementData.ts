@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { ORTHOLOG_QUERY, Z_SCORES_QUERY } from '../queries';
+import { BIOSAMPLE_Z_SCORES_QUERY, MAX_Z_SCORES_QUERY, ORTHOLOG_QUERY } from '../queries';
 import { ElementFilterState } from '../types';
 
 interface UseElementDataArgs {
@@ -40,22 +40,38 @@ export const useElementData = ({
         orthoQuery.data?.orthologQuery,
     ]);
 
-    //Z-score query
-    const zScoreQuery = useQuery(Z_SCORES_QUERY, {
+    const accessionList =
+        elementFilterVariables.cCREAssembly === 'mm10'
+            ? mouseAccessions
+            : intersectingCcres
+                ? intersectingCcres.map(ccre => ccre.accession)
+                : [];
+
+    //Max z-scores query (always runs)
+    const maxZScoresQuery = useQuery(MAX_Z_SCORES_QUERY, {
         variables: {
             assembly: elementFilterVariables.cCREAssembly,
-            accessions:
-                elementFilterVariables.cCREAssembly === 'mm10'
-                    ? mouseAccessions
-                    : intersectingCcres
-                          ? intersectingCcres.map(ccre => ccre.accession)
-                          : [],
-            cellType: elementFilterVariables.selectedBiosample
-                ? elementFilterVariables.selectedBiosample.name
-                : null,
+            accession: accessionList,
         },
         skip:
             !intersectingCcres ||
+            (elementFilterVariables.cCREAssembly === 'mm10' &&
+                !mouseAccessions),
+        fetchPolicy: 'cache-first',
+    });
+
+    //Biosample-specific z-scores query (only when a biosample is selected)
+    const biosampleZScoresQuery = useQuery(BIOSAMPLE_Z_SCORES_QUERY, {
+        variables: {
+            assembly: elementFilterVariables.cCREAssembly,
+            accession: accessionList,
+            biosample_value: elementFilterVariables.selectedBiosample
+                ? [elementFilterVariables.selectedBiosample.name]
+                : [],
+        },
+        skip:
+            !intersectingCcres ||
+            !elementFilterVariables.selectedBiosample ||
             (elementFilterVariables.cCREAssembly === 'mm10' &&
                 !mouseAccessions),
         fetchPolicy: 'cache-first',
@@ -67,12 +83,17 @@ export const useElementData = ({
             data: orthoQuery.data,
             error: orthoQuery.error,
         },
-        zScores: {
-            loading: zScoreQuery.loading,
-            data: zScoreQuery.data,
-            error: zScoreQuery.error,
+        maxZScores: {
+            loading: maxZScoresQuery.loading,
+            data: maxZScoresQuery.data,
+            error: maxZScoresQuery.error,
         },
-        loading: orthoQuery.loading || zScoreQuery.loading,
-        error: orthoQuery.error || zScoreQuery.error,
+        biosampleZScores: {
+            loading: biosampleZScoresQuery.loading,
+            data: biosampleZScoresQuery.data,
+            error: biosampleZScoresQuery.error,
+        },
+        loading: orthoQuery.loading || maxZScoresQuery.loading || biosampleZScoresQuery.loading,
+        error: orthoQuery.error || maxZScoresQuery.error || biosampleZScoresQuery.error,
     };
 };

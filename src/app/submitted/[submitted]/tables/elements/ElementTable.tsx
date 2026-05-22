@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { ElementTableProps, ElementTableRow } from "../../../../types";
 import { Link, Stack, Tooltip } from "@mui/material";
-import { mapScoresCTSpecific, mapScores, buildOrthologMap, filterElements } from "./elementHelpers";
+import { mapScores, buildOrthologMap, filterElements } from "./elementHelpers";
 import { TableColDef, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { GROUP_COLOR_MAP } from "../../../../_utility/colors";
@@ -20,7 +20,8 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
     const {
         ortho,
-        zScores,
+        maxZScores,
+        biosampleZScores,
         loading,
         error,
     } = useElementData({
@@ -30,10 +31,26 @@ const ElementTable: React.FC<ElementTableProps> = ({
 
     //all data pertaining to the element table
     const allElementData: ElementTableRow[] = useMemo(() => {
-        if (!zScores.data) return [];
+        if (!maxZScores.data) return [];
 
-        const data = zScores.data.cCRESCREENSearch;
+        const maxData = maxZScores.data.getmaxZScoresQuery ?? [];
+        const biosampleData = biosampleZScores.data?.getcCREZScoresQuery;
         const orthoMap = buildOrthologMap(ortho.data);
+
+        const mergedData = biosampleData
+            ? maxData.map(maxItem => {
+                const biosampleItem = biosampleData.find(b => b?.accession === maxItem?.accession);
+                if (!biosampleItem) return maxItem;
+                return {
+                    ...maxItem,
+                    dnase_max_zscore: biosampleItem.dnase_max_zscore,
+                    ctcf_max_zscore: biosampleItem.ctcf_max_zscore,
+                    atac_max_zscore: biosampleItem.atac_max_zscore,
+                    h3k4me3_max_zscore: biosampleItem.h3k4me3_max_zscore,
+                    h3k27ac_max_zscore: biosampleItem.h3k27ac_max_zscore,
+                };
+            })
+            : maxData;
 
         const baseCcres =
             elementFilterVariables.cCREAssembly === 'mm10'
@@ -45,16 +62,12 @@ const ElementTable: React.FC<ElementTableProps> = ({
                     .filter(ccre => ccre.accession)
                 : intersectingCcres;
 
-        const scoreMapper = elementFilterVariables.selectedBiosample
-            ? mapScoresCTSpecific
-            : mapScores;
-
-        return baseCcres.map(ccre => scoreMapper(ccre, data));
+        return baseCcres.map(ccre => mapScores(ccre, mergedData));
     }, [
-        zScores.data,
+        maxZScores.data,
+        biosampleZScores.data,
         intersectingCcres,
         elementFilterVariables.cCREAssembly,
-        elementFilterVariables.selectedBiosample,
         ortho.data,
     ]);
 
