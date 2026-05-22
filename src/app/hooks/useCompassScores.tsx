@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useSequenceData } from "./useSequenceData";
 import { filterSequence } from "../submitted/[submitted]/tables/sequence/sequenceHelpers";
 import { useElementData } from "./useElementData";
 import { buildOrthologMap, filterElements, mapScores, mapScoresCTSpecific } from "../submitted/[submitted]/tables/elements/elementHelpers";
 import { useLinkedGenes } from "./useLinkedGenes";
-import { computationalMethods, filterGenes, getExpressionScores, getSpecificityScores } from "../submitted/[submitted]/tables/genes/geneHelpers";
+import { computationalMethods, filterGenes, filterOrthologGenes, getExpressionScores, getSpecificityScores } from "../submitted/[submitted]/tables/genes/geneHelpers";
 import { CCREs, ComputationalMethod, ElementFilterState, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState } from "../types";
 import { useGeneScores } from "./useGeneScores";
 import { GENE_ORTHO_QUERY } from "../queries";
@@ -116,7 +116,7 @@ export function useCompassScores({
     geneFilterVariables,
   });
 
-  const filteredGenes = useMemo(() => {
+  const baseGenes = useMemo(() => {
       if (!intersectingCcres ||
           (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) ||
           (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) ||
@@ -130,10 +130,23 @@ export function useCompassScores({
       computationalData: computational.data,
       intersectingCcres,
       geneFilterVariables,
-      orthoGenes,
-      getOrthoGenes
     });
-  }, [closest.data, computational.data, geneFilterVariables, getOrthoGenes, intersectingCcres, linked.data, orthoGenes]);
+  }, [closest.data, computational.data, geneFilterVariables, intersectingCcres, linked.data]);
+
+  useEffect(() => {
+    if (!geneFilterVariables.mustHaveOrtholog || baseGenes.length === 0) return;
+    const uniqueGeneNames = Array.from(
+      new Set(baseGenes.flatMap(item => item.genes.map(g => g.name.trim())))
+    );
+    getOrthoGenes({ variables: { name: uniqueGeneNames, assembly: "grch38" } });
+  }, [geneFilterVariables.mustHaveOrtholog, baseGenes, getOrthoGenes]);
+
+  const filteredGenes = useMemo(() => {
+    if (geneFilterVariables.mustHaveOrtholog && orthoGenes) {
+      return filterOrthologGenes(orthoGenes, baseGenes);
+    }
+    return baseGenes;
+  }, [geneFilterVariables.mustHaveOrtholog, orthoGenes, baseGenes]);
 
   const {
     specificity,
