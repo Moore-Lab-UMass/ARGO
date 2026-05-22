@@ -1,14 +1,14 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useSequenceData } from "./useSequenceData";
 import { filterSequence } from "../submitted/[submitted]/tables/sequence/sequenceHelpers";
 import { useElementData } from "./useElementData";
-import { buildOrthologMap, filterElements, mapScores, mapScoresCTSpecific } from "../submitted/[submitted]/tables/elements/elementHelpers";
+import { buildOrthologMap, filterElements, mapScores } from "../submitted/[submitted]/tables/elements/elementHelpers";
 import { useLinkedGenes } from "./useLinkedGenes";
-import { computationalMethods, filterGenes, getExpressionScores, getSpecificityScores } from "../submitted/[submitted]/tables/genes/geneHelpers";
+import { computationalMethods, filterGenes, filterOrthologGenes, getExpressionScores, getSpecificityScores } from "../submitted/[submitted]/tables/genes/geneHelpers";
 import { CCREs, ComputationalMethod, ElementFilterState, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState } from "../types";
 import { useGeneScores } from "./useGeneScores";
-import { useLazyQuery } from "@apollo/client";
 import { GENE_ORTHO_QUERY } from "../queries";
+import { useLazyQuery } from "@apollo/client/react";
 
 export interface UseCompassScoresProps {
   regions: InputRegions;
@@ -55,7 +55,8 @@ export function useCompassScores({
   //element data
   const {
     ortho,
-    zScores,
+    maxZScores,
+    biosampleZScores,
     loading: loadingElements,
     error: errorElements,
   } = useElementData({
@@ -64,10 +65,26 @@ export function useCompassScores({
   });
 
   const allElementData = useMemo(() => {
-    if (!zScores.data) return [];
+    if (!maxZScores.data) return [];
 
-    const data = zScores.data.cCRESCREENSearch;
+    const maxData = maxZScores.data.getmaxZScoresQuery ?? [];
+    const biosampleData = biosampleZScores.data?.getcCREZScoresQuery;
     const orthoMap = buildOrthologMap(ortho.data);
+
+    const mergedData = biosampleData
+      ? maxData.map(maxItem => {
+          const biosampleItem = biosampleData.find(b => b?.accession === maxItem?.accession);
+          if (!biosampleItem) return maxItem;
+          return {
+              ...maxItem,
+              dnase_max_zscore: biosampleItem.dnase_max_zscore,
+              ctcf_max_zscore: biosampleItem.ctcf_max_zscore,
+              atac_max_zscore: biosampleItem.atac_max_zscore,
+              h3k4me3_max_zscore: biosampleItem.h3k4me3_max_zscore,
+              h3k27ac_max_zscore: biosampleItem.h3k27ac_max_zscore,
+          };
+      })
+      : maxData;
 
     const baseCcres =
       elementFilterVariables.cCREAssembly === "mm10"
@@ -79,16 +96,12 @@ export function useCompassScores({
             .filter(ccre => ccre.accession)
         : intersectingCcres;
 
-    const scoreMapper = elementFilterVariables.selectedBiosample
-      ? mapScoresCTSpecific
-      : mapScores;
-
-    return baseCcres.map(ccre => scoreMapper(ccre, data));
+    return baseCcres.map(ccre => mapScores(ccre, mergedData));
   }, [
-    zScores.data,
+    maxZScores.data,
+    biosampleZScores.data,
     intersectingCcres,
     elementFilterVariables.cCREAssembly,
-    elementFilterVariables.selectedBiosample,
     ortho.data,
   ]);
 
@@ -116,7 +129,7 @@ export function useCompassScores({
     geneFilterVariables,
   });
 
-  const filteredGenes = useMemo(() => {
+  const baseGenes = useMemo(() => {
       if (!intersectingCcres ||
           (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) ||
           (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) ||
@@ -130,10 +143,23 @@ export function useCompassScores({
       computationalData: computational.data,
       intersectingCcres,
       geneFilterVariables,
-      orthoGenes,
-      getOrthoGenes
     });
-  }, [closest.data, computational.data, geneFilterVariables, getOrthoGenes, intersectingCcres, linked.data, orthoGenes]);
+  }, [closest.data, computational.data, geneFilterVariables, intersectingCcres, linked.data]);
+
+  useEffect(() => {
+    if (!geneFilterVariables.mustHaveOrtholog || baseGenes.length === 0) return;
+    const uniqueGeneNames = Array.from(
+      new Set(baseGenes.flatMap(item => item.genes.map(g => g.name.trim())))
+    );
+    getOrthoGenes({ variables: { name: uniqueGeneNames, assembly: "grch38" } });
+  }, [geneFilterVariables.mustHaveOrtholog, baseGenes, getOrthoGenes]);
+
+  const filteredGenes = useMemo(() => {
+    if (geneFilterVariables.mustHaveOrtholog && orthoGenes) {
+      return filterOrthologGenes(orthoGenes, baseGenes);
+    }
+    return baseGenes;
+  }, [geneFilterVariables.mustHaveOrtholog, orthoGenes, baseGenes]);
 
   const {
     specificity,

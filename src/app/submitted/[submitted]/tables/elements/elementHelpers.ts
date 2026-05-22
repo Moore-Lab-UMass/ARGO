@@ -4,30 +4,16 @@ import { AssayRankEntry, CCREAssays, CCREClasses, ElementFilterState, ElementTab
 const assayNames = ["dnase", "h3k4me3", "h3k27ac", "ctcf", "atac"]
 
 export const mapScores = (obj, data) => {
-    const matchingObj = data.find((e) => obj.accession === e.info.accession);
+    const matchingObj = data.find((e) => obj.accession === e.accession);
     if (!matchingObj) return obj;
     return {
         ...obj,
-        dnase: matchingObj.dnase_zscore,
-        h3k4me3: matchingObj.promoter_zscore,
-        h3k27ac: matchingObj.enhancer_zscore,
-        ctcf: matchingObj.ctcf_zscore,
-        atac: matchingObj.atac_zscore,
-        class: matchingObj.pct
-    };
-};
-
-export const mapScoresCTSpecific = (obj, data) => {
-    const matchingObj = data.find((e) => obj.accession === e.info.accession);
-    if (!matchingObj) return obj;
-    return {
-        ...obj,
-        dnase: matchingObj.ctspecific.dnase_zscore,
-        h3k4me3: matchingObj.ctspecific.h3k4me3_zscore,
-        h3k27ac: matchingObj.ctspecific.h3k4me3_zscore,
-        ctcf: matchingObj.ctspecific.ctcf_zscore,
-        atac: matchingObj.ctspecific.atac_zscore,
-        class: matchingObj.pct
+        dnase: matchingObj.dnase_max_zscore,
+        h3k4me3: matchingObj.h3k4me3_max_zscore,
+        h3k27ac: matchingObj.h3k27ac_max_zscore,
+        ctcf: matchingObj.ctcf_max_zscore,
+        atac: matchingObj.atac_max_zscore,
+        class: matchingObj.ccre_group,
     };
 };
 

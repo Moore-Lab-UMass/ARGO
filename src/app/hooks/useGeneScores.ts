@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { GENE_EXP_QUERY, SPECIFICITY_QUERY } from '../queries';
 import { AllLinkedGenes, GeneFilterState } from '../types';
-import { client } from '../client';
 import { AggregateByEnum } from '../../graphql/__generated__/graphql';
 
 interface UseGeneScoresArgs {
@@ -30,7 +29,6 @@ export const useGeneScores = ({
             geneids: geneIds,
         },
         skip: filteredGenes === null,
-        client,
         fetchPolicy: 'cache-first',
     });
 
@@ -47,7 +45,6 @@ export const useGeneScores = ({
                     : 'MAX') as AggregateByEnum,
         },
         skip: filteredGenes === null,
-        client,
         fetchPolicy: 'cache-first',
     });
 

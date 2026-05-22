@@ -1,6 +1,5 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { InputRegions, SequenceFilterState } from '../types';
-import { client } from '../client';
 import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from '../queries';
 
 interface UseSequenceDataArgs {
@@ -37,7 +36,6 @@ export const useSequenceData = ({
         skip:
             !sequenceFilterVariables.useConservation ||
             inputRegions.length === 0,
-        client,
         fetchPolicy: 'cache-first',
     });
 
@@ -53,7 +51,6 @@ export const useSequenceData = ({
             })),
         },
         skip: !sequenceFilterVariables.useMotifs,
-        client,
         fetchPolicy: 'cache-first',
     });
 

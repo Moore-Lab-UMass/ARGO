@@ -2,14 +2,13 @@
 import React, { useEffect, useMemo, useRef } from "react"
 import { useState } from "react"
 import { Box, Stack } from "@mui/material"
-import { useLazyQuery } from "@apollo/client"
-import { client } from "../../client"
 import { ElementFilterState, SequenceFilterState, GeneFilterState, CCREs, InputRegions } from "../../types"
 import Filters, { initialElementFilterState, initialGeneFilterState, initialSequenceFilterState } from "./Filters"
 import { BED_INTERSECT_QUERY } from "../../queries"
 import { decodeRegions } from "../../_utility/coding"
 import Tables from "./tables/Tables"
 import SubmissionHeader from "../../components/SubmissionHeader"
+import { useLazyQuery } from "@apollo/client/react"
 
 export default function Argo() {
     const [fileName, setFileName] = useState<string | null>(null);
@@ -67,8 +66,6 @@ export default function Argo() {
                     user_ccres: user_ccres,
                     assembly: "GRCh38",
                 },
-                client: client,
-                fetchPolicy: 'cache-and-network',
             })
         } else {
             setInputRegions([]);

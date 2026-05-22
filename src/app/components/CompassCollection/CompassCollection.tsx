@@ -6,9 +6,8 @@ import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableR
 import CompassLayout from "./CompassLayout";
 import { useCompassRegions } from "../../hooks/useCompassRegions";
 import { BED_INTERSECT_QUERY } from "../../queries";
-import { useLazyQuery } from "@apollo/client";
-import { client } from "../../client";
 import { useCompassScores } from "../../hooks/useCompassScores";
+import { useLazyQuery } from "@apollo/client/react";
 
 interface CompassCollectionProps {
     inputRegions: InputRegions;
@@ -54,8 +53,6 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
                     user_ccres: user_ccres,
                     assembly: "GRCh38",
                 },
-                client: client,
-                fetchPolicy: 'cache-and-network',
             })
         }
     }, [compassRegions, getIntersectingCcres, loading]);

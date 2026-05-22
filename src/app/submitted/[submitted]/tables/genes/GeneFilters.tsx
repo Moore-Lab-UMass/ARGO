@@ -3,7 +3,7 @@ import { CompBiosample, ComputationalMethod, GeneAccordianProps, GeneLinkingMeth
 import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, MenuItem, Paper, Radio, RadioGroup, Select, Stack, Tooltip, Typography } from "@mui/material";
 import { ExpandMore, InfoOutlined, CancelRounded } from "@mui/icons-material"
 import { COMPUTATIONAL_CELL_TYPES_QUERY, LINKED_GENES_CELL_TYPES_QUERY } from "../../../../queries";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import BiotechIcon from '@mui/icons-material/Biotech';
 import { EncodeBiosample } from "@weng-lab/ui-components";
 import { BiosampleModal } from "../../../../components/BiosampleModal";
@@ -53,6 +53,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
 
         cellTypes?.getLinkedGenesCelltypesByAssay.forEach((item) => {
             biosamples.set(item.biosample_value, {
+                assembly: "GRCh38",
                 name: item.biosample_value,
                 ontology: item.tissue,
                 displayname: item.displayname,
@@ -76,6 +77,7 @@ const GeneFilters: React.FC<GeneAccordianProps> = ({
         compuCellTypes?.getCompuLinkedGenesCelltypes.forEach((item) => {
             if (!biosamples.has(item.biosample_value)) {
                 biosamples.set(item.biosample_value, {
+                    assembly: "GRCh38",
                     name: item.biosample_mapping ?? item.biosample_value,
                     ontology: item.tissue,
                     displayname: item.biosample_value,

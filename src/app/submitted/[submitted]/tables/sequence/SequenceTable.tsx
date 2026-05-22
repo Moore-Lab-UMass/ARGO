@@ -4,7 +4,7 @@ import MotifsModal, { MotifProps } from "./MotifModal";
 import { Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { filterSequence } from "./sequenceHelpers";
 import Link from "next/link";
-import { GridColDef, Table } from "@weng-lab/ui-components";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
 import { DATA_SOURCE_COLOR_MAP, QUALITY_COLOR_MAP } from "../../../../_utility/colors";
 import { useSequenceData } from "../../../../hooks/useSequenceData";
@@ -64,8 +64,8 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
     }, [loading, updateLoadingSequenceRows]);
 
     //handle column changes for the Sequence rank table
-    const sequenceColumns: GridColDef<SequenceTableRow>[] = useMemo(() => {
-        const cols: GridColDef<SequenceTableRow>[] = [
+    const sequenceColumns: TableColDef<SequenceTableRow>[] = useMemo(() => {
+        const cols: TableColDef<SequenceTableRow>[] = [
             {
                 field: "regionID",
                 headerName: "Region ID",
@@ -343,12 +343,13 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                         sortModel: sequenceFilterVariables.useConservation ? [{ field: "conservationScore", sort: "desc" }] : [{ field: "alt", sort: "desc" }],
                     },
                 }}
-                divHeight={{ height: loading ? "440px" : "100%", maxHeight: "440px" }}
+                divHeight={{
+                        height: "440px",
+                        maxHeight: "440px",
+                    }}
                 label={"Sequence Details"}
-                downloadFileName="SequenceRanks.tsv"
                 emptyTableFallback={"No Sequence Scores"}
-                toolbarSlot={ToolBarIcon}
-                toolbarStyle={{backgroundColor: "#e7eef8"}}
+                slotProps={{ toolbar: { extra: ToolBarIcon, style: { backgroundColor: "#e7eef8" } } }}
                 error={error ? true : false}
             />
             {modalData && (

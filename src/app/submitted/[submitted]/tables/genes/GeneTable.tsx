@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../../types";
-import { GridColDef, Table } from "@weng-lab/ui-components";
+import { TableColDef, Table } from "@weng-lab/ui-components";
 import { Link, Stack, Tooltip, Typography } from "@mui/material";
-import { useLazyQuery } from "@apollo/client";
 import { GENE_ORTHO_QUERY } from "../../../../queries";
-import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes } from "./geneHelpers";
+import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes, filterOrthologGenes } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { useLinkedGenes } from "../../../../hooks/useLinkedGenes";
 import { useGeneScores } from "../../../../hooks/useGeneScores";
+import { useLazyQuery } from "@apollo/client/react";
 
 const GeneTable: React.FC<GeneTableProps> = ({
     geneFilterVariables,
@@ -38,27 +38,37 @@ const GeneTable: React.FC<GeneTableProps> = ({
         geneFilterVariables,
     });
 
-    const filteredGenes = useMemo<AllLinkedGenes>(() => {
-        if (!intersectingCcres || 
-            (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) || 
-            (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) || 
+    const baseGenes = useMemo<AllLinkedGenes>(() => {
+        if (!intersectingCcres ||
+            (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) ||
+            (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) ||
             (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !computational.data)) {
             return [];
         }
 
-        const genes = filterGenes({
+        return filterGenes({
             closestData: closest.data,
             linkedData: linked.data,
             computationalData: computational.data,
             intersectingCcres,
             geneFilterVariables,
-            getOrthoGenes,
-            orthoGenes,
-        })
+        });
+    }, [closest.data, computational.data, geneFilterVariables, intersectingCcres, linked.data]);
 
-        return genes;
+    useEffect(() => {
+        if (!geneFilterVariables.mustHaveOrtholog || baseGenes.length === 0) return;
+        const uniqueGeneNames = Array.from(
+            new Set(baseGenes.flatMap(item => item.genes.map(g => g.name.trim())))
+        );
+        getOrthoGenes({ variables: { name: uniqueGeneNames, assembly: "grch38" } });
+    }, [geneFilterVariables.mustHaveOrtholog, baseGenes, getOrthoGenes]);
 
-    }, [closest.data, computational.data, geneFilterVariables, getOrthoGenes, intersectingCcres, linked.data, orthoGenes])
+    const filteredGenes = useMemo<AllLinkedGenes>(() => {
+        if (geneFilterVariables.mustHaveOrtholog && orthoGenes) {
+            return filterOrthologGenes(orthoGenes, baseGenes);
+        }
+        return baseGenes;
+    }, [geneFilterVariables.mustHaveOrtholog, orthoGenes, baseGenes]);
 
     const {
         specificity,
@@ -73,7 +83,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
     const loadingRows = loadingGeneScores || loadingIntersect || loading;
 
     const geneRows = useMemo<GeneTableRow[]>(() => {
-        if (filteredGenes === null || errorGenes) {
+        if (errorGenes) {
             return null
         }
         if (filteredGenes.length === 0) {
@@ -122,8 +132,8 @@ const GeneTable: React.FC<GeneTableProps> = ({
     }, [loadingRows, updateLoadingGeneRows]);
 
     //handle column changes for the Gene rank table
-    const geneColumns: GridColDef<GeneTableRow>[] = useMemo(() => {
-        const cols: GridColDef<GeneTableRow>[] = [
+    const geneColumns: TableColDef<GeneTableRow>[] = useMemo(() => {
+        const cols: TableColDef<GeneTableRow>[] = [
             {
                 field: "regionID",
                 headerName: "Region ID",
@@ -271,12 +281,13 @@ const GeneTable: React.FC<GeneTableProps> = ({
                         sortModel: [{ field: "geneExpression", sort: "desc" }],
                     },
                 }}
-                divHeight={{ height: loadingRows ? "440px" : "100%", maxHeight: "440px" }}
+                divHeight={{
+                        height: "440px",
+                        maxHeight: "440px",
+                    }}
                 label={"Gene Details"}
-                downloadFileName="GeneRanks.tsv"
                 emptyTableFallback={"No Linked Genes"}
-                toolbarSlot={ToolBarIcon}
-                toolbarStyle={{backgroundColor: "#e7eef8"}}
+                slotProps={{ toolbar: { extra: ToolBarIcon, style: { backgroundColor: "#e7eef8" } } }}
                 error={errorGenes ? true : false}
             />
             {modalData && (

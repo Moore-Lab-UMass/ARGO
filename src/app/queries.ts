@@ -1,29 +1,40 @@
 import { gql } from "../graphql/__generated__/gql"
 
-export const Z_SCORES_QUERY = gql(`
-query ccreSearchQuery($assembly: String!, $accessions: [String!], $cellType: String) {
-   cCRESCREENSearch(assembly: $assembly, accessions: $accessions, cellType: $cellType) {
-      dnase_zscore      
-      promoter_zscore      
-      enhancer_zscore
-      ctcf_zscore
-      atac_zscore
-      vertebrates
-      mammals
-      primates
-      pct 
-      info {
-        accession
-      } 
-      ctspecific
-      {
-        dnase_zscore
-        ctcf_zscore
-        atac_zscore
-        h3k4me3_zscore
-        h3k27ac_zscore
-      }
-   }
+export const MAX_Z_SCORES_QUERY = gql(`
+query getcCREDetails($assembly: String!, $accession: [String!], $coordinates: [GenomicRangeInput]) {
+  getmaxZScoresQuery(assembly: $assembly, accession: $accession, coordinates: $coordinates) {
+    chromosome
+    primates
+    vertebrates
+    mammals
+    start
+    ccre_group
+    stop
+    nearestgenes { gene distance }
+    accession
+    atac_max_zscore
+    ctcf_max_zscore
+    dnase_max_zscore
+    h3k27ac_max_zscore
+    h3k4me3_max_zscore
+  }
+}
+`)
+
+export const BIOSAMPLE_Z_SCORES_QUERY = gql(`
+query getcCREZscoresDetails($assembly: String!, $accession: [String!], $coordinates: [GenomicRangeInput], $biosample_value: [String]) {
+  getcCREZScoresQuery(assembly: $assembly, accession: $accession, coordinates: $coordinates, biosample_value: $biosample_value, include_biosample_details: true) {
+    chromosome
+    start
+    stop
+    accession
+    atac_max_zscore
+    ctcf_max_zscore
+    dnase_max_zscore
+    h3k27ac_max_zscore
+    h3k4me3_max_zscore
+    zscores
+  }
 }
 `)
 
