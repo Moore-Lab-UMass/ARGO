@@ -3,7 +3,7 @@ import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, Link
 import { TableColDef, Table } from "@weng-lab/ui-components";
 import { Link, Stack, Tooltip, Typography } from "@mui/material";
 import { GENE_ORTHO_QUERY } from "../../../../queries";
-import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes } from "./geneHelpers";
+import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes, filterOrthologGenes } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { useLinkedGenes } from "../../../../hooks/useLinkedGenes";
 import { useGeneScores } from "../../../../hooks/useGeneScores";
@@ -38,27 +38,37 @@ const GeneTable: React.FC<GeneTableProps> = ({
         geneFilterVariables,
     });
 
-    const filteredGenes = useMemo<AllLinkedGenes>(() => {
-        if (!intersectingCcres || 
-            (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) || 
-            (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) || 
+    const baseGenes = useMemo<AllLinkedGenes>(() => {
+        if (!intersectingCcres ||
+            (geneFilterVariables.methodOfLinkage === "distance" && !closest.data) ||
+            (geneFilterVariables.methodOfLinkage !== "distance" && !computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !linked.data) ||
             (computationalMethods.includes(geneFilterVariables.methodOfLinkage as ComputationalMethod) && !computational.data)) {
             return [];
         }
 
-        const genes = filterGenes({
+        return filterGenes({
             closestData: closest.data,
             linkedData: linked.data,
             computationalData: computational.data,
             intersectingCcres,
             geneFilterVariables,
-            getOrthoGenes,
-            orthoGenes,
-        })
+        });
+    }, [closest.data, computational.data, geneFilterVariables, intersectingCcres, linked.data]);
 
-        return genes;
+    useEffect(() => {
+        if (!geneFilterVariables.mustHaveOrtholog || baseGenes.length === 0) return;
+        const uniqueGeneNames = Array.from(
+            new Set(baseGenes.flatMap(item => item.genes.map(g => g.name.trim())))
+        );
+        getOrthoGenes({ variables: { name: uniqueGeneNames, assembly: "grch38" } });
+    }, [geneFilterVariables.mustHaveOrtholog, baseGenes, getOrthoGenes]);
 
-    }, [closest.data, computational.data, geneFilterVariables, getOrthoGenes, intersectingCcres, linked.data, orthoGenes])
+    const filteredGenes = useMemo<AllLinkedGenes>(() => {
+        if (geneFilterVariables.mustHaveOrtholog && orthoGenes) {
+            return filterOrthologGenes(orthoGenes, baseGenes);
+        }
+        return baseGenes;
+    }, [geneFilterVariables.mustHaveOrtholog, orthoGenes, baseGenes]);
 
     const {
         specificity,
@@ -73,7 +83,7 @@ const GeneTable: React.FC<GeneTableProps> = ({
     const loadingRows = loadingGeneScores || loadingIntersect || loading;
 
     const geneRows = useMemo<GeneTableRow[]>(() => {
-        if (filteredGenes === null || errorGenes) {
+        if (errorGenes) {
             return null
         }
         if (filteredGenes.length === 0) {

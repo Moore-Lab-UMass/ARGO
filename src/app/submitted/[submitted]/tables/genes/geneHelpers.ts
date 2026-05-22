@@ -1,6 +1,5 @@
 import { AllLinkedGenes, CCREs, ClosestGenetocCRE, ComputationalMethod, GeneFilterState, GeneLinkingMethod, GeneTableRow, RankedRegions } from "../../../../types";
-import { ClosestAndLinkedQuery, ComputationalGeneLinksQuery, Exact, GeneOrthologQueryQuery, GeneSpecificityQuery, GetLinkedGenesQuery, InputMaybe, Scalars, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
-import { useLazyQuery } from "@apollo/client/react";
+import { ClosestAndLinkedQuery, ComputationalGeneLinksQuery, GeneOrthologQueryQuery, GeneSpecificityQuery, GetLinkedGenesQuery, Test_GeneEXpBiosampleQueryQuery } from "../../../../../graphql/__generated__/graphql";
 
 type ComputationalGenes = {
     __typename?: "ComputationalGeneLinks";
@@ -417,11 +416,6 @@ interface FilterGenesArgs {
     computationalData: ComputationalGeneLinksQuery;
     intersectingCcres?: CCREs;
     geneFilterVariables: GeneFilterState;
-    getOrthoGenes: useLazyQuery.ExecFunction<GeneOrthologQueryQuery, Exact<{
-        name: Array<InputMaybe<Scalars["String"]["input"]>> | InputMaybe<Scalars["String"]["input"]>;
-        assembly: Scalars["String"]["input"];
-    }>>;
-    orthoGenes: GeneOrthologQueryQuery;
 }
 
 export const filterGenes = ({
@@ -430,9 +424,7 @@ export const filterGenes = ({
     computationalData,
     intersectingCcres,
     geneFilterVariables,
-    getOrthoGenes,
-    orthoGenes,
-}: FilterGenesArgs): AllLinkedGenes | null => {
+}: FilterGenesArgs): AllLinkedGenes => {
     let linkedGenes: AllLinkedGenes = [];
 
     //Distance-based genes
@@ -497,30 +489,5 @@ export const filterGenes = ({
         );
     }
 
-    //Ortholog filtering
-    if (geneFilterVariables.mustHaveOrtholog) {
-        const uniqueGeneNames = Array.from(
-            new Set(
-                linkedGenes.flatMap(item =>
-                    item.genes.map(g => g.name.trim())
-                )
-            )
-        );
-
-        getOrthoGenes({
-            variables: {
-                name: uniqueGeneNames,
-                assembly: 'grch38',
-            },
-        });
-
-        if (orthoGenes) {
-            linkedGenes = filterOrthologGenes(
-                orthoGenes,
-                linkedGenes
-            );
-        }
-    }
-
-    return linkedGenes.length > 0 ? linkedGenes : null;
+    return linkedGenes;
 };
