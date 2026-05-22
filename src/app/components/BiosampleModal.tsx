@@ -59,7 +59,7 @@ export const BiosampleModal: React.FC<BiosampleSelectProps> = ({
           disableRowSelectionOnClick={false}
           onSelectionChange={handleSelectionChange}
           rowSelectionModel={{ type: "include", ids: new Set(selected ? [selected?.name] : []) }}
-          divHeight={{ maxHeight: 650 }}
+          divHeight={{ height: 650 }}
           getRowClassName={getRowClassName}
           sx={{ "& .is-leaf-row:hover": { cursor: "pointer" } }} // used to apply cursor: "pointer" to clickable leaf nodes
           //temp, remove when enabled in theme
