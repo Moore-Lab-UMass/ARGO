@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ApolloWrapper } from "./_utility/apolloprovider";
+import { ApolloWrapper } from "@/components/providers/ApolloProvider";
 import { CssBaseline, Stack, ThemeProvider } from "@mui/material"
 import theme from "./theme"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
-import Header from "./components/Header";
-import MuiXLicense from "./_utility/MuiXLicense";
-import Footer from "./components/Footer";
+import Header from "@/components/layout/Header";
+import MuiXLicense from "@/components/providers/MuiXLicense";
+import Footer from "@/components/layout/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
