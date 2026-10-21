@@ -1,6 +1,6 @@
 import { BigRequestsMultipleRegionsSequenceQuery, MotifRankingQueryQuery } from "@/graphql/__generated__/graphql";
 import { DataSource, MotifQuality, SequenceFilterState } from "@/types/filters";
-import { InputRegion, RankedRegion } from "@/types/regions";
+import { GenomicRegion, InputRegion, RankedRegion } from "@/types/regions";
 import { SequenceTableRow } from "@/types/rows";
 import { zeroRanks } from "./aggregate";
 import { coordKey, groupBy, indexBy, rankSorted } from "./rank";
@@ -16,8 +16,7 @@ const motifDataSource = (motifID: string) => motifID.split(".")[3];
 const motifQuality = (motifID: string) => motifID.split(".").pop();
 
 /** One conservation score per region, summarised by min, max or average over its bases. */
-function conservationScores(requests: ConservationRequest[], rankBy: string, regions: InputRegion[]): SequenceTableRow[] {
-    const byCoords = indexBy(regions, coordKey);
+function conservationScores(requests: ConservationRequest[], rankBy: string, regions: InputRegion[]): { inputRegion: GenomicRegion; conservationScore: number }[] {
     const startKeys = new Set(regions.map((r) => `${r.chr}:${r.start}`));
     const endKeys = new Set(regions.map((r) => `${r.chr}:${r.end}`));
 
@@ -58,11 +57,7 @@ function conservationScores(requests: ConservationRequest[], rankBy: string, reg
             else if (rankBy === "min") score = Math.min(...values);
             else score = values.length > 0 ? values.reduce((sum, v) => sum + v, 0) / values.length : 0;
 
-            return {
-                regionID: byCoords.get(coordKey({ chr, start, end }))?.regionID,
-                inputRegion: { chr, start, end },
-                conservationScore: score,
-            } as SequenceTableRow;
+            return { inputRegion: { chr, start, end }, conservationScore: score };
         });
 }
 
@@ -102,8 +97,8 @@ type BuildSequenceRowsArgs = {
 /** One sequence table row per input region, combining conservation and motif results. */
 export function buildSequenceRows({ regions, conservationData, motifData, filters }: BuildSequenceRowsArgs): SequenceTableRow[] {
     const conservation = conservationData
-        ? indexBy(conservationScores(conservationData.bigRequestsMultipleRegions, filters.rankBy, regions), (row) => row.regionID)
-        : new Map<SequenceTableRow["regionID"], SequenceTableRow>();
+        ? indexBy(conservationScores(conservationData.bigRequestsMultipleRegions, filters.rankBy, regions), (row) => coordKey(row.inputRegion))
+        : new Map<string, SequenceTableRow>();
 
     const motifs = motifData ? motifSummaries(regions, filterMotifs(motifData.motifranking, filters)) : null;
     const best = indexBy((motifs ?? []).filter((m) => m.best), (m) => m.region.regionID);
@@ -117,7 +112,7 @@ export function buildSequenceRows({ regions, conservationData, motifData, filter
         return {
             regionID: region.regionID,
             inputRegion: region,
-            conservationScore: conservation.get(region.regionID)?.conservationScore ?? NO_CONSERVATION_SCORE,
+            conservationScore: conservation.get(coordKey(region))?.conservationScore ?? NO_CONSERVATION_SCORE,
             motifScoreDelta: bestMotif ? Math.abs(bestMotif.best.diff) : undefined,
             referenceAllele: bestMotif
                 ? { sequence: bestMotif.region.ref, score: bestMotif.best.ref }
@@ -166,6 +161,7 @@ export function rankSequence(rows: SequenceTableRow[], filters: SequenceFilterSt
         chr: item.row.inputRegion.chr,
         start: item.row.inputRegion.start,
         end: item.row.inputRegion.end,
+        regionID: item.row.regionID,
         rank,
     }));
 }

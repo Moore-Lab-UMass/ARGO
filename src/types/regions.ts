@@ -22,4 +22,4 @@ export type Ccre = GenomicRegion & {
 };
 
 /** A region's rank within one category (0 means unranked / N/A). */
-export type RankedRegion = GenomicRegion & { rank: number };
+export type RankedRegion = GenomicRegion & { regionID: RegionID; rank: number };

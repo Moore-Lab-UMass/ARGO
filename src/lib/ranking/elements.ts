@@ -5,10 +5,10 @@ import {
 } from "@/graphql/__generated__/graphql";
 import { ASSAYS } from "@/lib/constants";
 import { CCREAssays, CCREClasses, ElementFilterState } from "@/types/filters";
-import { Ccre, InputRegion, RankedRegion } from "@/types/regions";
+import { Ccre, InputRegion, RankedRegion, RegionID } from "@/types/regions";
 import { ElementTableRow } from "@/types/rows";
 import { zeroRanks } from "./aggregate";
-import { coordKey, indexBy, rankSorted } from "./rank";
+import { indexBy, rankSorted } from "./rank";
 
 /** Human cCRE accession → its mouse ortholog accession (first ortholog only). */
 export function buildOrthologMap(orthoData?: OrthoQueryQuery): Record<string, string> {
@@ -90,7 +90,7 @@ function combineByInputRegion(rankBy: ElementFilterState["rankBy"], rows: Elemen
     const groups: Record<string, ElementTableRow & { count: number }> = {};
 
     for (const row of rows) {
-        const key = `${row.inputRegion.chr}-${row.inputRegion.start}-${row.inputRegion.end}`;
+        const key = String(row.regionID);
         if (!groups[key]) {
             groups[key] = { ...row, count: 0 };
             for (const assay of ASSAYS) groups[key][assay] = rankBy === "max" ? row[assay] : 0;
@@ -119,13 +119,13 @@ function rankByAssays(rows: ElementTableRow[], classes: CCREClasses, assays: CCR
     // NOTE: preserves existing behavior; see refactor plan Phase 6. `rows` is sorted in place once
     // per assay with a comparator that treats disabled classes as equal, so the resulting order
     // depends on that exact sequence of sorts.
-    const assayRanks = new Map<string, { chr: string; start: number; end: number; ranks: Record<string, number> }>();
+    const assayRanks = new Map<RegionID, { chr: string; start: number; end: number; regionID: RegionID; ranks: Record<string, number> }>();
 
     for (const assay of ASSAYS) {
         rows.sort((a, b) => (classes[a.class] && classes[b.class] ? b[assay] - a[assay] : 0));
         rows.forEach((row, index) => {
-            const key = coordKey(row.inputRegion);
-            if (!assayRanks.has(key)) assayRanks.set(key, { ...row.inputRegion, ranks: {} });
+            const key = row.regionID;
+            if (!assayRanks.has(key)) assayRanks.set(key, { ...row.inputRegion, regionID: row.regionID, ranks: {} });
             assayRanks.get(key).ranks[assay] = classes[row.class] && row[assay] !== null ? index + 1 : 0;
         });
     }
@@ -139,6 +139,7 @@ function rankByAssays(rows: ElementTableRow[], classes: CCREClasses, assays: CCR
         chr: item.region.chr,
         start: item.region.start,
         end: item.region.end,
+        regionID: item.region.regionID,
         rank: item.total === 0 ? 0 : rank,
     }));
 }

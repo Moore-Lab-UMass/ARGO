@@ -248,6 +248,7 @@ export function rankGenes(rows: GeneTableRow[], filters: GeneFilterState, region
         chr: item.row.inputRegion.chr,
         start: item.row.inputRegion.start,
         end: item.row.inputRegion.end,
+        regionID: item.row.regionID,
         rank: item.total === 0 ? 0 : rank,
     }));
 }
