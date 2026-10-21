@@ -5,10 +5,10 @@ import {
 } from "@/graphql/__generated__/graphql";
 import { ASSAYS } from "@/lib/constants";
 import { CCREAssays, CCREClasses, ElementFilterState } from "@/types/filters";
-import { Ccre, InputRegion, RankedRegion, RegionID } from "@/types/regions";
+import { Ccre, InputRegion, RankedRegion } from "@/types/regions";
 import { ElementTableRow } from "@/types/rows";
 import { zeroRanks } from "./aggregate";
-import { indexBy, rankSorted } from "./rank";
+import { groupBy, indexBy, rankSorted } from "./rank";
 
 /** Human cCRE accession → its mouse ortholog accession (first ortholog only). */
 export function buildOrthologMap(orthoData?: OrthoQueryQuery): Record<string, string> {
@@ -85,67 +85,64 @@ export function buildElementRows({ ccres, maxZScores, biosampleZScores, ortholog
     return rows.filter((row) => filters.classes[row.class] !== false);
 }
 
-/** Combines cCREs that overlap the same input region into one row, by max or average z-score. */
-function combineByInputRegion(rankBy: ElementFilterState["rankBy"], rows: ElementTableRow[]): ElementTableRow[] {
-    const groups: Record<string, ElementTableRow & { count: number }> = {};
+const isScore = (v: unknown): v is number => typeof v === "number" && !isNaN(v);
 
-    for (const row of rows) {
-        const key = String(row.regionID);
-        if (!groups[key]) {
-            groups[key] = { ...row, count: 0 };
-            for (const assay of ASSAYS) groups[key][assay] = rankBy === "max" ? row[assay] : 0;
-        }
-        const group = groups[key];
+/**
+ * Combines the cCREs overlapping each input region into one row per region: each assay's
+ * z-score is the max or average over the cCREs that have one. Only cCREs of an enabled class count.
+ */
+function combineByRegion(rankBy: ElementFilterState["rankBy"], rows: ElementTableRow[], classes: CCREClasses): ElementTableRow[] {
+    return Array.from(groupBy(rows, (row) => row.regionID).values(), (group) => {
+        const classified = group.filter((row) => classes[row.class]);
+        const combined: ElementTableRow = { ...group[0] };
         for (const assay of ASSAYS) {
-            group[assay] = rankBy === "avg" ? group[assay] + (row[assay] || 0) : Math.max(group[assay], row[assay] || 0);
+            const values = classified.map((row) => row[assay]).filter(isScore);
+            combined[assay] =
+                values.length === 0
+                    ? undefined
+                    : rankBy === "max"
+                      ? Math.max(...values)
+                      : values.reduce((sum, v) => sum + v, 0) / values.length;
         }
-        if (rankBy === "avg") group.count += 1;
-    }
-
-    return Object.values(groups).map((group) => {
-        const combined: Partial<ElementTableRow> = {};
-        for (const assay of ASSAYS) {
-            combined[assay] = rankBy === "avg" ? (group.count > 0 ? group[assay] / group.count : 0) : group[assay];
-        }
-        return { ...group, ...combined, count: undefined };
+        return combined;
     });
 }
 
 /**
- * Ranks input regions by their cCREs' assay z-scores: each enabled assay gives a rank,
- * the ranks are summed, and regions are ordered by that sum.
+ * Ranks regions by their assay z-scores. Each enabled assay ranks the regions (highest z-score
+ * first, ties share a rank, regions without a score last); the assay ranks are summed and the
+ * regions ordered by that sum. Regions with no score for any enabled assay are unranked (0).
  */
-function rankByAssays(rows: ElementTableRow[], classes: CCREClasses, assays: CCREAssays): RankedRegion[] {
-    // NOTE: preserves existing behavior; see refactor plan Phase 6. `rows` is sorted in place once
-    // per assay with a comparator that treats disabled classes as equal, so the resulting order
-    // depends on that exact sequence of sorts.
-    const assayRanks = new Map<RegionID, { chr: string; start: number; end: number; regionID: RegionID; ranks: Record<string, number> }>();
+function rankByAssays(rows: ElementTableRow[], assays: CCREAssays): RankedRegion[] {
+    const totals = rows.map((row) => ({ row, total: 0, scored: false }));
 
-    for (const assay of ASSAYS) {
-        rows.sort((a, b) => (classes[a.class] && classes[b.class] ? b[assay] - a[assay] : 0));
-        rows.forEach((row, index) => {
-            const key = row.regionID;
-            if (!assayRanks.has(key)) assayRanks.set(key, { ...row.inputRegion, regionID: row.regionID, ranks: {} });
-            assayRanks.get(key).ranks[assay] = classes[row.class] && row[assay] !== null ? index + 1 : 0;
-        });
+    for (const assay of ASSAYS.filter((a) => assays[a])) {
+        const withScore = totals.filter((t) => isScore(t.row[assay]));
+        const ranks = new Map(
+            rankSorted(withScore, (a, b) => b.row[assay] - a.row[assay], (t) => t.row[assay]).map(({ item, rank }) => [item, rank])
+        );
+        const lastPlace = withScore.length + 1;
+        for (const t of totals) {
+            const rank = ranks.get(t);
+            t.total += rank ?? lastPlace;
+            if (rank !== undefined) t.scored = true;
+        }
     }
 
-    const totals = Array.from(assayRanks.values(), (region) => ({
-        region,
-        total: ASSAYS.reduce((sum, assay) => (assays[assay] ? sum + (region.ranks[assay] || 0) : sum), 0),
-    }));
-
-    return rankSorted(totals, (a, b) => a.total - b.total, (t) => t.total).map(({ item, rank }) => ({
-        chr: item.region.chr,
-        start: item.region.start,
-        end: item.region.end,
-        regionID: item.region.regionID,
-        rank: item.total === 0 ? 0 : rank,
-    }));
+    const toRanked = ({ row }: (typeof totals)[number], rank: number): RankedRegion => ({
+        ...row.inputRegion,
+        regionID: row.regionID,
+        rank,
+    });
+    const scored = totals.filter((t) => t.scored);
+    return [
+        ...rankSorted(scored, (a, b) => a.total - b.total, (t) => t.total).map(({ item, rank }) => toRanked(item, rank)),
+        ...totals.filter((t) => !t.scored).map((t) => toRanked(t, 0)),
+    ];
 }
 
 export function rankElements(rows: ElementTableRow[], filters: ElementFilterState, regions: InputRegion[]): RankedRegion[] {
     if (!filters.usecCREs) return zeroRanks(regions);
     if (rows.length === 0) return [];
-    return rankByAssays(combineByInputRegion(filters.rankBy, rows), filters.classes, filters.assays);
+    return rankByAssays(combineByRegion(filters.rankBy, rows, filters.classes), filters.assays);
 }
