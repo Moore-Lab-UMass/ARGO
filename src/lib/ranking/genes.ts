@@ -123,60 +123,12 @@ export const uniqueGeneNames = (ccreGenes: CcreGenes[]) =>
 export const geneIdsForScores = (ccreGenes: CcreGenes[]) =>
     ccreGenes.flatMap((entry) => entry.genes.map((g) => g.geneId.split(".")[0]));
 
-type ScoreField = "expressionSpecificity" | "geneExpression";
-
-/**
- * One row per cCRE (per gene group) with the region's summarised score for `field`:
- * the max-scoring gene, or the average across the cCRE's genes.
- */
-function scoreRows(
-    ccreGenes: CcreGenes[],
-    ccres: Ccre[],
-    field: ScoreField,
-    scoreFor: (gene: GeneEntry) => { found: boolean; score?: number },
-    rankBy: "max" | "avg",
-    method: GeneLinkingMethod
-): GeneTableRow[] {
-    const scored = ccreGenes.map((item) => ({
-        ...item,
-        genes: item.genes.map((gene) => {
-            const match = scoreFor(gene);
-            return { ...gene, [field]: match.found ? match.score : gene[field] };
-        }),
-    }));
-    const byAccession = groupBy(scored, (item) => item.accession);
-
-    return ccres.flatMap((ccre) => {
-        const matching = byAccession.get(ccre.accession) ?? [];
-        const scores = matching.flatMap((item) =>
-            item.genes
-                .filter((gene) => gene.linkedBy === method)
-                .map((gene) => ({ geneName: gene.name, score: gene[field] || 0, linkedBy: gene.linkedBy }))
-        );
-
-        let summary: GeneScore | undefined;
-        if (scores.length > 0) {
-            if (rankBy === "max") {
-                const max = scores.reduce((prev, curr) => (curr.score > prev.score ? curr : prev));
-                summary = { geneName: max.geneName, score: max.score, linkedBy: max.linkedBy };
-            } else {
-                const avg = scores.reduce((sum, { score }) => sum + score, 0) / scores.length;
-                summary = { geneName: "Average", score: avg, linkedBy: scores[0].linkedBy };
-            }
-        }
-
-        return matching.map((item) => ({
-            regionID: ccre.regionID,
-            inputRegion: ccre.inputRegion,
-            [field]: summary,
-            linkedGenes: item.genes.map((gene) => ({
-                accession: item.accession,
-                name: gene.name,
-                geneid: gene.geneId,
-                linkedBy: gene.linkedBy,
-            })),
-        }));
-    });
+/** Max-scoring gene, or the average across genes; undefined when there are no genes. */
+function summarize(scores: GeneScore[], rankBy: "max" | "avg"): GeneScore | undefined {
+    if (scores.length === 0) return undefined;
+    if (rankBy === "max") return scores.reduce((prev, curr) => (curr.score > prev.score ? curr : prev));
+    const avg = scores.reduce((sum, { score }) => sum + score, 0) / scores.length;
+    return { geneName: "Average", score: avg, linkedBy: scores[0].linkedBy };
 }
 
 type BuildGeneRowsArgs = {
@@ -187,33 +139,59 @@ type BuildGeneRowsArgs = {
     filters: GeneFilterState;
 };
 
-/** One gene table row per input region, once both specificity and expression scores have loaded. */
+/**
+ * One gene table row per input region, once both specificity and expression scores have loaded.
+ * Genes from all of the region's cCREs are pooled (each gene counted once), and the region's
+ * expression and specificity are the max or average over the pooled genes linked by the selected method.
+ */
 export function buildGeneRows({ ccreGenes, ccres, specificity, expression, filters }: BuildGeneRowsArgs): GeneTableRow[] {
     if (ccreGenes.length === 0 || !specificity || !expression) return [];
 
     const specificityByName = indexBy(specificity.geneSpecificity, (g) => stripSpaces(g.name));
     const expressionByName = indexBy(expression.geneexpressiontpms, (g) => g.gene);
-    const method = filters.methodOfLinkage;
+    const genesByAccession = groupBy(ccreGenes, (item) => item.accession);
+    const ccresByRegion = groupBy(
+        ccres.filter((c) => c.regionID !== undefined),
+        (c) => c.regionID
+    );
 
-    const specificityRows = scoreRows(ccreGenes, ccres, "expressionSpecificity", (gene) => {
-        const match = specificityByName.get(stripSpaces(gene.name));
-        return { found: !!match, score: match?.score };
-    }, filters.rankExpSpecBy, method);
+    const rows: GeneTableRow[] = [];
+    for (const [regionID, regionCcres] of ccresByRegion) {
+        // Every gene linked to any of the region's cCREs, once each
+        const genes = new Map<string, { gene: GeneEntry; accession: string }>();
+        for (const ccre of regionCcres) {
+            for (const item of genesByAccession.get(ccre.accession) ?? []) {
+                for (const gene of item.genes) {
+                    if (!genes.has(gene.geneId)) genes.set(gene.geneId, { gene, accession: item.accession });
+                }
+            }
+        }
+        if (genes.size === 0) continue;
 
-    const expressionRows = scoreRows(ccreGenes, ccres, "geneExpression", (gene) => {
-        const match = expressionByName.get(stripSpaces(gene.name));
-        return { found: !!match, score: match?.tpm };
-    }, filters.rankGeneExpBy, method);
+        const linkedByMethod = [...genes.values()].filter(({ gene }) => gene.linkedBy === filters.methodOfLinkage);
+        const scoresFrom = (score: (gene: GeneEntry) => number | null | undefined): GeneScore[] =>
+            linkedByMethod.map(({ gene }) => ({ geneName: gene.name, score: score(gene) || 0, linkedBy: gene.linkedBy }));
 
-    // NOTE: one row per region; when a region overlaps several cCREs the last one wins
-    // (preserves existing behavior; see refactor plan Phase 6).
-    const rows = new Map<GeneTableRow["regionID"], GeneTableRow>();
-    for (const row of specificityRows) rows.set(row.regionID, { ...row });
-    for (const row of expressionRows) {
-        const existing = rows.get(row.regionID);
-        rows.set(row.regionID, existing ? { ...existing, geneExpression: row.geneExpression } : { ...row });
+        rows.push({
+            regionID,
+            inputRegion: regionCcres[0].inputRegion,
+            expressionSpecificity: summarize(
+                scoresFrom((g) => specificityByName.get(stripSpaces(g.name))?.score),
+                filters.rankExpSpecBy
+            ),
+            geneExpression: summarize(
+                scoresFrom((g) => expressionByName.get(stripSpaces(g.name))?.tpm),
+                filters.rankGeneExpBy
+            ),
+            linkedGenes: [...genes.values()].map(({ gene, accession }) => ({
+                accession,
+                name: gene.name,
+                geneid: gene.geneId,
+                linkedBy: gene.linkedBy,
+            })),
+        });
     }
-    return Array.from(rows.values());
+    return rows;
 }
 
 /**
@@ -225,8 +203,8 @@ export function rankGenes(rows: GeneTableRow[], filters: GeneFilterState, region
     if (rows.length === 0) return [];
 
     const linkedCount = (row: GeneTableRow) => row.linkedGenes?.length ?? 0;
-    const expression = (row: GeneTableRow) => row.geneExpression.score ?? 0;
-    const specificity = (row: GeneTableRow) => row.expressionSpecificity.score;
+    const expression = (row: GeneTableRow) => row.geneExpression?.score ?? 0;
+    const specificity = (row: GeneTableRow) => row.expressionSpecificity?.score ?? 0;
 
     const specificityRanks = rankSorted(rows, (a, b) => specificity(b) - specificity(a), specificity);
     const expressionRanks = indexBy(rankSorted(rows, (a, b) => expression(b) - expression(a), expression), (r) => r.item.regionID);
