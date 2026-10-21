@@ -7,7 +7,7 @@ import { useLinkedGenes } from "./useLinkedGenes";
 import { computationalMethods, filterGenes, filterOrthologGenes, getExpressionScores, getSpecificityScores } from "../submitted/[submitted]/tables/genes/geneHelpers";
 import { CCREs, ComputationalMethod, ElementFilterState, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState } from "../types";
 import { useGeneScores } from "./useGeneScores";
-import { GENE_ORTHO_QUERY } from "../queries";
+import { GENE_ORTHO_QUERY } from "@/lib/graphql/queries";
 import { useLazyQuery } from "@apollo/client/react";
 
 export interface UseCompassScoresProps {

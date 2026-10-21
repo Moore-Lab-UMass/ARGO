@@ -6,7 +6,7 @@ import { Cancel } from "@mui/icons-material"
 import { LoadingButton } from "@mui/lab"
 import { InputRegions, ReturnedSnps } from "../../types";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { SNP_QUERY } from "../../queries";
+import { SNP_QUERY } from "@/lib/graphql/queries";
 import { encodeRegions } from "../../_utility/coding";
 import { useRouter } from "next/navigation";
 import { useLazyQuery } from "@apollo/client/react";

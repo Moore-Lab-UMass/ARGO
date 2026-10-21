@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { AllLinkedGenes, ComputationalMethod, GeneTableProps, GeneTableRow, LinkedGenes } from "../../../../types";
 import { TableColDef, Table } from "@weng-lab/ui-components";
 import { Link, Stack, Tooltip, Typography } from "@mui/material";
-import { GENE_ORTHO_QUERY } from "../../../../queries";
+import { GENE_ORTHO_QUERY } from "@/lib/graphql/queries";
 import { getSpecificityScores, getExpressionScores, computationalMethods, filterGenes, filterOrthologGenes } from "./geneHelpers";
 import GenesModal from "./linkedGenesModal";
 import { useLinkedGenes } from "../../../../hooks/useLinkedGenes";

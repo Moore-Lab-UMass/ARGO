@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client/react';
 import { InputRegions, SequenceFilterState } from '../types';
-import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from '../queries';
+import { ALLELE_QUERY, MOTIF_RANKING_QUERY } from "@/lib/graphql/queries";
 
 interface UseSequenceDataArgs {
     inputRegions: InputRegions;

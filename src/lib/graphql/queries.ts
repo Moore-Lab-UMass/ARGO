@@ -1,4 +1,4 @@
-import { gql } from "../graphql/__generated__/gql"
+import { gql } from "../../graphql/__generated__/gql"
 
 export const MAX_Z_SCORES_QUERY = gql(`
 query getcCREDetails($assembly: String!, $accession: [String!], $coordinates: [GenomicRangeInput]) {

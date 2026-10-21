@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CCREs, ElementFilterState, ElementTableRow, GeneFilterState, GeneTableRow, InputRegions, SequenceFilterState, SequenceTableRow } from "../../types";
 import CompassLayout from "./CompassLayout";
 import { useCompassRegions } from "../../hooks/useCompassRegions";
-import { BED_INTERSECT_QUERY } from "../../queries";
+import { BED_INTERSECT_QUERY } from "@/lib/graphql/queries";
 import { useCompassScores } from "../../hooks/useCompassScores";
 import { useLazyQuery } from "@apollo/client/react";
 

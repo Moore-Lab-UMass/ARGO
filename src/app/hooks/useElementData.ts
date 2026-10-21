@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { BIOSAMPLE_Z_SCORES_QUERY, MAX_Z_SCORES_QUERY, ORTHOLOG_QUERY } from '../queries';
+import { BIOSAMPLE_Z_SCORES_QUERY, MAX_Z_SCORES_QUERY, ORTHOLOG_QUERY } from "@/lib/graphql/queries";
 import { ElementFilterState } from '../types';
 
 interface UseElementDataArgs {

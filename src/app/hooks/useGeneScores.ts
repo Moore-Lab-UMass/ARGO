@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { GENE_EXP_QUERY, SPECIFICITY_QUERY } from '../queries';
+import { GENE_EXP_QUERY, SPECIFICITY_QUERY } from "@/lib/graphql/queries";
 import { AllLinkedGenes, GeneFilterState } from '../types';
 import { AggregateByEnum } from '../../graphql/__generated__/graphql';
 

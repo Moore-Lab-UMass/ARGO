@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client/react';
-import { CLOSEST_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY, LINKED_GENES_QUERY } from '../queries';
+import { CLOSEST_QUERY, COMPUTATIONAL_LNKED_GENES_QUERY, LINKED_GENES_QUERY } from "@/lib/graphql/queries";
 import { ComputationalMethod, GeneFilterState } from '../types';
 import { computationalMethods } from '../submitted/[submitted]/tables/genes/geneHelpers';
 
