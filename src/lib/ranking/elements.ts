@@ -8,7 +8,7 @@ import { CCREAssays, CCREClasses, ElementFilterState } from "@/types/filters";
 import { Ccre, InputRegion, RankedRegion } from "@/types/regions";
 import { ElementTableRow } from "@/types/rows";
 import { zeroRanks } from "./aggregate";
-import { indexBy, rankSorted } from "./rank";
+import { coordKey, indexBy, rankSorted } from "./rank";
 
 /** Human cCRE accession → its mouse ortholog accession (first ortholog only). */
 export function buildOrthologMap(orthoData?: OrthoQueryQuery): Record<string, string> {
@@ -116,21 +116,21 @@ function combineByInputRegion(rankBy: ElementFilterState["rankBy"], rows: Elemen
  * the ranks are summed, and regions are ordered by that sum.
  */
 function rankByAssays(rows: ElementTableRow[], classes: CCREClasses, assays: CCREAssays): RankedRegion[] {
-    // NOTE: preserves existing behavior; see refactor plan Phase 6. Regions are keyed by start
-    // position only, and `rows` is sorted in place once per assay with a comparator that
-    // treats disabled classes as equal. The resulting order depends on that exact sequence of sorts.
-    const assayRanks: Record<number, { chr: string; start: number; end: number; ranks: Record<string, number> }> = {};
+    // NOTE: preserves existing behavior; see refactor plan Phase 6. `rows` is sorted in place once
+    // per assay with a comparator that treats disabled classes as equal, so the resulting order
+    // depends on that exact sequence of sorts.
+    const assayRanks = new Map<string, { chr: string; start: number; end: number; ranks: Record<string, number> }>();
 
     for (const assay of ASSAYS) {
         rows.sort((a, b) => (classes[a.class] && classes[b.class] ? b[assay] - a[assay] : 0));
         rows.forEach((row, index) => {
-            const { chr, start, end } = row.inputRegion;
-            assayRanks[start] ??= { chr, start, end, ranks: {} };
-            assayRanks[start].ranks[assay] = classes[row.class] && row[assay] !== null ? index + 1 : 0;
+            const key = coordKey(row.inputRegion);
+            if (!assayRanks.has(key)) assayRanks.set(key, { ...row.inputRegion, ranks: {} });
+            assayRanks.get(key).ranks[assay] = classes[row.class] && row[assay] !== null ? index + 1 : 0;
         });
     }
 
-    const totals = Object.values(assayRanks).map((region) => ({
+    const totals = Array.from(assayRanks.values(), (region) => ({
         region,
         total: ASSAYS.reduce((sum, assay) => (assays[assay] ? sum + (region.ranks[assay] || 0) : sum), 0),
     }));
