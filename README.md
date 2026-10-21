@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ARGO: Aggregate Rank Generator
 
-## Getting Started
+ARGO takes a list of genomic variants and ranks them by combining evidence from three categories:
 
-First, run the development server:
+- **Sequence:** conservation scores and TF motif changes between reference and alternate alleles
+- **Elements:** z-scores of the cCREs (candidate cis-regulatory elements) each variant overlaps
+- **Genes:** expression, specificity and number of genes linked to those cCREs
+
+Each category ranks the variants on its own. The ranks are summed into one **aggregate rank**. Filters in the side drawer control which data is used and how each category ranks.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
+yarn dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` needs `SCREEN_API_KEY` (GraphQL API) and `NEXT_PUBLIC_MUI_X_LICENSE_KEY`.
+After editing a query in `src/lib/graphql/queries.ts`, run `yarn gen-types` to regenerate `src/graphql/__generated__`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How the code is organized
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/                 Next.js routes only (home, results, about, help, /api/graphql proxy)
+  components/
+    landing/           Upload forms on the home page
+    filters/           Filter drawer and its Sequence / Elements / Genes sections
+    results/           Ranked regions table and the three detail tables
+    compass/           Compass Collection panel (ranks your variants against known ones)
+    layout/            Header, footer, links
+    providers/         Apollo and MUI X license setup
+  hooks/               Data fetching: one hook per category, plus useCategoryRows to run all three
+  lib/
+    ranking/           Pure ranking logic (no React): build rows, rank each category, aggregate
+    regions/           Parsing uploads, validation, saving the submission, cCRE intersect
+    graphql/           GraphQL queries
+    constants.ts       Linking methods, conservation tracks, compass collections
+    colors.ts          Shared colors and category color maps
+  state/filters.tsx    Filter state (React context + reducer)
+  types/               Shared types: regions, filters, table rows
+```
 
-## Learn More
+### Data flow on the results page
 
-To learn more about Next.js, take a look at the following resources:
+```
+upload  ──saveSubmission──▶ sessionStorage ──loadSubmission──▶ regions
+regions ──useCategoryRows(regions, filters)──▶ { sequence, element, gene } rows
+rows    ──rankRegions(regions, rows, filters)──▶ per-category ranks + aggregate ranked rows
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `useCategoryRows` (in `src/hooks`) finds the cCREs overlapping the regions and runs `useSequenceRows`, `useElementRows` and `useGeneRows`. Each hook runs its GraphQL queries and turns the results into table rows with the `build*Rows` functions in `lib/ranking`.
+- `rankRegions` (in `lib/ranking/pipeline.ts`) is a pure function. It is the only place ranks are computed.
+- `ResultsTables` calls both once and passes rows down. The tables only display what they receive.
+- Compass uses the same two steps for its reference variants, combined with your rows, and only once its panel is opened.
+- Filters live in `state/filters.tsx`. Read them with `useFilters()` and change them with `useFilterActions()`.

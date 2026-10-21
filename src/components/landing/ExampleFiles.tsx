@@ -1,13 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Grow, Box, Typography, Stack, Button, Grid } from "@mui/material";
-import { useGrowOnScroll } from "@/app/_utility/useGrowOnScroll";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { parseDataInput } from "@/app/_utility/uploadHelpers";
-import { InputRegion } from "@/types/regions";
-import { encodeRegions } from "@/lib/regions/session";
-import { useRouter } from "next/navigation";
 import DescriptionIcon from '@mui/icons-material/Description';
+import { useGrowOnScroll } from "@/hooks/useGrowOnScroll";
+import { useSubmitRegions } from "@/hooks/useSubmitRegions";
+import { parseRegionsTsv } from "@/lib/regions/parse";
 
 const examples = [
   { name: "Example 1", file: "/ArgoExample.tsv" },
@@ -15,78 +13,25 @@ const examples = [
   { name: "Example 3", file: "/ArgoExample3.tsv" },
 ];
 
+/** Cards for the example files in /public: download one, or submit it directly. */
 const ExampleFiles: React.FC = () => {
-  const router = useRouter();
+  const submitRegions = useSubmitRegions();
   const [loading, setLoading] = useState<boolean>(false);
 
   const { visible: examplesVisible, refs: examplesRefs } = useGrowOnScroll(examples.length);
 
-  const configureInputedRegions = useCallback(async (data, fileName: string) => {
-          const regions: InputRegion[] = data.map((item, index) => ({
-              chr: item[0],
-              start: Number(item[1]),
-              end: Number(item[2]),
-              ref: item[3],
-              alt: item[4],
-              strand: item[5],
-              regionID: item.length === 7 ? item[6].replace("\r", "") : index + 1,
-          }));
-  
-          setLoading(true);
-  
-          // Sort the regions
-          const sortedRegions = regions.sort((a, b) => {
-              const chrA = Number(a.chr.replace('chr', ''));
-              const chrB = Number(b.chr.replace('chr', ''));
-  
-              if (chrA !== chrB) {
-                  return chrA - chrB;
-              }
-              return a.start - b.start;
-          });
-          const encoded = encodeRegions(sortedRegions);
-          sessionStorage.setItem("encodedRegions", encoded);
-          sessionStorage.setItem("fileName", fileName);
-          router.push(`/submitted/${encodeURIComponent(fileName)}`)
-  
-          setLoading(false);
-      }, [router])
-
-  const submitUploadedFile = useCallback((file: File) => {
-          setLoading(true)
-          let allLines = []
-          if (file.type !== "tsv" && file.name.split('.').pop() !== "tsv") {
-              console.error("File type is not tsv");
-              setLoading(false)
-              return
-          }
-          const reader = new FileReader()
-          reader.onload = (r) => {
-              const contents = r.target.result
-              const lines = contents.toString()
-              allLines = parseDataInput(lines)
-          }
-          reader.onabort = () => console.log("file reading was aborted")
-          reader.onerror = () => console.log("file reading has failed")
-          reader.onloadend = () => {
-              configureInputedRegions(allLines, file.name.split('.')[0])
-          }
-          reader.readAsText(file)
-      }, [configureInputedRegions])
-
   const handleUseExample = async (url: string) => {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const blob = await response.blob();
-            const file = new File([blob], url.replaceAll("/", ""), { type: blob.type });
-            submitUploadedFile(file)
-        } catch (error) {
-            console.error("Failed to fetch and set the file:", error);
-        }
-    };
+    setLoading(true);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const fileName = url.replaceAll("/", "").split(".")[0];
+      submitRegions(parseRegionsTsv(await response.text()), fileName);
+    } catch (error) {
+      console.error("Failed to load example file:", error);
+      setLoading(false);
+    }
+  };
 
   return (
     <Grid container spacing={5} justifyContent="flex-start" marginTop={6} width={"100%"}>

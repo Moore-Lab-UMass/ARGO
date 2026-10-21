@@ -29,21 +29,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client-react-streaming@npm:0.11.11":
-  version: 0.11.11
-  resolution: "@apollo/client-react-streaming@npm:0.11.11"
-  dependencies:
-    "@wry/equality": "npm:^0.5.6"
-    ts-invariant: "npm:^0.10.3"
-  peerDependencies:
-    "@apollo/client": ^3.10.4
-    graphql: ^16 || >=17.0.0-alpha.2
-    react: ^18 || >=19.0.0-rc
-    react-dom: ^18 || >=19.0.0-rc
-  checksum: 10c0/09600a30b2ebf33a8bd47e70a80de6100af3625617c6198a362a9e5d6f16d62ed5d8dd3608ce7b314d8e971f761185d5fe9c6e9b55f5f681aaced5cfb4975078
-  languageName: node
-  linkType: hard
-
 "@apollo/client-react-streaming@npm:0.14.5":
   version: 0.14.5
   resolution: "@apollo/client-react-streaming@npm:0.14.5"
@@ -88,19 +73,6 @@ __metadata:
     subscriptions-transport-ws:
       optional: true
   checksum: 10c0/b7c71295462b00c5f88a7cb5a0d70ae2671be0ff8997424f2aca9d0b2af9b509c6ae291f6c5f875a997e9da44437258907b0ebbc980fe8e2e4ce5f4f037cd750
-  languageName: node
-  linkType: hard
-
-"@apollo/experimental-nextjs-app-support@npm:^0.11.3":
-  version: 0.11.11
-  resolution: "@apollo/experimental-nextjs-app-support@npm:0.11.11"
-  dependencies:
-    "@apollo/client-react-streaming": "npm:0.11.11"
-  peerDependencies:
-    "@apollo/client": ^3.10.4
-    next: ^13.4.1 || ^14.0.0 || ^15.0.0-rc.0
-    react: ^18 || >=19.0.0-rc
-  checksum: 10c0/c16708cd9daa0e53b3ac2439d563479cea837e32e13bb73e9c0d3e2cd02fe12d62be74fbab404b08253e57269b9bd62f628293457d2897b8d4f5ff60081c9e74
   languageName: node
   linkType: hard
 
@@ -287,13 +259,6 @@ __metadata:
   version: 7.28.2
   resolution: "@babel/runtime@npm:7.28.2"
   checksum: 10c0/c20afe253629d53a405a610b12a62ac74d341a2c1e0fb202bbef0c118f6b5c84f94bf16039f58fd0483dd256901259930a43976845bdeb180cab1f882c21b6e0
-  languageName: node
-  linkType: hard
-
-"@babel/runtime@npm:^7.28.3":
-  version: 7.28.6
-  resolution: "@babel/runtime@npm:7.28.6"
-  checksum: 10c0/358cf2429992ac1c466df1a21c1601d595c46930a13c1d4662fde908d44ee78ec3c183aaff513ecb01ef8c55c3624afe0309eeeb34715672dbfadb7feedb2c0d
   languageName: node
   linkType: hard
 
@@ -1652,37 +1617,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/lab@npm:^7.0.0-beta.0":
-  version: 7.0.0-beta.17
-  resolution: "@mui/lab@npm:7.0.0-beta.17"
-  dependencies:
-    "@babel/runtime": "npm:^7.28.3"
-    "@mui/system": "npm:^7.3.2"
-    "@mui/types": "npm:^7.4.6"
-    "@mui/utils": "npm:^7.3.2"
-    clsx: "npm:^2.1.1"
-    prop-types: "npm:^15.8.1"
-  peerDependencies:
-    "@emotion/react": ^11.5.0
-    "@emotion/styled": ^11.3.0
-    "@mui/material": ^7.3.2
-    "@mui/material-pigment-css": ^7.3.2
-    "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
-    react: ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-  peerDependenciesMeta:
-    "@emotion/react":
-      optional: true
-    "@emotion/styled":
-      optional: true
-    "@mui/material-pigment-css":
-      optional: true
-    "@types/react":
-      optional: true
-  checksum: 10c0/3b8b7d230934f96f71b4ecb2badcf2b4546a5bcc8ac6da296daa9f2fedd19e62e06bb740283eb7e3cf2710493c4981a7dae13d0d595d710c4313ec555521ac80
-  languageName: node
-  linkType: hard
-
 "@mui/material-nextjs@npm:^7":
   version: 7.3.6
   resolution: "@mui/material-nextjs@npm:7.3.6"
@@ -1782,7 +1716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/system@npm:^7.3.2, @mui/system@npm:^7.3.7":
+"@mui/system@npm:^7.3.7":
   version: 7.3.7
   resolution: "@mui/system@npm:7.3.7"
   dependencies:
@@ -1810,7 +1744,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/types@npm:^7.4.10, @mui/types@npm:^7.4.6":
+"@mui/types@npm:^7.4.10":
   version: 7.4.10
   resolution: "@mui/types@npm:7.4.10"
   dependencies:
@@ -1878,7 +1812,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/utils@npm:^7.3.2, @mui/utils@npm:^7.3.5, @mui/utils@npm:^7.3.7":
+"@mui/utils@npm:^7.3.5, @mui/utils@npm:^7.3.7":
   version: 7.3.7
   resolution: "@mui/utils@npm:7.3.7"
   dependencies:
@@ -3151,7 +3085,6 @@ __metadata:
   dependencies:
     "@apollo/client": "npm:^4"
     "@apollo/client-integration-nextjs": "npm:^0.14.5"
-    "@apollo/experimental-nextjs-app-support": "npm:^0.11.3"
     "@emailjs/browser": "npm:^4.4.1"
     "@emotion/cache": "npm:^11.13.1"
     "@emotion/react": "npm:^11.13.3"
@@ -3162,7 +3095,6 @@ __metadata:
     "@graphql-typed-document-node/core": "npm:^3.2.0"
     "@hello-pangea/dnd": "npm:^18.0.1"
     "@mui/icons-material": "npm:^7.1.1"
-    "@mui/lab": "npm:^7.0.0-beta.0"
     "@mui/material": "npm:^7"
     "@mui/material-nextjs": "npm:^7"
     "@mui/x-charts": "npm:^8.24.0"
@@ -3178,6 +3110,7 @@ __metadata:
     eslint: "npm:^9"
     eslint-config-next: "npm:15.4.6"
     graphql: "npm:^16.9.0"
+    html2canvas: "npm:^1.4.1"
     next: "npm:^15"
     pako: "npm:^2.1.0"
     react: "npm:19.1.1"
@@ -8385,15 +8318,6 @@ __metadata:
   peerDependencies:
     typescript: ">=4.8.4"
   checksum: 10c0/9806a38adea2db0f6aa217ccc6bc9c391ddba338a9fe3080676d0d50ed806d305bb90e8cef0276e793d28c8a929f400abb184ddd7ff83a416959c0f4d2ce754f
-  languageName: node
-  linkType: hard
-
-"ts-invariant@npm:^0.10.3":
-  version: 0.10.3
-  resolution: "ts-invariant@npm:0.10.3"
-  dependencies:
-    tslib: "npm:^2.1.0"
-  checksum: 10c0/2fbc178d5903d325ee0b87fad38827eac11888b6e86979b06754fd4bcdcf44c2a99b8bcd5d59d149c0464ede55ae810b02a2aee6835ad10efe4dd0e22efd68c0
   languageName: node
   linkType: hard
 

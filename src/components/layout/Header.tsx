@@ -11,6 +11,7 @@ import Link from "next/link";
 import Image from "next/image";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { LinkComponent } from "./LinkComponent";
+import { COLORS } from "@/lib/colors";
 
 export type PageInfo = {
     pageName: string,
@@ -57,7 +58,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                 <WarningAmberIcon />
             </Stack>
             <AppBar position="static">
-                <Toolbar sx={{ justifyContent: "space-between", backgroundColor: "rgba(249, 248, 244, 1)" }}>
+                <Toolbar sx={{ justifyContent: "space-between", backgroundColor: COLORS.panel }}>
                     <Stack direction={"row"} spacing={2} alignItems={"center"} component={Link} href={"/"} sx={{ textDecoration: "none" }}>
                         <Box height={45} width={40} position={"relative"}>
                             <Image

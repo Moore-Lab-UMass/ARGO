@@ -1,7 +1,6 @@
 import React from "react";
 import { Dialog, DialogContent } from "@mui/material";
-import { GridRowParams, useGridApiRef } from "@mui/x-data-grid-premium";
-import { gridRowNodeSelector } from "@mui/x-data-grid/hooks/features/rows";
+import { gridRowNodeSelector, GridRowParams, useGridApiRef } from "@mui/x-data-grid-premium";
 import {
   assaysCol,
   BiosampleTable,
