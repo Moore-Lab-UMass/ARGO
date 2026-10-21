@@ -272,7 +272,6 @@ const GeneTable: React.FC<GeneTableProps> = ({
     return (
         <>
             <Table
-                key={Math.random()}
                 columns={geneColumns}
                 rows={geneRows === null ? [] : isolatedRows ?? geneRows}
                 loading={loadingRows}

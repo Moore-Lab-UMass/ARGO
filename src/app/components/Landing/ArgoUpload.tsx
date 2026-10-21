@@ -8,10 +8,12 @@ import { InputRegions } from "../../types";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { REF_CHECK_QUERY } from "../../queries";
 import { encodeRegions } from "../../_utility/coding";
+import { useRouter } from "next/navigation";
 import { useLazyQuery } from "@apollo/client/react";
 
 const ArgoUpload: React.FC = ({
 }) => {
+    const router = useRouter();
     const [files, setFiles] = useState<File>(null)
     const onDrop = useCallback(acceptedFiles => {
         setFiles(acceptedFiles[0]);
@@ -219,12 +221,12 @@ const ArgoUpload: React.FC = ({
         const encoded = encodeRegions(sortedRegions);
         sessionStorage.setItem("encodedRegions", encoded);
         sessionStorage.setItem("fileName", fileName);
-        window.open(`submitted/${fileName}`, "_self")
+        router.push(`/submitted/${encodeURIComponent(fileName)}`)
 
         setLoading(false);
         setFilesSubmitted(true);
         setTextChanged(false);
-    }, [validateRegions])
+    }, [validateRegions, router])
 
 
     function submitTextUpload(event) {

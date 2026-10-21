@@ -241,7 +241,7 @@ const ElementTable: React.FC<ElementTableProps> = ({
                 />
             )}
             <Table
-                key={Math.random()}
+                key={Object.values(elementFilterVariables.assays).some(Boolean) ? "assays" : "no-assays"}
                 columns={elementColumns}
                 rows={elementRows === null ? [] : isolatedRows ?? elementRows}
                 initialState={{

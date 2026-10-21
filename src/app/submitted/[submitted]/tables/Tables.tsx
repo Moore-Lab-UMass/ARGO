@@ -148,11 +148,11 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
         };
     }, [selected, sequenceRows, elementRows, geneRows]);
 
-    const ToolBarIcon = (table: Table) => {
-        return (
-            <TableToTop table={table} setTableOrder={setTableOrder} tableOrder={tableOrder} />
-        )
-    }
+    // "Bring to top" buttons, rebuilt only when the order changes
+    const toolbarIcons = useMemo(() => {
+        const icon = (table: Table) => <TableToTop table={table} setTableOrder={setTableOrder} tableOrder={tableOrder} />;
+        return { sequence: icon("sequence"), elements: icon("elements"), genes: icon("genes") };
+    }, [tableOrder]);
 
     return (
         <>
@@ -189,7 +189,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "sequence" && (sequenceFilterVariables.useConservation || sequenceFilterVariables.useMotifs) && (
                                                 <SequenceTable
                                                     sequenceFilterVariables={sequenceFilterVariables}
-                                                    ToolBarIcon={ToolBarIcon("sequence")}
+                                                    ToolBarIcon={toolbarIcons.sequence}
                                                     inputRegions={inputRegions}
                                                     isolatedRows={isolatedRows?.sequence}
                                                     updateSequenceRows={setSequenceRows}
@@ -200,7 +200,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "elements" && elementFilterVariables.usecCREs && (
                                                 <ElementTable
                                                     elementFilterVariables={elementFilterVariables}
-                                                    ToolBarIcon={ToolBarIcon("elements")}
+                                                    ToolBarIcon={toolbarIcons.elements}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.element}
@@ -212,7 +212,7 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                                             {table === "genes" && geneFilterVariables.useGenes && (
                                                 <GeneTable
                                                     geneFilterVariables={geneFilterVariables}
-                                                    ToolBarIcon={ToolBarIcon("genes")}
+                                                    ToolBarIcon={toolbarIcons.genes}
                                                     intersectingCcres={intersectingCcres}
                                                     loadingIntersect={loadingIntersect}
                                                     isolatedRows={isolatedRows?.gene}
@@ -229,18 +229,17 @@ const Tables: React.FC<RankedRegionTablesContainerProps> = ({
                     )}
                 </Droppable>
             </DragDropContext>
-            {!loadingMainRows && (
-                <CompassCollection
-                    inititalIntersect={intersectingCcres}
-                    inputRegions={inputRegions}
-                    sequenceFilterVariables={sequenceFilterVariables}
-                    elementFilterVariables={elementFilterVariables}
-                    geneFilterVariables={geneFilterVariables}
-                    inputElementRows={elementRows}
-                    inputSequenceRows={sequenceRows}
-                    inputGeneRows={geneRows}
-                />
-            )}
+            <CompassCollection
+                inititalIntersect={intersectingCcres}
+                inputRegions={inputRegions}
+                sequenceFilterVariables={sequenceFilterVariables}
+                elementFilterVariables={elementFilterVariables}
+                geneFilterVariables={geneFilterVariables}
+                inputElementRows={elementRows}
+                inputSequenceRows={sequenceRows}
+                inputGeneRows={geneRows}
+                loadingInput={loadingMainRows}
+            />
         </>
     )
 }

@@ -6,6 +6,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { parseDataInput } from "../../_utility/uploadHelpers";
 import { InputRegions } from "../../types";
 import { encodeRegions } from "../../_utility/coding";
+import { useRouter } from "next/navigation";
 import DescriptionIcon from '@mui/icons-material/Description';
 
 const examples = [
@@ -15,6 +16,7 @@ const examples = [
 ];
 
 const ExampleFiles: React.FC = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
   const { visible: examplesVisible, refs: examplesRefs } = useGrowOnScroll(examples.length);
@@ -45,10 +47,10 @@ const ExampleFiles: React.FC = () => {
           const encoded = encodeRegions(sortedRegions);
           sessionStorage.setItem("encodedRegions", encoded);
           sessionStorage.setItem("fileName", fileName);
-          window.open(`/submitted/${fileName}`, "_self")
+          router.push(`/submitted/${encodeURIComponent(fileName)}`)
   
           setLoading(false);
-      }, [])
+      }, [router])
 
   const submitUploadedFile = useCallback((file: File) => {
           setLoading(true)

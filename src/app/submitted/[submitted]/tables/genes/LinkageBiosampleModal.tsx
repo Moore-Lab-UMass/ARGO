@@ -119,7 +119,7 @@ export const LinkageBiosampleModal: React.FC<BiosampleSelectProps> = ({
     });
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth keepMounted>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogContent>
                 <Typography variant="h6" gutterBottom>
                     Linkage Method: {method}

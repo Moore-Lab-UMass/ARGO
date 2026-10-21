@@ -50,7 +50,7 @@ export const useSequenceData = ({
                 ref: region.ref,
             })),
         },
-        skip: !sequenceFilterVariables.useMotifs,
+        skip: !sequenceFilterVariables.useMotifs || inputRegions.length === 0,
         fetchPolicy: 'cache-first',
     });
 

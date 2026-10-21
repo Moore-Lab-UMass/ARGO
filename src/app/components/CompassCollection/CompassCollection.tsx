@@ -18,13 +18,22 @@ interface CompassCollectionProps {
     inputSequenceRows: SequenceTableRow[];
     inputElementRows: ElementTableRow[];
     inputGeneRows: GeneTableRow[];
+    /** True while the page's own rows are still loading. */
+    loadingInput: boolean;
 }
 
 const CLOSED_SIZE = 48; // default FAB size
 const OPEN_WIDTH = 850;
 const OPEN_HEIGHT = 350;
 
-const CompassCollection: React.FC<CompassCollectionProps> = ({
+type CompassPanelProps = CompassCollectionProps & {
+    collection: string;
+    setCollection: (collection: string) => void;
+};
+
+// Fetches and ranks the compass variants. Only mounted while the panel is open,
+// so nothing is requested until the user opens Compass.
+const CompassPanel: React.FC<CompassPanelProps> = ({
     inputRegions,
     inititalIntersect,
     sequenceFilterVariables,
@@ -33,14 +42,14 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
     inputElementRows,
     inputGeneRows,
     inputSequenceRows,
+    loadingInput,
+    collection,
+    setCollection,
 }) => {
-    const [open, setOpen] = useState(false);
-    const [collection, setCollection] = useState("Clinvar Disease Agnostic");
     const [getIntersectingCcres, { data: intersectArray, loading: loadingIntersect }] = useLazyQuery(BED_INTERSECT_QUERY)
 
     const { compassRegions, loading } = useCompassRegions(collection);
-    const allRegions = [...inputRegions, ...compassRegions];
-
+    const allRegions = useMemo(() => [...inputRegions, ...compassRegions], [inputRegions, compassRegions]);
     useEffect(() => {
         if (!loading && compassRegions.length > 0) {
             const user_ccres = compassRegions.map(region => [
@@ -89,7 +98,7 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
         sequenceRows: compassSequenceRows,
         elementRows: compassElementRows,
         geneRows: compassGeneRows,
-        loading: loadingScores,
+        loading: loadingCompassScores,
     } = useCompassScores({
         regions: compassRegions,
         intersectingCcres,
@@ -97,6 +106,8 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
         elementFilterVariables,
         geneFilterVariables,
     });
+
+    const loadingScores = loadingCompassScores || loadingInput;
 
     const combinedSequenceRows = useMemo(() => {
         if (!inputSequenceRows && !compassSequenceRows && !loadingScores) return [];
@@ -127,6 +138,27 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
     }, [inputGeneRows, compassGeneRows, loadingScores]);
 
     return (
+        <CompassLayout
+            regions={allRegions}
+            open
+            collection={collection}
+            setCollection={setCollection}
+            sequenceRows={combinedSequenceRows}
+            elementRows={combinedElementRows}
+            geneRows={combinedGeneRows}
+            sequenceFilterVariables={sequenceFilterVariables}
+            elementFilterVariables={elementFilterVariables}
+            geneFilterVariables={geneFilterVariables}
+            loadingScores={loadingScores}
+        />
+    );
+};
+
+const CompassCollection: React.FC<CompassCollectionProps> = (props) => {
+    const [open, setOpen] = useState(false);
+    const [collection, setCollection] = useState("Clinvar Disease Agnostic");
+
+    return (
         <Portal>
             <Box
                 sx={{
@@ -145,19 +177,7 @@ const CompassCollection: React.FC<CompassCollectionProps> = ({
                 }}
             >
                 {open && (
-                    <CompassLayout
-                        regions={allRegions}
-                        open={open}
-                        collection={collection}
-                        setCollection={setCollection}
-                        sequenceRows={combinedSequenceRows}
-                        elementRows={combinedElementRows}
-                        geneRows={combinedGeneRows}
-                        sequenceFilterVariables={sequenceFilterVariables}
-                        elementFilterVariables={elementFilterVariables}
-                        geneFilterVariables={geneFilterVariables}
-                        loadingScores={loadingScores}
-                    />
+                    <CompassPanel {...props} collection={collection} setCollection={setCollection} />
                 )}
                 <Tooltip title="Compass Collection" arrow>
                     <Fab

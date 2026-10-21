@@ -334,7 +334,7 @@ const SequenceTable: React.FC<SequenceTableProps> = ({
                 </Grid>
             )}
             <Table
-                key={Math.random()}
+                key={sequenceFilterVariables.useConservation ? "conservation" : "motifs"}
                 columns={sequenceColumns}
                 rows={isolatedRows ?? sequenceRows}
                 loading={loading}
