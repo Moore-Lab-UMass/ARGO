@@ -1,4 +1,5 @@
 import { InputRegion } from "@/types/regions";
+import { chromosomeOrder } from "./parse";
 
 /** Which required field an error is about (highlighted in the "Required fields" dialog). */
 export type RegionField = "chr" | "numbers" | "ref" | "alt" | "strand";
@@ -11,8 +12,6 @@ const VALID_STRANDS = ["+", "-"];
 
 /** "chr1 100 101 A G +" for error messages (all fields except the region ID). */
 const describe = (region: InputRegion) => Object.values(region).slice(0, -1).join(" ");
-
-const chrNumber = (chr: string) => Number(chr.replace("chr", ""));
 
 /**
  * Checks uploaded regions, returning the first problem found (or null).
@@ -28,8 +27,8 @@ export async function validateRegions(
     if ((region = find((r) => Object.values(r).some((v) => typeof v === "string" && v.includes(" "))))) {
         return { message: `Fields must be separated by tabs in region at regionID: ${region.regionID}\n(${describe(region)})` };
     }
-    if ((region = find((r) => chrNumber(r.chr) === 0 || isNaN(chrNumber(r.chr))))) {
-        return { field: "chr", message: `Provide valid chromosome numbers at regionID: ${region.regionID}\n(${describe(region)})` };
+    if ((region = find((r) => !(chromosomeOrder(r.chr) > 0)))) {
+        return { field: "chr", message: `Provide a valid chromosome (1-22, X or Y) at regionID: ${region.regionID}\n(${describe(region)})` };
     }
     if ((region = find((r) => isNaN(r.start) || isNaN(r.end)))) {
         return { field: "numbers", message: `Start and End must be numbers at regionID: ${region.regionID}\n(${describe(region)})` };

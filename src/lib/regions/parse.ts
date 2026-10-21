@@ -25,14 +25,22 @@ export function parseRegionsTsv(text: string): InputRegion[] {
     });
 }
 
-/** Numeric part of a chromosome name ("chr12" → 12). */
-const chrNumber = (chr: string) => Number(chr.replace("chr", ""));
+const SEX_CHROMOSOMES: Record<string, number> = { X: 23, Y: 24 };
 
-/** Sorts regions by chromosome number, then start position (in place, also returned). */
+/**
+ * Sort position of a chromosome: "chr12" → 12, "chrX" → 23, "chrY" → 24.
+ * NaN for anything that isn't a valid chromosome name.
+ */
+export function chromosomeOrder(chr: string): number {
+    const name = chr.replace("chr", "");
+    return SEX_CHROMOSOMES[name] ?? (/^\d+$/.test(name) ? Number(name) : NaN);
+}
+
+/** Sorts regions by chromosome (1-22, X, Y), then start position (in place, also returned). */
 export function sortRegions<T extends InputRegion>(regions: T[]): T[] {
     return regions.sort((a, b) => {
-        const chrA = chrNumber(a.chr);
-        const chrB = chrNumber(b.chr);
+        const chrA = chromosomeOrder(a.chr);
+        const chrB = chromosomeOrder(b.chr);
         if (chrA !== chrB) return chrA - chrB;
         return a.start - b.start;
     });
