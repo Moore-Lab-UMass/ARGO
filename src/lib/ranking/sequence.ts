@@ -18,10 +18,8 @@ const motifQuality = (motifID: string) => motifID.split(".").pop();
 /** One conservation score per region, summarised by min, max or average over its bases. */
 function conservationScores(requests: ConservationRequest[], rankBy: string, regions: InputRegion[]): SequenceTableRow[] {
     const byCoords = indexBy(regions, coordKey);
-    // NOTE: start/end corrections below match on position only (any chromosome), which preserves
-    // existing behavior; see refactor plan Phase 6.
-    const byStart = indexBy(regions, (r) => r.start);
-    const byEnd = indexBy(regions, (r) => r.end);
+    const startKeys = new Set(regions.map((r) => `${r.chr}:${r.start}`));
+    const endKeys = new Set(regions.map((r) => `${r.chr}:${r.end}`));
 
     return requests
         .filter((request) => request.data?.length > 0)
@@ -39,7 +37,7 @@ function conservationScores(requests: ConservationRequest[], rankBy: string, reg
             // Some tracks return multi-base items; find the real start/end among the input regions.
             if (first.end - first.start > 1) {
                 for (let i = first.start; i < first.end; i++) {
-                    if (byStart.has(i)) {
+                    if (startKeys.has(`${chr}:${i}`)) {
                         start = i;
                         break;
                     }
@@ -47,7 +45,7 @@ function conservationScores(requests: ConservationRequest[], rankBy: string, reg
             }
             if (last.end - last.start > 1) {
                 for (let i = last.start; i < last.end; i++) {
-                    if (byEnd.has(i)) {
+                    if (endKeys.has(`${chr}:${i}`)) {
                         end = i;
                         break;
                     }
