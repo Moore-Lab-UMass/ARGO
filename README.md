@@ -18,6 +18,10 @@ yarn dev        # http://localhost:3000
 `.env.local` needs `SCREEN_API_KEY` (GraphQL API) and `NEXT_PUBLIC_MUI_X_LICENSE_KEY`.
 After editing a query in `src/lib/graphql/queries.ts`, run `yarn gen-types` to regenerate `src/graphql/__generated__`.
 
+## Developer docs
+
+See [docs/](docs/README.md) for architecture, the ranking algorithm, queries, filters, Compass, and how-tos for common changes.
+
 ## How the code is organized
 
 ```
