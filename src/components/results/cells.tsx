@@ -96,18 +96,6 @@ export const CountButton = ({ count, onClick }: { count: number; onClick: () => 
     </button>
 );
 
-/** Sorts numbers ascending with missing values (`isMissing`) always last. */
-export const missingLastComparator =
-    (isMissing: (v: unknown) => boolean) =>
-    (a: unknown, b: unknown): number => {
-        const aMissing = isMissing(a);
-        const bMissing = isMissing(b);
-        if (aMissing && !bMissing) return 1;
-        if (!aMissing && bMissing) return -1;
-        if (aMissing && bMissing) return 0;
-        return Number(a) - Number(b);
-    };
-
 /** A category rank (Sequence, Elements, Genes) as a colored pill; 0 means not ranked. */
 export function RankPill({ rank, category }: { rank?: number; category: RankCategory }) {
     if (!rank) return <Typography sx={{ fontSize: 12, color: BRAND.muted }}>N/A</Typography>;

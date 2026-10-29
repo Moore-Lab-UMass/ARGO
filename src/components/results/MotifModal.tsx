@@ -2,7 +2,8 @@ import { Typography } from "@mui/material";
 import { Table, TableColDef } from "@weng-lab/ui-components";
 import { MotifHit, SequenceTableRow } from "@/types/rows";
 import { AlleleScore, MotifLink } from "./cells";
-import DetailsModal, { formatRegion } from "./DetailsModal";
+import { formatRegion } from "@/lib/format";
+import DetailsModal from "./DetailsModal";
 
 const COLUMNS: TableColDef<MotifHit>[] = [
     {

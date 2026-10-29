@@ -10,7 +10,7 @@ import {
 } from "@apollo/client-integration-nextjs";
 import Config from "@/app/config.json";
 
-export function makeClient() {
+function makeClient() {
   if (typeof window === "undefined") {
     return new ApolloClient({
       cache: new InMemoryCache(),

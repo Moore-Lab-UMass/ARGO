@@ -13,8 +13,9 @@ export async function POST(request: NextRequest) {
     },
     body,
   });
-  const text = await upstream.text();
-  return new NextResponse(text, {
+  if (!upstream.ok) console.error(`GraphQL API responded with HTTP ${upstream.status}`);
+  // Stream the response back with its status unchanged; the GraphQL client reads errors from the body.
+  return new NextResponse(upstream.body, {
     status: upstream.status,
     headers: { "Content-Type": upstream.headers.get("Content-Type") ?? "application/json" },
   });

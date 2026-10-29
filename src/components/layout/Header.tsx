@@ -72,6 +72,7 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                                 priority
                                 src="/argoLogo.png"
                                 fill
+                                sizes="36px"
                                 alt="ARGO logo"
                                 style={{ objectFit: "contain" }}
                             />

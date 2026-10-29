@@ -35,7 +35,3 @@ export default function BiosampleChip({ label, onClear, onClick }: BiosampleChip
         </Paper>
     );
 }
-
-/** "Tissue - Display name", with the tissue capitalised. */
-export const biosampleLabel = (b: { ontology: string; displayname: string }) =>
-    `${b.ontology.charAt(0).toUpperCase()}${b.ontology.slice(1)} - ${b.displayname}`;

@@ -7,7 +7,8 @@ import { BRAND, RankCategory } from "@/lib/colors";
 import { useFilters } from "@/state/filters";
 import { RegionID } from "@/types/regions";
 import { MainTableRow } from "@/types/rows";
-import { missingLastComparator, Mono, RankBadge, RankPill } from "./cells";
+import { missingLastComparator } from "@/lib/sort";
+import { Mono, RankBadge, RankPill } from "./cells";
 import { cardSx, tableSx, toolbarStyle } from "./tableStyles";
 
 const AGGREGATE_SORT: GridSortModel = [{ field: "aggregateRank", sort: "asc" }];

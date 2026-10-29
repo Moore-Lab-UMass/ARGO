@@ -41,7 +41,10 @@ src/
     graphql/           GraphQL queries
     constants.ts       Linking methods, conservation tracks, compass collections
     colors.ts          Shared colors and category color maps
-  state/filters.tsx    Filter state (React context + reducer)
+    format.ts, sort.ts Display formatting and table sort helpers
+  state/
+    filterReducer.ts   Initial filters and the reducer (no React)
+    filters.tsx        FiltersProvider, useFilters, useFilterActions
   types/               Shared types: regions, filters, table rows
 ```
 

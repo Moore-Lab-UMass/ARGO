@@ -48,7 +48,7 @@ export default function TissueList({ onSelect, selected }: TissueListProps) {
   );
 }
 
-export const tissues = [
+const tissues = [
   "Adipose Subcutaneous",
   "Adipose Visceral Omentum",
   "Adrenal Gland",

@@ -39,7 +39,7 @@ const ExampleFiles: React.FC = () => {
         <Grow
           in={examplesVisible[index]}
           timeout={800 + index * 300}
-          key={`${file.name}-${index}`}
+          key={file.file}
         >
           <Grid
             ref={(el) => {

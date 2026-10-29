@@ -7,7 +7,8 @@ import { CONSERVATION_TRACKS } from "@/lib/constants";
 import { useFilters } from "@/state/filters";
 import { SequenceFilterState } from "@/types/filters";
 import { SequenceTableRow } from "@/types/rows";
-import { AlleleScore, AlleleSequence, CountButton, missingLastComparator, MotifLink } from "./cells";
+import { missingLastComparator } from "@/lib/sort";
+import { AlleleScore, AlleleSequence, CountButton, MotifLink } from "./cells";
 import MotifModal from "./MotifModal";
 import { tableSx, toolbarStyle } from "./tableStyles";
 

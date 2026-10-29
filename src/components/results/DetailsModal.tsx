@@ -1,7 +1,6 @@
 import { ReactNode } from "react";
 import { IconButton, Modal, Paper, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { GenomicRegion } from "@/types/regions";
 
 const style = {
     position: "absolute",
@@ -11,9 +10,6 @@ const style = {
     width: 1000,
     p: 4,
 };
-
-/** "chr1:1,000-2,000" */
-export const formatRegion = ({ chr, start, end }: GenomicRegion) => `${chr}:${start.toLocaleString()}-${end.toLocaleString()}`;
 
 /** Centered dialog with a title and close button, used for per-region details. */
 export default function DetailsModal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {

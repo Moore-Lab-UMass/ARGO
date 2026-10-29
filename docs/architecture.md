@@ -26,8 +26,8 @@ src/
     ranking/    Pure functions, no React: build rows from API data, rank, aggregate
     regions/    Parse uploads, validate, save/load the submission, cCRE intersect
     graphql/    All GraphQL queries (queries.ts)
-    constants.ts, colors.ts, downloads.ts
-  state/        Filter state (context + reducer)
+    constants.ts, colors.ts, downloads.ts, format.ts, sort.ts
+  state/        Filter state: filterReducer.ts (initial state + reducer), filters.tsx (provider + hooks)
   types/        Shared types: regions, filters, rows
   graphql/__generated__/   Codegen output. Don't edit by hand.
 ```

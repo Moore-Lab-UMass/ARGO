@@ -4,7 +4,8 @@ import KeyboardDoubleArrowLeft from "@mui/icons-material/KeyboardDoubleArrowLeft
 import { sidebarTheme } from "@/app/theme";
 import { HEADER_HEIGHT } from "@/components/layout/Header";
 import { BRAND } from "@/lib/colors";
-import { initialFilters, useFilterActions, useFilters } from "@/state/filters";
+import { initialFilters } from "@/state/filterReducer";
+import { useFilterActions, useFilters } from "@/state/filters";
 import ElementFilters from "./ElementFilters";
 import GeneFilters from "./GeneFilters";
 import SequenceFilters from "./SequenceFilters";
