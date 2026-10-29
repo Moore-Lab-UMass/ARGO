@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { Table, TableColDef } from "@weng-lab/ui-components";
+import { RegionID } from "@/types/regions";
 import { GeneTableRow } from "@/types/rows";
 import { CountButton, GeneScoreCell } from "./cells";
 import LinkedGenesModal from "./LinkedGenesModal";
+import { regionSelectProps } from "./rowSelection";
 import { tableSx, toolbarStyle } from "./tableStyles";
 
 function geneColumns(openLinkedGenes: (row: GeneTableRow) => void): TableColDef<GeneTableRow>[] {
@@ -38,9 +40,11 @@ type GeneTableProps = {
     isolatedRows?: GeneTableRow[];
     loading: boolean;
     error: boolean;
+    /** Called with a row's region when the row is clicked */
+    onSelect: (regionID: RegionID) => void;
 };
 
-export default function GeneTable({ rows, isolatedRows, loading, error }: GeneTableProps) {
+export default function GeneTable({ rows, isolatedRows, loading, error, onSelect }: GeneTableProps) {
     const [linkedGenesRow, setLinkedGenesRow] = useState<GeneTableRow | null>(null);
     const columns = useMemo(() => geneColumns(setLinkedGenesRow), []);
 
@@ -57,6 +61,7 @@ export default function GeneTable({ rows, isolatedRows, loading, error }: GeneTa
                 slotProps={{ toolbar: { style: toolbarStyle } }}
                 sx={tableSx}
                 error={error}
+                {...regionSelectProps<GeneTableRow>(onSelect)}
             />
             {linkedGenesRow && <LinkedGenesModal row={linkedGenesRow} onClose={() => setLinkedGenesRow(null)} />}
         </>

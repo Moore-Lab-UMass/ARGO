@@ -5,8 +5,10 @@ import { ProportionsBar } from "@weng-lab/visualization";
 import { CCRE_CLASSES } from "@/lib/colors";
 import { useFilters } from "@/state/filters";
 import { Assay, ElementFilterState } from "@/types/filters";
+import { RegionID } from "@/types/regions";
 import { ElementTableRow } from "@/types/rows";
 import { CcreLink } from "./cells";
+import { regionSelectProps } from "./rowSelection";
 import { tableSx, toolbarStyle } from "./tableStyles";
 
 const CLASS_NAMES: Record<string, string> = { PLS: "Promoter", pELS: "Proximal Enhancer", dELS: "Distal Enhancer" };
@@ -67,9 +69,11 @@ type ElementTableProps = {
     isolatedRows?: ElementTableRow[];
     loading: boolean;
     error: boolean;
+    /** Called with a row's region when the row is clicked */
+    onSelect: (regionID: RegionID) => void;
 };
 
-export default function ElementTable({ rows, isolatedRows, loading, error }: ElementTableProps) {
+export default function ElementTable({ rows, isolatedRows, loading, error, onSelect }: ElementTableProps) {
     const { element: f } = useFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const columns = useMemo(() => elementColumns(f), [f.assays, f.cCREAssembly, f.mustHaveOrtholog]);
@@ -109,6 +113,7 @@ export default function ElementTable({ rows, isolatedRows, loading, error }: Ele
                 slotProps={{ toolbar: { style: toolbarStyle } }}
                 sx={tableSx}
                 error={error}
+                {...regionSelectProps<ElementTableRow>(onSelect)}
             />
         </Stack>
     );

@@ -9,6 +9,7 @@ import { RegionID } from "@/types/regions";
 import { MainTableRow } from "@/types/rows";
 import { missingLastComparator } from "@/lib/sort";
 import { Mono, RankBadge, RankPill } from "./cells";
+import { regionSelectProps } from "./rowSelection";
 import { cardSx, tableSx, toolbarStyle } from "./tableStyles";
 
 const AGGREGATE_SORT: GridSortModel = [{ field: "aggregateRank", sort: "asc" }];
@@ -82,17 +83,10 @@ export default function MainTable({ rows, loading, selected, onSelect }: MainTab
                     </Stack>
                 }
                 getRowId={(row) => row.regionID}
-                onRowClick={({ id }) => toggle(id as RegionID)}
-                onCellKeyDown={({ id }, event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        toggle(id as RegionID);
-                    }
-                }}
+                {...regionSelectProps<MainTableRow>(toggle)}
                 getRowClassName={({ id }) => (id === selected ? "selected-region" : "")}
                 sx={{
                     ...tableSx,
-                    "& .MuiDataGrid-row": { cursor: "pointer" },
                     "& .MuiDataGrid-row.selected-region, & .MuiDataGrid-row.selected-region:hover": {
                         backgroundColor: BRAND.selectedRow,
                     },

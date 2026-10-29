@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useCallback, useMemo, useState } from "react";
 import { Box, ButtonBase, Divider, IconButton, Stack, Tooltip } from "@mui/material";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
@@ -38,10 +38,10 @@ export default function ResultsTables({ regions }: { regions: InputRegion[] }) {
     const [selected, setSelected] = useState<RegionID | null>(null);
     // The region the inspector shows. It outlives the selection so the panel keeps its content while sliding closed.
     const [shown, setShown] = useState<RegionID | null>(null);
-    const select = (id: RegionID | null) => {
+    const select = useCallback((id: RegionID | null) => {
         setSelected(id);
         if (id !== null) setShown(id);
-    };
+    }, []);
     const [tab, setTab] = useState<RankCategory>("sequence");
     const [showAll, setShowAll] = useState(false);
 
@@ -68,16 +68,33 @@ export default function ResultsTables({ regions }: { regions: InputRegion[] }) {
     const shownRegion = shown === null ? undefined : regions.find((r) => r.regionID === shown);
     const shownElements = useMemo(() => isolate(rows.element, shown) ?? [], [rows.element, shown]);
 
+    // Clicking a detail row opens its region in the inspector
     const renderTable = (table: RankCategory): ReactNode => {
         switch (table) {
             case "sequence":
                 return (
-                    <SequenceTable rows={rows.sequence} isolatedRows={isolated.sequence} loading={loading.sequence} error={!!errors.sequence} />
+                    <SequenceTable
+                        rows={rows.sequence}
+                        isolatedRows={isolated.sequence}
+                        loading={loading.sequence}
+                        error={!!errors.sequence}
+                        onSelect={select}
+                    />
                 );
             case "element":
-                return <ElementTable rows={rows.element} isolatedRows={isolated.element} loading={loading.element} error={!!errors.element} />;
+                return (
+                    <ElementTable
+                        rows={rows.element}
+                        isolatedRows={isolated.element}
+                        loading={loading.element}
+                        error={!!errors.element}
+                        onSelect={select}
+                    />
+                );
             case "gene":
-                return <GeneTable rows={rows.gene} isolatedRows={isolated.gene} loading={loading.gene} error={!!errors.gene} />;
+                return (
+                    <GeneTable rows={rows.gene} isolatedRows={isolated.gene} loading={loading.gene} error={!!errors.gene} onSelect={select} />
+                );
         }
     };
 

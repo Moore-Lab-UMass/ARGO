@@ -6,10 +6,12 @@ import { Category, MOTIF_DATA_SOURCES, MOTIF_QUALITIES } from "@/lib/colors";
 import { CONSERVATION_TRACKS } from "@/lib/constants";
 import { useFilters } from "@/state/filters";
 import { SequenceFilterState } from "@/types/filters";
+import { RegionID } from "@/types/regions";
 import { SequenceTableRow } from "@/types/rows";
 import { missingLastComparator } from "@/lib/sort";
 import { AlleleScore, AlleleSequence, CountButton, MotifLink } from "./cells";
 import MotifModal from "./MotifModal";
+import { regionSelectProps } from "./rowSelection";
 import { tableSx, toolbarStyle } from "./tableStyles";
 
 const naLast = missingLastComparator((v) => v === "N/A" || v == null);
@@ -93,9 +95,11 @@ type SequenceTableProps = {
     isolatedRows?: SequenceTableRow[];
     loading: boolean;
     error: boolean;
+    /** Called with a row's region when the row is clicked */
+    onSelect: (regionID: RegionID) => void;
 };
 
-export default function SequenceTable({ rows, isolatedRows, loading, error }: SequenceTableProps) {
+export default function SequenceTable({ rows, isolatedRows, loading, error, onSelect }: SequenceTableProps) {
     const { sequence: f } = useFilters();
     const [motifRow, setMotifRow] = useState<SequenceTableRow | null>(null);
 
@@ -154,6 +158,7 @@ export default function SequenceTable({ rows, isolatedRows, loading, error }: Se
                 slotProps={{ toolbar: { style: toolbarStyle } }}
                 sx={tableSx}
                 error={error}
+                {...regionSelectProps<SequenceTableRow>(onSelect)}
             />
             {motifRow && <MotifModal row={motifRow} onClose={() => setMotifRow(null)} />}
         </Stack>

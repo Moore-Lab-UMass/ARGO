@@ -18,6 +18,8 @@ export const tableSx = {
     "& .MuiDataGrid-columnHeader, & .MuiDataGrid-filler": { backgroundColor: BRAND.subtle },
     "& .MuiDataGrid-columnHeaderTitle": { fontWeight: 600, color: BRAND.muted },
     "& .MuiDataGrid-cell": { borderColor: BRAND.divider },
+    // Clicking a row selects its region
+    "& .MuiDataGrid-row": { cursor: "pointer" },
 } as const;
 
 /** Toolbar props shared by every results table. */

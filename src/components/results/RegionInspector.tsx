@@ -18,8 +18,11 @@ const ASSAY_LABELS: { key: Assay; label: string }[] = [
     { key: "atac", label: "ATAC" },
 ];
 
-/** Z-score that fills a bar completely */
-const Z_SCORE_MAX = 5;
+/**
+ * Z-scores have no upper bound, so they're shown against ENCODE's cutoff for a high signal
+ * (Z > 1.64, the 95th percentile), the same cutoff used to classify cCREs.
+ */
+const HIGH_Z_SCORE = 1.64;
 
 /** No conservation score: buildSequenceRows uses this value so these regions rank last. */
 const NO_SCORE = -1_000_000;
@@ -45,7 +48,7 @@ type RegionInspectorProps = {
 
 /** Side panel with everything known about the selected region. */
 export default function RegionInspector({ region, mainRow, sequence, elements, gene, enabled, onClose }: RegionInspectorProps) {
-    const change = region.ref || region.alt ? ` · ${region.ref} → ${region.alt}` : "";
+    const change = region.ref || region.alt ? `${region.ref} → ${region.alt}` : "";
 
     return (
         <Box
@@ -59,30 +62,51 @@ export default function RegionInspector({ region, mainRow, sequence, elements, g
                 overflow: "hidden",
             }}
         >
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={1.5} sx={{ p: "16px 18px", backgroundColor: BRAND.navy, color: "#ffffff" }}>
-                <Box minWidth={0}>
-                    <Typography sx={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600, color: BRAND.onNavyMuted, mb: 0.5 }}>
-                        Selected region
-                    </Typography>
-                    <Typography component="h2" sx={{ fontSize: 20, fontWeight: 700, wordBreak: "break-word" }}>
-                        {region.regionID}
-                    </Typography>
-                    <Typography sx={{ mt: 0.5, fontFamily: MONO_FONT, fontSize: 12, color: "#dfe6f6" }}>
-                        {region.chr}:{region.start}-{region.end}
-                        {change}
-                    </Typography>
-                </Box>
-                <Stack direction="row" alignItems="flex-start" gap={0.5}>
-                    {!!mainRow?.aggregateRank && (
-                        <Tooltip title="Aggregate rank">
-                            <Typography sx={{ fontSize: 30, fontWeight: 700, lineHeight: 1 }}>#{mainRow.aggregateRank}</Typography>
-                        </Tooltip>
+            {/* Label + close on the first row, region ID + aggregate rank on the second, location full width below */}
+            <Box
+                sx={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(0, 1fr) auto",
+                    alignItems: "center",
+                    columnGap: 1.5,
+                    p: "16px 18px",
+                    backgroundColor: BRAND.navy,
+                    color: "#ffffff",
+                }}
+            >
+                <Typography sx={{ gridArea: "1 / 1", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 600, color: BRAND.onNavyMuted }}>
+                    Selected region
+                </Typography>
+                <IconButton
+                    aria-label="Clear selection"
+                    onClick={onClose}
+                    size="small"
+                    sx={{ gridArea: "1 / 2", justifySelf: "end", color: "#ffffff", my: -0.75, mr: -1 }}
+                >
+                    <CloseIcon fontSize="small" />
+                </IconButton>
+                <Typography component="h2" sx={{ gridArea: "2 / 1", mt: 0.5, fontSize: 20, fontWeight: 700, wordBreak: "break-word" }}>
+                    {region.regionID}
+                </Typography>
+                {!!mainRow?.aggregateRank && (
+                    <Tooltip title="Aggregate rank">
+                        <Typography sx={{ gridArea: "2 / 2", justifySelf: "end", mt: 0.5, fontSize: 26, fontWeight: 700, lineHeight: 1 }}>
+                            #{mainRow.aggregateRank}
+                        </Typography>
+                    </Tooltip>
+                )}
+                <Typography sx={{ gridArea: "3 / 1 / 4 / 3", mt: 0.5, fontFamily: MONO_FONT, fontSize: 12, color: "#dfe6f6" }}>
+                    {region.chr}:{region.start}-{region.end}
+                    {change && (
+                        <>
+                            {" "}
+                            <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                                · {change}
+                            </Box>
+                        </>
                     )}
-                    <IconButton aria-label="Clear selection" onClick={onClose} size="small" sx={{ color: "#ffffff", mt: -0.5, mr: -1 }}>
-                        <CloseIcon fontSize="small" />
-                    </IconButton>
-                </Stack>
-            </Stack>
+                </Typography>
+            </Box>
 
             <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", borderBottom: `1px solid ${BRAND.divider}` }}>
                 {(["sequence", "element", "gene"] as const).map((cat, i) => {
@@ -213,24 +237,50 @@ function ElementSection({ rows }: { rows: ElementTableRow[] }) {
                 <Box component="span" sx={{ width: 8, height: 8, borderRadius: "4px", backgroundColor: ccreClass?.color ?? BRAND.muted }} />
                 {ccreClass?.label ?? row.class}
             </Typography>
-            {assays.map(({ key, label }) => {
-                const z = row[key];
-                const pct = typeof z === "number" ? Math.max(0, Math.min(z / Z_SCORE_MAX, 1)) * 100 : 0;
-                return (
-                    <Box key={key} sx={{ display: "grid", gridTemplateColumns: "64px minmax(0, 1fr) 44px", alignItems: "center", gap: 1.25, fontSize: 12 }}>
-                        <Box component="span" sx={{ color: BRAND.muted }}>
-                            {label}
+            {assays.length > 0 && (
+                <Box component="dl" sx={{ m: 0, display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto 40px", alignItems: "center", gap: "6px 12px", fontSize: 13 }}>
+                    {assays.map(({ key, label }) => (
+                        <Box key={key} sx={{ display: "contents" }}>
+                            <Box component="dt" sx={{ color: BRAND.muted }}>
+                                {label}
+                            </Box>
+                            <Box component="dd" sx={{ m: 0, fontFamily: MONO_FONT, fontSize: 12, textAlign: "right" }}>
+                                {fmt(row[key])}
+                            </Box>
+                            <Box component="dd" sx={{ m: 0 }}>
+                                <SignalTag z={row[key]} />
+                            </Box>
                         </Box>
-                        <Box component="span" sx={{ height: 6, borderRadius: 3, backgroundColor: BRAND.track, position: "relative" }} aria-hidden="true">
-                            <Box component="span" sx={{ position: "absolute", inset: 0, width: `${pct}%`, borderRadius: 3, backgroundColor: "#d98a2b" }} />
-                        </Box>
-                        <Box component="span" sx={{ fontFamily: MONO_FONT, textAlign: "right" }}>
-                            {fmt(z)}
-                        </Box>
-                    </Box>
-                );
-            })}
+                    ))}
+                </Box>
+            )}
+            {assays.length > 0 && (
+                <Typography sx={{ fontSize: 11, color: BRAND.muted }}>Z-scores. High means above {HIGH_Z_SCORE}, the top 5% of signal.</Typography>
+            )}
         </Section>
+    );
+}
+
+/** "High" or "Low" against ENCODE's high-signal cutoff; nothing when there's no score. */
+function SignalTag({ z }: { z?: number }) {
+    if (typeof z !== "number") return null;
+    const high = z > HIGH_Z_SCORE;
+    return (
+        <Box
+            component="span"
+            sx={{
+                display: "block",
+                textAlign: "center",
+                py: "1px",
+                borderRadius: "4px",
+                fontSize: 11,
+                fontWeight: 600,
+                backgroundColor: high ? CATEGORY_COLORS.element.pillBg : BRAND.track,
+                color: high ? CATEGORY_COLORS.element.pillText : BRAND.muted,
+            }}
+        >
+            {high ? "High" : "Low"}
+        </Box>
     );
 }
 
