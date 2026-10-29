@@ -1,17 +1,48 @@
+/** Core site colors (J3 design). */
+export const BRAND = {
+    /** Primary navy: filter sidebar, footer, primary buttons */
+    navy: "#1c3374",
+    /** Header background */
+    cream: "#f9f8f4",
+    creamBorder: "#e6e3da",
+    /** Page background */
+    page: "#f4f6fa",
+    /** Card borders and table row lines */
+    border: "#e3e7ee",
+    divider: "#eef1f5",
+    /** Table header rows, segmented control track */
+    subtle: "#fafbfc",
+    track: "#eef1f6",
+    text: "#1a2233",
+    muted: "#5b6475",
+    /** Secondary text on navy */
+    onNavyMuted: "#c9d3ec",
+    link: "#2443a3",
+    /** Highlight for the selected table row */
+    selectedRow: "#eef3fc",
+};
+
 /** UI colors used outside the MUI theme palette. */
 export const COLORS = {
-    /** Links and highlighted accordion headers */
-    accent: "#030f98",
+    /** Links */
+    accent: BRAND.link,
     /** Text on selected-biosample chips */
     chipText: "#2C5BA0",
-    /** Filter drawer and header background */
-    panel: "rgba(249, 248, 244, 1)",
-    /** Sub-table toolbars */
-    toolbar: "#e7eef8",
+    /** Header background */
+    panel: BRAND.cream,
     /** Compass: positive (pathogenic) variants */
     pathogenic: "#1fa718",
     /** Compass: negative (benign) variants */
     benign: "grey",
+};
+
+export type RankCategory = "sequence" | "element" | "gene";
+
+/** Colors for each ranking category: rank pills, section markers and switches. */
+export const CATEGORY_COLORS: Record<RankCategory, { label: string; main: string; onNavy: string; pillBg: string; pillText: string }> = {
+    sequence: { label: "Sequence", main: "#2f6fe4", onNavy: "#8fb4ff", pillBg: "#e7effd", pillText: "#1d4fb0" },
+    element: { label: "Elements", main: "#c26a0a", onNavy: "#f5b04a", pillBg: "#fdf0e1", pillText: "#8a4a05" },
+    gene: { label: "Genes", main: "#0f8a7e", onNavy: "#4fd1c0", pillBg: "#e1f4f1", pillText: "#0a6159" },
 };
 
 export type Category = { label: string; color: string };

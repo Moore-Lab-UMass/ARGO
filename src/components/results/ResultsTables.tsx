@@ -1,48 +1,51 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Box, Divider } from "@mui/material";
-import { DragDropContext, Draggable, Droppable, DropResult } from "@hello-pangea/dnd";
+import { ReactNode, useMemo, useState } from "react";
+import { Box, ButtonBase, Divider, IconButton, Stack, Tooltip } from "@mui/material";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import CompassCollection from "@/components/compass/CompassCollection";
 import { useCategoryRows } from "@/hooks/useCategoryRows";
+import { BRAND, CATEGORY_COLORS, RankCategory } from "@/lib/colors";
 import { rankRegions } from "@/lib/ranking/pipeline";
 import { useFilters } from "@/state/filters";
 import { InputRegion, RegionID } from "@/types/regions";
 import ElementTable from "./ElementTable";
 import GeneTable from "./GeneTable";
 import MainTable from "./MainTable";
+import RegionInspector, { INSPECTOR_WIDTH } from "./RegionInspector";
 import SequenceTable from "./SequenceTable";
-import TableToTop from "./TableToTop";
+import { cardSx } from "./tableStyles";
 
-type DetailTable = "sequence" | "element" | "gene";
+const DETAIL_TABLES: RankCategory[] = ["sequence", "element", "gene"];
 
-/** Keeps only rows for the selected regions (or undefined when nothing is selected). */
-function isolate<T extends { regionID: RegionID }>(rows: T[], selected: Set<RegionID>): T[] | undefined {
-    return selected.size > 0 ? rows.filter((row) => selected.has(row.regionID)) : undefined;
+/** Space between the tables and the inspector, in px */
+const INSPECTOR_GAP = 20;
+
+/** Keeps only rows for the selected region (or undefined when nothing is selected). */
+function isolate<T extends { regionID: RegionID }>(rows: T[], selected: RegionID | null): T[] | undefined {
+    return selected === null ? undefined : rows.filter((row) => row.regionID === selected);
 }
 
 /**
- * The ranked regions table followed by the sequence, element and gene detail tables
- * (which can be dragged to reorder). All data for the page is fetched here, once.
+ * The ranked regions table, the sequence / element / gene detail tables (as tabs, or all three stacked),
+ * and the inspector for the selected region. All data for the page is fetched here, once.
  */
 export default function ResultsTables({ regions }: { regions: InputRegion[] }) {
     const filters = useFilters();
     const { rows, loading, errors } = useCategoryRows(regions, filters);
     const { mainRows } = useMemo(() => rankRegions(regions, rows, filters), [regions, rows, filters]);
 
-    const [selected, setSelected] = useState<Set<RegionID>>(new Set());
-    const [order, setOrder] = useState<DetailTable[]>(["sequence", "element", "gene"]);
-
-    const onDragEnd = ({ source, destination }: DropResult) => {
-        if (!destination) return;
-        setOrder((prev) => {
-            const next = [...prev];
-            const [moved] = next.splice(source.index, 1);
-            next.splice(destination.index, 0, moved);
-            return next;
-        });
+    const [selected, setSelected] = useState<RegionID | null>(null);
+    // The region the inspector shows. It outlives the selection so the panel keeps its content while sliding closed.
+    const [shown, setShown] = useState<RegionID | null>(null);
+    const select = (id: RegionID | null) => {
+        setSelected(id);
+        if (id !== null) setShown(id);
     };
+    const [tab, setTab] = useState<RankCategory>("sequence");
+    const [showAll, setShowAll] = useState(false);
 
-    // Memoized so the detail tables only get new props when their data or order changes
+    // Memoized so the detail tables only get new props when their data or the selection changes
     const isolated = useMemo(
         () => ({
             sequence: isolate(rows.sequence, selected),
@@ -51,82 +54,156 @@ export default function ResultsTables({ regions }: { regions: InputRegion[] }) {
         }),
         [rows, selected]
     );
-    const toolbars = useMemo(() => {
-        const moveToTop = (table: DetailTable) => setOrder((prev) => [table, ...prev.filter((t) => t !== table)]);
-        const button = (table: DetailTable) => <TableToTop isTop={order[0] === table} onClick={() => moveToTop(table)} />;
-        return { sequence: button("sequence"), element: button("element"), gene: button("gene") };
-    }, [order]);
 
-    const enabled: Record<DetailTable, boolean> = {
+    const enabled: Record<RankCategory, boolean> = {
         sequence: filters.sequence.useConservation || filters.sequence.useMotifs,
         element: filters.element.usecCREs,
         gene: filters.gene.useGenes,
     };
+    const enabledTables = DETAIL_TABLES.filter((t) => enabled[t]);
+    // If the open tab's category was switched off, show the first one still on
+    const activeTab = enabled[tab] ? tab : enabledTables[0];
 
-    const renderTable = (table: DetailTable) => {
-        if (!enabled[table]) return null;
+    const open = selected !== null;
+    const shownRegion = shown === null ? undefined : regions.find((r) => r.regionID === shown);
+    const shownElements = useMemo(() => isolate(rows.element, shown) ?? [], [rows.element, shown]);
+
+    const renderTable = (table: RankCategory): ReactNode => {
         switch (table) {
             case "sequence":
                 return (
-                    <SequenceTable
-                        rows={rows.sequence}
-                        isolatedRows={isolated.sequence}
-                        loading={loading.sequence}
-                        error={!!errors.sequence}
-                        toolbarExtra={toolbars.sequence}
-                    />
+                    <SequenceTable rows={rows.sequence} isolatedRows={isolated.sequence} loading={loading.sequence} error={!!errors.sequence} />
                 );
             case "element":
-                return (
-                    <ElementTable
-                        rows={rows.element}
-                        isolatedRows={isolated.element}
-                        loading={loading.element}
-                        error={!!errors.element}
-                        toolbarExtra={toolbars.element}
-                    />
-                );
+                return <ElementTable rows={rows.element} isolatedRows={isolated.element} loading={loading.element} error={!!errors.element} />;
             case "gene":
-                return (
-                    <GeneTable
-                        rows={rows.gene}
-                        isolatedRows={isolated.gene}
-                        loading={loading.gene}
-                        error={!!errors.gene}
-                        toolbarExtra={toolbars.gene}
-                    />
-                );
+                return <GeneTable rows={rows.gene} isolatedRows={isolated.gene} loading={loading.gene} error={!!errors.gene} />;
         }
     };
 
     return (
         <>
-            <MainTable rows={mainRows} loading={loading.any} selected={selected} onSelectedChange={setSelected} />
-            <Divider sx={{ mt: "20px", borderBottomWidth: 2 }} variant="fullWidth" />
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="tables">
-                    {(provided) => (
-                        <Box ref={provided.innerRef} {...provided.droppableProps}>
-                            {order.map((table, index) => (
-                                <Draggable key={table} draggableId={table} index={index}>
-                                    {(provided) => (
-                                        <Box
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            sx={{ cursor: "grab", mt: "20px" }}
-                                        >
-                                            {renderTable(table)}
-                                        </Box>
-                                    )}
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
+            <Stack direction={{ xs: "column", md: "row" }} alignItems={{ xs: "stretch", md: "flex-start" }}>
+                <Stack gap={2.5} sx={{ flex: "1 1 0", minWidth: 0 }}>
+                    <MainTable rows={mainRows} loading={loading.any} selected={selected} onSelect={select} />
+
+                    {enabledTables.length > 0 && (
+                        <Box component="section" aria-label="Detail tables" sx={cardSx}>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} sx={{ p: "12px 14px" }}>
+                                {showAll ? (
+                                    <Box component="h2" sx={{ m: 0, fontSize: 15, fontWeight: 600 }}>
+                                        Detail tables
+                                    </Box>
+                                ) : (
+                                    <DetailTabs tables={enabledTables} active={activeTab} onChange={setTab} />
+                                )}
+                                <Tooltip title={showAll ? "Show one table at a time" : "Show all tables"}>
+                                    <IconButton
+                                        onClick={() => setShowAll((prev) => !prev)}
+                                        aria-label={showAll ? "Show one table at a time" : "Show all tables"}
+                                        aria-pressed={showAll}
+                                        sx={{ border: `1px solid ${BRAND.border}`, borderRadius: "8px" }}
+                                        size="small"
+                                    >
+                                        {showAll ? <UnfoldLessIcon fontSize="small" /> : <UnfoldMoreIcon fontSize="small" />}
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
+                            {showAll ? (
+                                enabledTables.map((table, i) => (
+                                    <Box key={table}>
+                                        {i > 0 && <Divider sx={{ borderColor: BRAND.border, borderBottomWidth: 2 }} />}
+                                        <Box sx={{ px: 2, py: 1.5 }}>{renderTable(table)}</Box>
+                                    </Box>
+                                ))
+                            ) : (
+                                <Box role="tabpanel" id={`detail-panel-${activeTab}`} aria-labelledby={`detail-tab-${activeTab}`} sx={{ px: 2, pb: 1.5 }}>
+                                    {renderTable(activeTab)}
+                                </Box>
+                            )}
                         </Box>
                     )}
-                </Droppable>
-            </DragDropContext>
+                </Stack>
+
+                {/* On medium screens and up the panel slides in from the right and the tables narrow to make room.
+                    Below that it sits under the tables. */}
+                <Box
+                    inert={!open}
+                    sx={{
+                        flexShrink: 0,
+                        display: { xs: open ? "block" : "none", md: "flex" },
+                        justifyContent: "flex-end",
+                        width: { md: open ? INSPECTOR_WIDTH + INSPECTOR_GAP : 0 },
+                        overflow: "hidden",
+                        position: { md: "sticky" },
+                        top: 16,
+                        transition: (theme) => theme.transitions.create("width", { duration: 300, easing: theme.transitions.easing.easeInOut }),
+                        "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+                    }}
+                >
+                    {shownRegion && (
+                        <Box sx={{ flexShrink: 0, width: { md: INSPECTOR_WIDTH }, ml: { md: `${INSPECTOR_GAP}px` }, mt: { xs: 2.5, md: 0 } }}>
+                            <RegionInspector
+                                key={shownRegion.regionID}
+                                region={shownRegion}
+                                mainRow={mainRows.find((r) => r.regionID === shown)}
+                                sequence={rows.sequence.find((r) => r.regionID === shown)}
+                                elements={shownElements}
+                                gene={rows.gene.find((r) => r.regionID === shown)}
+                                enabled={enabled}
+                                onClose={() => select(null)}
+                            />
+                        </Box>
+                    )}
+                </Box>
+            </Stack>
             <CompassCollection pageRegions={regions} pageRows={rows} loadingPage={loading.any} />
         </>
+    );
+}
+
+/** Segmented Sequence / Elements / Genes switcher for the detail tables. */
+function DetailTabs({ tables, active, onChange }: { tables: RankCategory[]; active: RankCategory; onChange: (t: RankCategory) => void }) {
+    return (
+        <Box
+            role="tablist"
+            aria-label="Detail tables"
+            sx={{
+                display: "inline-grid",
+                gridTemplateColumns: `repeat(${tables.length}, minmax(0, 1fr))`,
+                gap: "3px",
+                p: "3px",
+                borderRadius: "10px",
+                backgroundColor: BRAND.track,
+            }}
+        >
+            {tables.map((t) => {
+                const selected = t === active;
+                return (
+                    <ButtonBase
+                        key={t}
+                        role="tab"
+                        id={`detail-tab-${t}`}
+                        aria-selected={selected}
+                        aria-controls={`detail-panel-${t}`}
+                        onClick={() => onChange(t)}
+                        sx={{
+                            gap: 1,
+                            px: 2,
+                            py: 0.875,
+                            borderRadius: "7px",
+                            fontSize: 13,
+                            fontWeight: selected ? 600 : 500,
+                            color: selected ? BRAND.text : "#4b5568",
+                            backgroundColor: selected ? "#ffffff" : "transparent",
+                            boxShadow: selected ? "0 1px 2px rgba(16,24,40,0.12)" : "none",
+                        }}
+                    >
+                        <Box component="span" sx={{ width: 8, height: 8, borderRadius: "2px", backgroundColor: CATEGORY_COLORS[t].main }} />
+                        {CATEGORY_COLORS[t].label}
+                    </ButtonBase>
+                );
+            })}
+        </Box>
     );
 }

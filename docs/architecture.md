@@ -9,7 +9,7 @@ ARGO is a client-side Next.js 15 (App Router) app. All ranking runs in the brows
 | Route | File | What it does |
 | --- | --- | --- |
 | `/` | [src/app/page.tsx](../src/app/page.tsx) | Upload forms: ARGO format or rsID list |
-| `/submitted/[name]` | [src/app/submitted/[submitted]/page.tsx](../src/app/submitted/[submitted]/page.tsx) | Results: filter drawer, ranked table, detail tables, Compass |
+| `/submitted/[name]` | [src/app/submitted/[submitted]/page.tsx](../src/app/submitted/[submitted]/page.tsx) | Results: filter sidebar, ranked table, detail tables (tabs or all three), selected-region panel, Compass |
 | `/about`, `/help` | [src/app/about/](../src/app/about/), [src/app/help/](../src/app/help/) | Static pages; Help has the contact form (EmailJS) |
 | `POST /api/graphql` | [src/app/api/graphql/route.ts](../src/app/api/graphql/route.ts) | Proxy to `API.CcreAPI` in [config.json](../src/app/config.json), adds `SCREEN_API_KEY` |
 
@@ -51,7 +51,7 @@ sessionStorage ──loadSubmission──▶ regions (InputRegion[])
             └─ computeMainRows                         → aggregate-ranked main table rows
 ```
 
-[ResultsTables.tsx](../src/components/results/ResultsTables.tsx) calls `useCategoryRows` once for the page and passes the rows down to the main table, the three detail tables, and Compass. The Compass panel calls `useCategoryRows` a second time for its reference variants and ranks both sets together.
+[ResultsTables.tsx](../src/components/results/ResultsTables.tsx) calls `useCategoryRows` once for the page and passes the rows down to the main table, the three detail tables, the selected-region panel ([RegionInspector.tsx](../src/components/results/RegionInspector.tsx)), and Compass. Clicking a row in the main table selects that one region: the detail tables isolate its rows and the panel opens. The Compass panel calls `useCategoryRows` a second time for its reference variants and ranks both sets together.
 
 Every hook skips its queries when its category is turned off in the filters. Rows are only built once all of a category's queries have finished, so a table shows either complete data or nothing.
 

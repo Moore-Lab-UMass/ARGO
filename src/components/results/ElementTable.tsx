@@ -1,12 +1,13 @@
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { Stack } from "@mui/material";
 import { Table, TableColDef } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
-import { CCRE_CLASSES, COLORS } from "@/lib/colors";
+import { CCRE_CLASSES } from "@/lib/colors";
 import { useFilters } from "@/state/filters";
 import { Assay, ElementFilterState } from "@/types/filters";
 import { ElementTableRow } from "@/types/rows";
 import { CcreLink } from "./cells";
+import { tableSx, toolbarStyle } from "./tableStyles";
 
 const CLASS_NAMES: Record<string, string> = { PLS: "Promoter", pELS: "Proximal Enhancer", dELS: "Distal Enhancer" };
 
@@ -66,10 +67,9 @@ type ElementTableProps = {
     isolatedRows?: ElementTableRow[];
     loading: boolean;
     error: boolean;
-    toolbarExtra: ReactNode;
 };
 
-export default function ElementTable({ rows, isolatedRows, loading, error, toolbarExtra }: ElementTableProps) {
+export default function ElementTable({ rows, isolatedRows, loading, error }: ElementTableProps) {
     const { element: f } = useFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const columns = useMemo(() => elementColumns(f), [f.assays, f.cCREAssembly, f.mustHaveOrtholog]);
@@ -106,7 +106,8 @@ export default function ElementTable({ rows, isolatedRows, loading, error, toolb
                 label="Element Details (Overlapping cCREs)"
                 divHeight={{ height: "440px", maxHeight: "440px" }}
                 emptyTableFallback="No Overlapping cCREs"
-                slotProps={{ toolbar: { extra: toolbarExtra, style: { backgroundColor: COLORS.toolbar } } }}
+                slotProps={{ toolbar: { style: toolbarStyle } }}
+                sx={tableSx}
                 error={error}
             />
         </Stack>

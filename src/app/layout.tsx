@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { ApolloWrapper } from "@/components/providers/ApolloProvider";
 import { CssBaseline, Stack, ThemeProvider } from "@mui/material"
 import theme from "./theme"
@@ -8,13 +8,13 @@ import Header from "@/components/layout/Header";
 import MuiXLicense from "@/components/providers/MuiXLicense";
 import Footer from "@/components/layout/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
         <ApolloWrapper> {/* Wrapper for Apollo Requests, exposes client to child components */}
           <AppRouterCacheProvider> {/* Wrapper for MUIxNextjs integration, see https://mui.com/material-ui/integrations/nextjs/ */}
             <CssBaseline /> {/* See https://mui.com/material-ui/react-css-baseline/ */}

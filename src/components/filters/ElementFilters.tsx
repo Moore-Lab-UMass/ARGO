@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Button, Checkbox, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, Radio, RadioGroup, Stack, ThemeProvider } from "@mui/material";
+import theme from "@/app/theme";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import { useFilterActions, useFilters } from "@/state/filters";
 import { Assay, CCREClasses, ElementFilterState } from "@/types/filters";
@@ -7,6 +8,7 @@ import BiosampleChip, { biosampleLabel } from "./BiosampleChip";
 import { BiosampleModal } from "./BiosampleModal";
 import CheckboxGroup, { CheckboxOption } from "./CheckboxGroup";
 import FilterAccordion from "./FilterAccordion";
+import SegmentedControl from "./SegmentedControl";
 
 const CLASS_OPTIONS: CheckboxOption<keyof CCREClasses>[] = [
     { key: "PLS", label: "Promoter" },
@@ -29,6 +31,13 @@ const ASSAY_LABELS: { key: Assay; label: string }[] = [
 
 type Props = { expanded: boolean; onToggle: () => void };
 
+/** e.g. "GRCh38 · all biosamples · 5 assays · avg" */
+function summarize(f: ElementFilterState): string {
+    const assays = Object.values(f.assays).filter(Boolean).length;
+    const biosample = f.selectedBiosample ? f.selectedBiosample.displayname : "all biosamples";
+    return [f.cCREAssembly, biosample, `${assays} ${assays === 1 ? "assay" : "assays"}`, f.rankBy].join(" · ");
+}
+
 export default function ElementFilters({ expanded, onToggle }: Props) {
     const { element: f } = useFilters();
     const { setElement, dispatch } = useFilterActions();
@@ -39,16 +48,15 @@ export default function ElementFilters({ expanded, onToggle }: Props) {
 
     return (
         <FilterAccordion
-            title="Elements"
-            info="Filter results based on overlapping cCREs and thier classification or assay Z-scores"
+            category="element"
+            info="Filter results based on overlapping cCREs and their classification or assay Z-scores"
+            enabled={f.usecCREs}
+            onEnabledChange={(on) => setElement("usecCREs", on)}
+            summary={summarize(f)}
             expanded={expanded}
             onToggle={onToggle}
         >
-            <FormControlLabel
-                label="Overlapping cCREs"
-                control={<Checkbox checked={f.usecCREs} onChange={() => setElement("usecCREs", !f.usecCREs)} />}
-            />
-            <Stack ml={2}>
+            <Stack>
                 <RadioGroup
                     row
                     value={f.cCREAssembly}
@@ -73,7 +81,7 @@ export default function ElementFilters({ expanded, onToggle }: Props) {
                 <Stack>
                     <Button
                         variant="outlined"
-                        size="large"
+                        size="small"
                         sx={{ width: "fit-content" }}
                         onClick={() => setBiosampleOpen(true)}
                         disabled={disabled}
@@ -106,24 +114,30 @@ export default function ElementFilters({ expanded, onToggle }: Props) {
                     sx={{ mt: 2 }}
                 />
             </Stack>
-            <FormControl sx={{ ml: 2, mt: 1 }}>
-                <Typography>Rank cCREs with matching input region by</Typography>
-                <RadioGroup row value={f.rankBy} onChange={(e) => setElement("rankBy", e.target.value as ElementFilterState["rankBy"])}>
-                    <FormControlLabel value="max" control={<Radio disabled={disabled} />} label="Max" />
-                    <FormControlLabel value="avg" control={<Radio disabled={disabled} />} label="Average" />
-                </RadioGroup>
-            </FormControl>
+            <SegmentedControl
+                label="Rank cCREs with matching input region by"
+                value={f.rankBy}
+                options={[
+                    { value: "max", label: "Max" },
+                    { value: "avg", label: "Avg" },
+                ]}
+                onChange={(v) => setElement("rankBy", v)}
+                disabled={disabled}
+            />
             {biosampleOpen && (
-                <BiosampleModal
-                    open
-                    onClose={() => setBiosampleOpen(false)}
-                    assembly={f.cCREAssembly}
-                    selected={f.selectedBiosample}
-                    onSelectionChange={(biosample) => {
-                        dispatch({ type: "selectElementBiosample", biosample });
-                        setBiosampleOpen(false);
-                    }}
-                />
+                // The dialog keeps the site's light theme, not the sidebar's
+                <ThemeProvider theme={theme}>
+                    <BiosampleModal
+                        open
+                        onClose={() => setBiosampleOpen(false)}
+                        assembly={f.cCREAssembly}
+                        selected={f.selectedBiosample}
+                        onSelectionChange={(biosample) => {
+                            dispatch({ type: "selectElementBiosample", biosample });
+                            setBiosampleOpen(false);
+                        }}
+                    />
+                </ThemeProvider>
             )}
         </FilterAccordion>
     );

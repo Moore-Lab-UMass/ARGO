@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { Box, Drawer, IconButton, Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { Clear } from "@mui/icons-material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { COLORS } from "@/lib/colors";
+import { Box, Button, Drawer, IconButton, Stack, ThemeProvider, Tooltip, Typography, useMediaQuery, useTheme } from "@mui/material";
+import KeyboardDoubleArrowLeft from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import { sidebarTheme } from "@/app/theme";
+import { HEADER_HEIGHT } from "@/components/layout/Header";
+import { BRAND } from "@/lib/colors";
 import { initialFilters, useFilterActions, useFilters } from "@/state/filters";
 import ElementFilters from "./ElementFilters";
 import GeneFilters from "./GeneFilters";
@@ -10,18 +11,56 @@ import SequenceFilters from "./SequenceFilters";
 
 type Section = "sequence" | "element" | "gene";
 
+/** Sidebar width in px */
+export const FILTERS_WIDTH = 320;
+
 type FiltersDrawerProps = {
     open: boolean;
     onToggle: () => void;
-    width: string;
 };
 
-export default function FiltersDrawer({ open, onToggle, width }: FiltersDrawerProps) {
+/**
+ * Navy filter sidebar. On large screens it is a full-height column beside the results
+ * (its contents stick under the header while the page scrolls); on smaller screens it is a slide-out drawer.
+ */
+export default function FiltersDrawer({ open, onToggle }: FiltersDrawerProps) {
     const theme = useTheme();
     const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+
+    const panel = (
+        <ThemeProvider theme={sidebarTheme}>
+            <FiltersPanel onHide={onToggle} />
+        </ThemeProvider>
+    );
+
+    if (!isLargeScreen) {
+        return (
+            <Drawer
+                anchor="left"
+                open={open}
+                onClose={onToggle}
+                ModalProps={{ keepMounted: true }}
+                slotProps={{ paper: { sx: { width: FILTERS_WIDTH, maxWidth: "90vw", backgroundColor: BRAND.navy } } }}
+            >
+                {panel}
+            </Drawer>
+        );
+    }
+
+    if (!open) return null;
+    return (
+        <Box component="aside" aria-label="Filters" sx={{ width: FILTERS_WIDTH, flexShrink: 0, backgroundColor: BRAND.navy }}>
+            <Box sx={{ position: "sticky", top: 0, maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`, overflowY: "auto" }}>
+                {panel}
+            </Box>
+        </Box>
+    );
+}
+
+function FiltersPanel({ onHide }: { onHide: () => void }) {
     const filters = useFilters();
     const { reset } = useFilterActions();
-    const [expanded, setExpanded] = useState<Section[]>([]);
+    const [expanded, setExpanded] = useState<Section[]>(["sequence"]);
 
     const filtersChanged = useMemo(() => JSON.stringify(filters) !== JSON.stringify(initialFilters), [filters]);
 
@@ -31,42 +70,36 @@ export default function FiltersDrawer({ open, onToggle, width }: FiltersDrawerPr
     });
 
     return (
-        <Drawer
-            anchor="left"
-            open={open}
-            onClose={onToggle}
-            variant={isLargeScreen ? "persistent" : "temporary"}
-            ModalProps={{ keepMounted: true }}
-            sx={{
-                "& .MuiDrawer-paper": {
-                    position: isLargeScreen ? "absolute" : "fixed",
-                    width: open ? width : 0,
-                    height: "calc(100vh + 64px)",
-                    backgroundColor: COLORS.panel,
-                },
-            }}
-        >
-            <Stack direction="row" justifyContent="space-between" padding={1} sx={{ borderBottom: "1px solid #ddd" }}>
-                <Typography variant="h5" sx={{ fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif' }} alignContent="center">
+        <Stack gap={1} sx={{ px: 1.5, py: 2, color: "text.primary" }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1, pb: 1 }}>
+                <Typography component="h2" sx={{ fontSize: 16, fontWeight: 600 }}>
                     Filters
                 </Typography>
-                {filtersChanged && (
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography>Clear Filters</Typography>
-                        <IconButton onClick={reset}>
-                            <Clear />
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                    <Button
+                        size="small"
+                        onClick={reset}
+                        disabled={!filtersChanged}
+                        sx={{ color: "#ffffff", textDecoration: "underline", fontWeight: 400, minWidth: 0 }}
+                    >
+                        Reset
+                    </Button>
+                    <Tooltip title="Hide filters">
+                        <IconButton
+                            onClick={onHide}
+                            aria-label="Hide filters"
+                            size="small"
+                            sx={{ border: "1px solid rgba(255,255,255,0.25)", borderRadius: "6px", color: "#ffffff" }}
+                        >
+                            <KeyboardDoubleArrowLeft fontSize="small" />
                         </IconButton>
-                    </Stack>
-                )}
-                <IconButton color="primary" onClick={onToggle} style={{ transform: "rotate(90deg)" }}>
-                    <ExpandMoreIcon />
-                </IconButton>
+                    </Tooltip>
+                </Stack>
             </Stack>
-            <Box height="calc(100vh - 113px)" overflow="auto">
-                <SequenceFilters {...section("sequence")} />
-                <ElementFilters {...section("element")} />
-                <GeneFilters {...section("gene")} />
-            </Box>
-        </Drawer>
+            <SequenceFilters {...section("sequence")} />
+            <ElementFilters {...section("element")} />
+            <GeneFilters {...section("gene")} />
+            <Typography sx={{ px: 1, pt: 1, fontSize: 12, color: "text.secondary" }}>Results re-rank as you change filters.</Typography>
+        </Stack>
     );
 }

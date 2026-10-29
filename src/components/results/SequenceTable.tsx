@@ -1,14 +1,15 @@
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Grid, Stack } from "@mui/material";
 import { Table, TableColDef } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
-import { Category, COLORS, MOTIF_DATA_SOURCES, MOTIF_QUALITIES } from "@/lib/colors";
+import { Category, MOTIF_DATA_SOURCES, MOTIF_QUALITIES } from "@/lib/colors";
 import { CONSERVATION_TRACKS } from "@/lib/constants";
 import { useFilters } from "@/state/filters";
 import { SequenceFilterState } from "@/types/filters";
 import { SequenceTableRow } from "@/types/rows";
 import { AlleleScore, AlleleSequence, CountButton, missingLastComparator, MotifLink } from "./cells";
 import MotifModal from "./MotifModal";
+import { tableSx, toolbarStyle } from "./tableStyles";
 
 const naLast = missingLastComparator((v) => v === "N/A" || v == null);
 
@@ -91,10 +92,9 @@ type SequenceTableProps = {
     isolatedRows?: SequenceTableRow[];
     loading: boolean;
     error: boolean;
-    toolbarExtra: ReactNode;
 };
 
-export default function SequenceTable({ rows, isolatedRows, loading, error, toolbarExtra }: SequenceTableProps) {
+export default function SequenceTable({ rows, isolatedRows, loading, error }: SequenceTableProps) {
     const { sequence: f } = useFilters();
     const [motifRow, setMotifRow] = useState<SequenceTableRow | null>(null);
 
@@ -150,7 +150,8 @@ export default function SequenceTable({ rows, isolatedRows, loading, error, tool
                 divHeight={{ height: "440px", maxHeight: "440px" }}
                 label="Sequence Details"
                 emptyTableFallback="No Sequence Scores"
-                slotProps={{ toolbar: { extra: toolbarExtra, style: { backgroundColor: COLORS.toolbar } } }}
+                slotProps={{ toolbar: { style: toolbarStyle } }}
+                sx={tableSx}
                 error={error}
             />
             {motifRow && <MotifModal row={motifRow} onClose={() => setMotifRow(null)} />}

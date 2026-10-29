@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Checkbox, FormControl, FormControlLabel, FormGroup, Grid, Stack, Tooltip, Typography } from "@mui/material";
+import { Checkbox, Chip, FormControl, FormControlLabel, FormGroup, Grid, Stack, Tooltip, Typography } from "@mui/material";
 import { InfoOutlined } from "@mui/icons-material";
 
 export type CheckboxOption<K extends string> = {
@@ -16,8 +16,8 @@ type CheckboxGroupProps<K extends string> = {
     values: Record<K, boolean>;
     onChange: (values: Record<K, boolean>) => void;
     disabled?: boolean;
-    /** "row": options on one line; "columns": options split into two columns */
-    layout?: "row" | "columns";
+    /** "row": options on one line; "columns": options split into two columns; "chips": toggle chips, no "Select all" */
+    layout?: "row" | "columns" | "chips";
     selectAllLabel?: string;
     sx?: object;
 };
@@ -63,6 +63,38 @@ export default function CheckboxGroup<K extends string>({
     );
 
     const half = Math.ceil(options.length / 2);
+
+    if (layout === "chips") {
+        return (
+            <Stack direction="row" flexWrap="wrap" alignItems="center" gap={0.75} sx={sx} role="group" aria-label={label}>
+                <Typography sx={{ fontSize: 12, color: disabled ? "text.disabled" : "text.secondary", mr: 0.25 }}>{label}</Typography>
+                {info && (
+                    <Tooltip arrow placement="right-end" title={info}>
+                        <InfoOutlined sx={{ fontSize: 15, color: "text.secondary" }} />
+                    </Tooltip>
+                )}
+                {options.map((o) => (
+                    <Chip
+                        key={o.key}
+                        label={o.label}
+                        size="small"
+                        clickable
+                        aria-pressed={values[o.key]}
+                        disabled={disabled || o.unavailable}
+                        onClick={() => onChange({ ...values, [o.key]: !values[o.key] })}
+                        variant={values[o.key] ? "filled" : "outlined"}
+                        sx={{
+                            fontWeight: 600,
+                            fontSize: 12,
+                            ...(values[o.key]
+                                ? { backgroundColor: "rgba(255,255,255,0.16)" }
+                                : { borderColor: "rgba(255,255,255,0.3)", color: "text.secondary" }),
+                        }}
+                    />
+                ))}
+            </Stack>
+        );
+    }
 
     return (
         <FormControl sx={sx}>

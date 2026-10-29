@@ -1,9 +1,9 @@
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Table, TableColDef } from "@weng-lab/ui-components";
-import { COLORS } from "@/lib/colors";
 import { GeneTableRow } from "@/types/rows";
 import { CountButton, GeneScoreCell } from "./cells";
 import LinkedGenesModal from "./LinkedGenesModal";
+import { tableSx, toolbarStyle } from "./tableStyles";
 
 function geneColumns(openLinkedGenes: (row: GeneTableRow) => void): TableColDef<GeneTableRow>[] {
     return [
@@ -38,10 +38,9 @@ type GeneTableProps = {
     isolatedRows?: GeneTableRow[];
     loading: boolean;
     error: boolean;
-    toolbarExtra: ReactNode;
 };
 
-export default function GeneTable({ rows, isolatedRows, loading, error, toolbarExtra }: GeneTableProps) {
+export default function GeneTable({ rows, isolatedRows, loading, error }: GeneTableProps) {
     const [linkedGenesRow, setLinkedGenesRow] = useState<GeneTableRow | null>(null);
     const columns = useMemo(() => geneColumns(setLinkedGenesRow), []);
 
@@ -55,7 +54,8 @@ export default function GeneTable({ rows, isolatedRows, loading, error, toolbarE
                 divHeight={{ height: "440px", maxHeight: "440px" }}
                 label="Gene Details"
                 emptyTableFallback="No Linked Genes"
-                slotProps={{ toolbar: { extra: toolbarExtra, style: { backgroundColor: COLORS.toolbar } } }}
+                slotProps={{ toolbar: { style: toolbarStyle } }}
+                sx={tableSx}
                 error={error}
             />
             {linkedGenesRow && <LinkedGenesModal row={linkedGenesRow} onClose={() => setLinkedGenesRow(null)} />}

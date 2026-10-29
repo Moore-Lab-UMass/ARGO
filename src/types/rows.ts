@@ -4,6 +4,9 @@ import { GenomicRegion, RegionID } from "./regions";
 export type MainTableRow = {
     regionID: RegionID;
     inputRegion: GenomicRegion;
+    /** Reference and alternate alleles from the submission */
+    ref?: string;
+    alt?: string;
     aggregateRank?: number;
     sequenceRank?: number;
     elementRank?: number;

@@ -50,6 +50,8 @@ export function computeMainRows(regions: readonly InputRegion[], ranks: Category
             return {
                 regionID: region.regionID,
                 inputRegion: { chr: region.chr, start: region.start, end: region.end },
+                ref: region.ref,
+                alt: region.alt,
                 sequenceRank: sequence.get(key)?.rank ?? 0,
                 elementRank: element.get(key)?.rank ?? 0,
                 geneRank: gene.get(key)?.rank ?? 0,
