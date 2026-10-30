@@ -25,7 +25,7 @@ const ASSAY_COLUMNS: { key: Assay; label: string }[] = [
 function ClassCell({ value }: { value?: string }) {
     if (!value) return null;
     const category = CCRE_CLASSES[value] ?? Object.values(CCRE_CLASSES).find((c) => c.label === value);
-    const { label, color } = category ?? { label: "Unknown", color: "black" };
+    const { label, color } = category ?? { label: "Unknown", color: "grey" };
     return <span style={{ color: value === "InActive" ? "gray" : color, fontWeight: "bold" }}>{label}</span>;
 }
 
@@ -92,7 +92,7 @@ export default function ElementTable({ rows, isolatedRows, loading, error, onSel
                     data={classCounts}
                     loading={loading}
                     tooltipTitle="cCRE Classification Proportions"
-                    getColor={(key) => CCRE_CLASSES[key]?.color ?? "black"}
+                    getColor={(key) => CCRE_CLASSES[key]?.color ?? "grey"}
                     formatLabel={(key) => CCRE_CLASSES[key]?.label ?? key}
                     sortDescending
                     label="cCRE Classification Proportions"

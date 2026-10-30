@@ -1,9 +1,9 @@
 import { RADIUS } from "@/app/theme";
 import { BRAND } from "@/lib/colors";
 
-/** White card that holds a results table. */
+/** Card that holds a results table. */
 export const cardSx = {
-    backgroundColor: "#ffffff",
+    backgroundColor: BRAND.paper,
     border: `1px solid ${BRAND.border}`,
     borderRadius: `${RADIUS}px`,
     boxShadow: "0 1px 3px rgba(16,24,40,0.06)",
@@ -15,7 +15,8 @@ export const tableSx = {
     border: "none",
     borderRadius: 0,
     fontSize: 13,
-    "& .MuiDataGrid-columnHeader, & .MuiDataGrid-filler": { backgroundColor: BRAND.subtle },
+    // Header cells plus the header's filler to the right of the last column (not the filler below the rows)
+    "& .MuiDataGrid-columnHeader, & .MuiDataGrid-columnHeaderRow .MuiDataGrid-filler": { backgroundColor: BRAND.subtle },
     "& .MuiDataGrid-columnHeaderTitle": { fontWeight: 600, color: BRAND.muted },
     "& .MuiDataGrid-cell": { borderColor: BRAND.divider },
     // Clicking a row selects its region
@@ -23,4 +24,4 @@ export const tableSx = {
 } as const;
 
 /** Toolbar props shared by every results table. */
-export const toolbarStyle = { backgroundColor: "#ffffff", borderBottom: `1px solid ${BRAND.divider}` };
+export const toolbarStyle = { backgroundColor: BRAND.paper, borderBottom: `1px solid ${BRAND.divider}` };

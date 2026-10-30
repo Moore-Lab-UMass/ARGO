@@ -90,7 +90,7 @@ export default function MainTable({ rows, loading, selected, onSelect }: MainTab
                     "& .MuiDataGrid-row.selected-region, & .MuiDataGrid-row.selected-region:hover": {
                         backgroundColor: BRAND.selectedRow,
                     },
-                    "& .selected-region .rank-badge": { backgroundColor: BRAND.navy, color: "#ffffff" },
+                    "& .selected-region .rank-badge": { backgroundColor: "primary.main", color: "primary.contrastText" },
                 }}
             />
         </Box>

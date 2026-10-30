@@ -55,7 +55,7 @@ export default function RegionInspector({ region, mainRow, sequence, elements, g
             component="aside"
             aria-label="Selected region"
             sx={{
-                backgroundColor: "#ffffff",
+                backgroundColor: BRAND.paper,
                 border: `1px solid ${BRAND.border}`,
                 borderRadius: `${RADIUS}px`,
                 boxShadow: "0 4px 16px rgba(16,24,40,0.08)",
@@ -70,7 +70,7 @@ export default function RegionInspector({ region, mainRow, sequence, elements, g
                     alignItems: "center",
                     columnGap: 1.5,
                     p: "16px 18px",
-                    backgroundColor: BRAND.navy,
+                    backgroundColor: BRAND.sidebar,
                     color: "#ffffff",
                 }}
             >

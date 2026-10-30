@@ -17,7 +17,7 @@ const SubmissionHeader: React.FC<SubmissionHeaderProps> = ({ fileName, regionCou
         <Stack direction="row" flexWrap="wrap" justifyContent="space-between" alignItems="flex-end" gap={1.5} mb={2.5}>
             <Stack direction="row" alignItems="flex-end" gap={2}>
                 {!drawerOpen && (
-                    <Button variant="outlined" startIcon={<FilterListIcon />} onClick={toggleDrawer} sx={{ backgroundColor: "#ffffff" }}>
+                    <Button variant="outlined" startIcon={<FilterListIcon />} onClick={toggleDrawer} sx={{ backgroundColor: "background.paper" }}>
                         Filters
                     </Button>
                 )}

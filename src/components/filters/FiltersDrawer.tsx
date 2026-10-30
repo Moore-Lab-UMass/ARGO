@@ -41,7 +41,7 @@ export default function FiltersDrawer({ open, onToggle }: FiltersDrawerProps) {
                 open={open}
                 onClose={onToggle}
                 ModalProps={{ keepMounted: true }}
-                slotProps={{ paper: { sx: { width: FILTERS_WIDTH, maxWidth: "90vw", backgroundColor: BRAND.navy } } }}
+                slotProps={{ paper: { sx: { width: FILTERS_WIDTH, maxWidth: "90vw", backgroundColor: BRAND.sidebar } } }}
             >
                 {panel}
             </Drawer>
@@ -50,7 +50,7 @@ export default function FiltersDrawer({ open, onToggle }: FiltersDrawerProps) {
 
     if (!open) return null;
     return (
-        <Box component="aside" aria-label="Filters" sx={{ width: FILTERS_WIDTH, flexShrink: 0, backgroundColor: BRAND.navy }}>
+        <Box component="aside" aria-label="Filters" sx={{ width: FILTERS_WIDTH, flexShrink: 0, backgroundColor: BRAND.sidebar }}>
             <Box sx={{ position: "sticky", top: 0, maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`, overflowY: "auto" }}>
                 {panel}
             </Box>

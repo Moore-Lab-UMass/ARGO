@@ -42,7 +42,7 @@ export default function Footer() {
             component="footer"
             sx={{
                 width: "100%",
-                backgroundColor: "primary.main",
+                backgroundColor: BRAND.sidebar,
                 zIndex: (theme) => theme.zIndex.appBar,
                 color: "#fff",
             }}

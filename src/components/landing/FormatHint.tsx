@@ -31,9 +31,9 @@ export default function FormatHint({ title, chips }: { title: string; chips: For
                                 py: 0.5,
                                 borderRadius: 1.5,
                                 border: "1px dashed",
-                                borderColor: error ? "error.main" : optional ? "#cfd6e2" : "transparent",
-                                backgroundColor: error ? "#fdecec" : optional ? "transparent" : BRAND.track,
-                                color: error ? "error.dark" : optional ? "text.secondary" : "text.primary",
+                                borderColor: error ? "error.main" : optional ? BRAND.borderStrong : "transparent",
+                                backgroundColor: error ? BRAND.errorBg : optional ? "transparent" : BRAND.track,
+                                color: error ? "error.main" : optional ? "text.secondary" : "text.primary",
                                 cursor: tooltip ? "help" : "default",
                             }}
                         >

@@ -109,7 +109,7 @@ export default function Home() {
                   color: "text.secondary",
                 },
                 "& .MuiToggleButton-root.Mui-selected, & .MuiToggleButton-root.Mui-selected:hover": {
-                  backgroundColor: "background.paper",
+                  backgroundColor: BRAND.raised,
                   color: "text.primary",
                   fontWeight: 600,
                   boxShadow: "0 1px 3px rgba(16, 24, 40, 0.12)",
@@ -170,7 +170,6 @@ export default function Home() {
           variant="contained"
           LinkComponent={Link}
           href="/help"
-          sx={{ backgroundColor: (theme) => theme.palette.primary.main }}
           startIcon={<ArrowForwardIcon />}
         >
           View Help Guide

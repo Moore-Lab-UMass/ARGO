@@ -19,7 +19,7 @@ export default function DetailsModal({ title, onClose, children }: { title: stri
                 <IconButton
                     aria-label="close"
                     onClick={onClose}
-                    sx={{ position: "absolute", top: 8, right: 8, color: (theme) => theme.palette.grey[500] }}
+                    sx={{ position: "absolute", top: 8, right: 8, color: "text.secondary" }}
                 >
                     <CloseIcon />
                 </IconButton>

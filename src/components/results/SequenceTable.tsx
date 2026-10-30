@@ -86,7 +86,7 @@ function countBy(rows: SequenceTableRow[], categoriesOf: (motifID: string) => st
     return counts;
 }
 
-const colorOf = (map: Record<string, Category>) => (key: string) => map[key]?.color ?? "black";
+const colorOf = (map: Record<string, Category>) => (key: string) => map[key]?.color ?? "grey";
 const labelOf = (map: Record<string, Category>) => (key: string) => (map[key] ? `${map[key].label} (${key})` : key);
 
 type SequenceTableProps = {

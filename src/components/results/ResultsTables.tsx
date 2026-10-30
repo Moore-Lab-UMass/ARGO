@@ -211,8 +211,8 @@ function DetailTabs({ tables, active, onChange }: { tables: RankCategory[]; acti
                             borderRadius: "7px",
                             fontSize: 13,
                             fontWeight: selected ? 600 : 500,
-                            color: selected ? BRAND.text : "#4b5568",
-                            backgroundColor: selected ? "#ffffff" : "transparent",
+                            color: selected ? BRAND.text : BRAND.muted,
+                            backgroundColor: selected ? BRAND.raised : "transparent",
                             boxShadow: selected ? "0 1px 2px rgba(16,24,40,0.12)" : "none",
                         }}
                     >

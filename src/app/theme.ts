@@ -1,6 +1,15 @@
 'use client'
 import { createTheme, ThemeOptions } from '@mui/material/styles';
-import { BRAND } from '@/lib/colors';
+import { BRAND, DARK, LIGHT, SurfaceTokens } from '@/lib/colors';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    surface: SurfaceTokens;
+  }
+  interface PaletteOptions {
+    surface?: SurfaceTokens;
+  }
+}
 
 /** Inter and JetBrains Mono are loaded with next/font in layout.tsx */
 export const SANS_FONT = 'var(--font-inter), Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -33,22 +42,50 @@ const shared: ThemeOptions = {
   },
 };
 
+/**
+ * Site theme with light and dark color schemes. MUI writes both as CSS variables and switches them
+ * with a `light`/`dark` class on <html> (set before paint by InitColorSchemeScript in layout.tsx).
+ */
 const theme = createTheme({
   ...shared,
-  palette: {
-    mode: 'light',
-    primary: {
-      main: BRAND.navy,
-      contrastText: "#FFFFFF",
-      dark: "#16295c",
-      light: BRAND.link,
+  cssVariables: { colorSchemeSelector: 'class' },
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: {
+          main: BRAND.navy,
+          contrastText: "#FFFFFF",
+          dark: "#16295c",
+          light: LIGHT.link,
+        },
+        secondary: {
+          main: "#E7EEF8",
+          dark: "#ecf0fa"
+        },
+        background: { default: LIGHT.page, paper: LIGHT.paper },
+        text: { primary: LIGHT.text, secondary: LIGHT.muted },
+        divider: LIGHT.border,
+        surface: LIGHT,
+      },
     },
-    secondary: {
-      main: "#E7EEF8",
-      dark: "#ecf0fa"
+    dark: {
+      palette: {
+        primary: {
+          main: DARK.link,
+          contrastText: "#0d1a3a",
+          dark: "#6f9cf5",
+          light: "#b3ccff",
+        },
+        secondary: {
+          main: DARK.selectedRow,
+          dark: "#182238",
+        },
+        background: { default: DARK.page, paper: DARK.paper },
+        text: { primary: DARK.text, secondary: DARK.muted },
+        divider: DARK.border,
+        surface: DARK,
+      },
     },
-    background: { default: BRAND.page, paper: "#ffffff" },
-    text: { primary: BRAND.text, secondary: BRAND.muted },
   },
 });
 

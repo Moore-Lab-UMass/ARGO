@@ -139,7 +139,7 @@ export default function UploadForm({ onSubmit, textSubmissionName, textPlacehold
                         textAlign: "center",
                         borderRadius: 2,
                         border: "2px dashed",
-                        borderColor: isDragActive ? BRAND.link : "#cfd6e2",
+                        borderColor: isDragActive ? BRAND.link : BRAND.borderStrong,
                         backgroundColor: isDragActive ? BRAND.selectedRow : BRAND.subtle,
                         cursor: "pointer",
                         transition: "border-color 0.15s ease, background-color 0.15s ease",

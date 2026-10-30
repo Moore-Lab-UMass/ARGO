@@ -6,6 +6,7 @@ import Image from "next/image";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { LinkComponent } from "./LinkComponent";
 import { BRAND } from "@/lib/colors";
+import ThemeToggle from "./ThemeToggle";
 
 /** Height of the header bar in px (the results page sizes its sticky filter sidebar from this). */
 export const HEADER_HEIGHT = 64;
@@ -65,17 +66,14 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                         alignItems="center"
                         component={Link}
                         href="/"
-                        sx={{ textDecoration: "none", color: "#111111" }}
+                        sx={{ textDecoration: "none", color: "text.primary" }}
                     >
-                        <Box height={40} width={36} position="relative">
-                            <Image
-                                priority
-                                src="/argoLogo.png"
-                                fill
-                                sizes="36px"
-                                alt="ARGO logo"
-                                style={{ objectFit: "contain" }}
-                            />
+                        {/* Both logos render; CSS shows the one for the current mode, so there's no flash */}
+                        <Box height={40} width={36} position="relative" sx={(theme) => theme.applyStyles("dark", { display: "none" })}>
+                            <Image priority src="/argoLogo.png" fill sizes="36px" alt="ARGO logo" style={{ objectFit: "contain" }} />
+                        </Box>
+                        <Box height={40} width={36} position="relative" sx={(theme) => ({ display: "none", ...theme.applyStyles("dark", { display: "block" }) })}>
+                            <Image src="/argoOnDark.png" fill sizes="36px" alt="ARGO logo" style={{ objectFit: "contain" }} />
                         </Box>
                         <Typography sx={{ fontSize: 22, fontWeight: 600, letterSpacing: "0.02em" }}>ARGO</Typography>
                     </Stack>
@@ -87,19 +85,20 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                                 href={page.link}
                                 underline="none"
                                 sx={{
-                                    color: BRAND.text,
+                                    color: "text.primary",
                                     fontSize: 15,
                                     fontWeight: 500,
                                     px: 1.75,
                                     py: 1.25,
                                     borderRadius: "6px",
-                                    "&:hover": { backgroundColor: "rgba(28, 51, 116, 0.06)" },
+                                    "&:hover": { backgroundColor: "action.hover" },
                                 }}
                             >
                                 {page.pageName}
                             </LinkComponent>
                         ))}
                     </Stack>
+                    <ThemeToggle />
                 </Stack>
             </Box>
         </Box>
