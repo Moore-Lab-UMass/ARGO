@@ -1,154 +1,126 @@
 "use client";
-import { Box, Button, FormControlLabel, Radio, RadioGroup, Typography } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { useState } from "react";
 import ArgoUpload from "@/components/landing/ArgoUpload";
 // import ExampleFiles from "@/components/landing/ExampleFiles";
 import SnpUpload from "@/components/landing/SnpUpload";
 import Link from "next/link";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { BRAND, CATEGORY_COLORS } from "@/lib/colors";
+
+type UploadMethod = "argo" | "snp";
 
 //Home page
 export default function Home() {
-  const [argoUploadVisible, setArgoUploadVisible] = useState(true);
-
-  const toggleArgoUploadVisible = () => {
-    setArgoUploadVisible(!argoUploadVisible);
-  };
+  const [method, setMethod] = useState<UploadMethod>("argo");
 
   return (
     <div>
       <Box
-        width="100%"
-        height="auto"
-        paddingY={{ xs: 10, md: 15 }}
         sx={{
           background: `url("/bg.png")`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          zIndex: 1,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          py: { xs: 6, md: 12 },
+          px: { xs: 2, sm: 4 },
         }}
       >
-        <Typography variant="h3"
-          sx={{
-            color: 'white',
-          }}
-          mb={.5}
-        >
-          Aggregate Rank Generator
-        </Typography>
-        <Typography 
-          variant="body2"
-          sx={{
-            color: 'white',
-          }}
-        >
-          A variant prioritization resource
-        </Typography>
         <Box
           sx={{
-            backgroundColor: "rgba(249, 248, 244, .8)",
-            borderRadius: 2,
-            px: 2,
-            py: 2,
-            display: "flex",
-            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" },
-            minWidth: { xs: "unset", md: 450 },
-            mt: 2,
+            maxWidth: 1240,
+            mx: "auto",
+            display: "grid",
+            gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) minmax(0, 1fr)" },
+            gap: { xs: 5, md: 8 },
             alignItems: "center",
-            flexDirection: "column",
-            mx: "auto"
           }}
         >
-          <Box width="100%">
-            <Typography variant="h6" sx={{ mb: 1 }}>
-              Choose your upload method
-            </Typography>
-            <RadioGroup
-              row
-              value={argoUploadVisible ? "argo" : "snp"}
-              onChange={toggleArgoUploadVisible}
-              sx={{ gap: 2, width: "100%" }}
+          <Box sx={{ color: "white" }}>
+            <Box
+              component="span"
+              sx={{
+                display: "inline-block",
+                px: 1.75,
+                py: 0.75,
+                mb: 3,
+                borderRadius: 999,
+                fontSize: 15,
+                fontWeight: 600,
+                backgroundColor: "rgba(255, 255, 255, 0.14)",
+                border: "1px solid rgba(255, 255, 255, 0.22)",
+              }}
             >
-              {[
-                {
-                  value: "argo",
-                  title: "Required Fields File",
-                  description:
-                    "I have a TSV file or text data with all required ARGO fields (Chromosome, Position, Alleles, etc.)",
-                },
-                {
-                  value: "snp",
-                  title: "Common rsID List",
-                  description:
-                    "I have a list of SNP IDs and need the system to retrieve genomic coordinates automatically",
-                },
-              ].map((option) => {
-                const selected =
-                  (argoUploadVisible && option.value === "argo") ||
-                  (!argoUploadVisible && option.value === "snp");
-
-                return (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio sx={{ display: "none" }} />}
-                    sx={{
-                      flex: 1,
-                      m: 0,
-                    }}
-                    label={
-                      <Box
-                        sx={{
-                          width: "100%",
-                          p: 2.5,
-                          borderRadius: 2,
-                          border: "2px solid",
-                          borderColor: selected ? "primary.main" : "grey.300",
-                          backgroundColor: selected ? "primary.main" : "grey.100",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            borderColor: selected ? "primary.main" : "grey.600",
-                          },
-                        }}
-                      >
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: selected ? 600 : 500,
-                            color: selected ? "white" : "text.secondary",
-                          }}
-                        >
-                          {option.title}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mt: 0.75,
-                            color: selected ? "white" : "text.secondary",
-                          }}
-                        >
-                          {option.description}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                );
-              })}
-            </RadioGroup>
+              Aggregate Rank Generator
+            </Box>
+            <Typography
+              component="h1"
+              sx={{
+                fontSize: { xs: 38, sm: 48, lg: 60 },
+                fontWeight: 800,
+                lineHeight: 1.05,
+                letterSpacing: "-0.035em",
+                mb: 3,
+              }}
+            >
+              Rank genomic variants by the evidence behind them.
+            </Typography>
+            <Typography sx={{ fontSize: { xs: 17, md: 20 }, lineHeight: 1.6, color: "rgba(255, 255, 255, 0.82)", maxWidth: 560, mb: 3 }}>
+              ARGO combines conservation and motif changes, overlapping cCREs, and linked genes into one aggregate rank. Tune each
+              category and see your variants re-rank instantly.
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={3}>
+              {Object.values(CATEGORY_COLORS).map(({ label, onNavy }) => (
+                <Stack key={label} direction="row" alignItems="center" gap={1}>
+                  <Box sx={{ width: 12, height: 12, borderRadius: "3px", backgroundColor: onNavy }} />
+                  <Typography sx={{ fontSize: 17, color: "rgba(255, 255, 255, 0.9)" }}>{label}</Typography>
+                </Stack>
+              ))}
+            </Stack>
           </Box>
-          {!argoUploadVisible ? (
-            <SnpUpload />
-          ) : (
-            <ArgoUpload />
-          )}
+          <Box
+            sx={{
+              backgroundColor: "background.paper",
+              borderRadius: 4,
+              p: { xs: 2.5, sm: 4 },
+              boxShadow: "0 24px 60px rgba(8, 18, 48, 0.35)",
+            }}
+          >
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              value={method}
+              aria-label="Upload method"
+              onChange={(_, next: UploadMethod | null) => next && setMethod(next)}
+              sx={{
+                mb: 3,
+                p: "4px",
+                gap: "4px",
+                borderRadius: 3,
+                backgroundColor: BRAND.track,
+                "& .MuiToggleButton-root": {
+                  border: "none",
+                  borderRadius: "10px !important",
+                  m: "0 !important",
+                  py: 1.25,
+                  fontSize: 16,
+                  textTransform: "none",
+                  color: "text.secondary",
+                },
+                "& .MuiToggleButton-root.Mui-selected, & .MuiToggleButton-root.Mui-selected:hover": {
+                  backgroundColor: "background.paper",
+                  color: "text.primary",
+                  fontWeight: 600,
+                  boxShadow: "0 1px 3px rgba(16, 24, 40, 0.12)",
+                },
+              }}
+            >
+              <ToggleButton value="argo">ARGO file</ToggleButton>
+              <ToggleButton value="snp">rsID list</ToggleButton>
+            </ToggleButtonGroup>
+            {method === "argo" ? <ArgoUpload /> : <SnpUpload />}
+          </Box>
         </Box>
       </Box>
       {/* <Box

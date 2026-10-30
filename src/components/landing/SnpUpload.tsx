@@ -1,10 +1,9 @@
-import { IconButton, Tooltip } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useLazyQuery } from "@apollo/client/react";
 import { useSubmitRegions } from "@/hooks/useSubmitRegions";
 import { SNP_QUERY } from "@/lib/graphql/queries";
 import { dataLines } from "@/lib/regions/parse";
 import { InputRegion } from "@/types/regions";
+import FormatHint from "./FormatHint";
 import UploadForm from "./UploadForm";
 
 /** Upload a list of rsIDs (one per line); coordinates and alleles are looked up automatically. */
@@ -41,15 +40,17 @@ export default function SnpUpload() {
         <UploadForm
             onSubmit={handleSubmit}
             textSubmissionName="TextSubmission"
-            helpButton={
-                <Tooltip
-                    title="Upload or type in RSID's and ARGO will autofill the required fields to be ready to rank! Please seperate ID's with a new line."
-                    arrow
-                >
-                    <IconButton>
-                        <HelpOutlineIcon />
-                    </IconButton>
-                </Tooltip>
+            textPlaceholder={"rs4846567\nrs12740374\nrs7903146"}
+            format={
+                <FormatHint
+                    title="One rsID per line"
+                    chips={[
+                        {
+                            label: "rs4846567",
+                            tooltip: "ARGO looks up the coordinates and alleles for each rsID, so no other columns are needed.",
+                        },
+                    ]}
+                />
             }
         />
     );

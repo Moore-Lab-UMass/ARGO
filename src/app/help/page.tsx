@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 // import exampleCards from "../../../public/help/exampleCards.png";
 import requiredFields from "../../../public/help/requiredFields.png";
-import snpUpload from "../../../public/help/snpUpload.png";
+import image from "../../../public/help/image.png";
 import ContactForm from "./contactForm";
 
 export default function About() {
@@ -62,7 +62,7 @@ export default function About() {
                         common RSIDs, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;Common RSID List&quot; before you begin.
                         We will autofill the rest of the required fields for you based on the IDs you provide and automatically rank them.
                     </Typography>
-                    <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
+                    <Image src={image} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
                 </Grid>
                 <Grid size={12}
                     sx={{
