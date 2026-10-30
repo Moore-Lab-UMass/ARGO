@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
-import { Link, Stack, Tooltip, Typography } from "@mui/material";
-import { COLORS } from "@/lib/colors";
+import { Box, Link, Stack, Tooltip, Typography } from "@mui/material";
+import { MONO_FONT } from "@/app/theme";
+import { BRAND, CATEGORY_COLORS, COLORS, RankCategory } from "@/lib/colors";
 import { HOCOMOCO_MOTIF_URL, SCREEN_URL } from "@/lib/constants";
 import { Allele, GeneScore } from "@/types/rows";
 
@@ -95,14 +96,46 @@ export const CountButton = ({ count, onClick }: { count: number; onClick: () => 
     </button>
 );
 
-/** Sorts numbers ascending with missing values (`isMissing`) always last. */
-export const missingLastComparator =
-    (isMissing: (v: unknown) => boolean) =>
-    (a: unknown, b: unknown): number => {
-        const aMissing = isMissing(a);
-        const bMissing = isMissing(b);
-        if (aMissing && !bMissing) return 1;
-        if (!aMissing && bMissing) return -1;
-        if (aMissing && bMissing) return 0;
-        return Number(a) - Number(b);
-    };
+/** A category rank (Sequence, Elements, Genes) as a colored pill; 0 means not ranked. */
+export function RankPill({ rank, category }: { rank?: number; category: RankCategory }) {
+    if (!rank) return <Typography sx={{ fontSize: 12, color: BRAND.muted }}>N/A</Typography>;
+    const { pillBg, pillText } = CATEGORY_COLORS[category];
+    return (
+        <Box
+            component="span"
+            sx={{ fontSize: 12, fontWeight: 600, px: "9px", py: "2px", borderRadius: 999, backgroundColor: pillBg, color: pillText }}
+        >
+            {rank}
+        </Box>
+    );
+}
+
+/** The aggregate rank as a square badge (the main table turns `.rank-badge` navy on the selected row). */
+export const RankBadge = ({ rank }: { rank?: number }) => (
+    <Box
+        component="span"
+        className="rank-badge"
+        sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minWidth: 26,
+            height: 26,
+            px: 0.5,
+            borderRadius: "7px",
+            fontWeight: 700,
+            fontSize: 12,
+            backgroundColor: BRAND.track,
+            color: BRAND.text,
+        }}
+    >
+        {rank}
+    </Box>
+);
+
+/** Monospace text for coordinates, accessions and scores. */
+export const Mono = ({ children, color }: { children: ReactNode; color?: string }) => (
+    <Box component="span" sx={{ fontFamily: MONO_FONT, fontSize: 12, color }}>
+        {children}
+    </Box>
+);

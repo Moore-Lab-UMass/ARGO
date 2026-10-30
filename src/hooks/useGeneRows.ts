@@ -13,23 +13,43 @@ import {
 import { buildGeneRows, buildLinkedGenes, filterOrthologGenes, geneIdsForScores, uniqueGeneNames } from "@/lib/ranking/genes";
 import { GeneFilterState } from "@/types/filters";
 import { Ccre } from "@/types/regions";
-import { GeneTableRow } from "@/types/rows";
+import { CcreGenes, GeneTableRow } from "@/types/rows";
+import { anyLoading, firstError } from "./queryStatus";
 
 const EMPTY: GeneTableRow[] = [];
 
 /** Genes linked to each region's cCREs, with expression and specificity scores. */
 export function useGeneRows(ccres: Ccre[] | undefined, filters: GeneFilterState) {
     const enabled = filters.useGenes;
+
+    const { linkQueries, baseGenes } = useLinkedGenes(ccres, filters);
+    const { orthologs, ccreGenes, waitingForOrthologs } = useOrthologGenes(baseGenes, filters);
+    const { specificity, expression } = useGeneScores(ccreGenes, filters, enabled && !waitingForOrthologs);
+
+    const loading = enabled && anyLoading([...linkQueries, orthologs, specificity, expression]);
+    // Ortholog and specificity failures aren't reported: rows are still built without them
+    const error = firstError([...linkQueries, expression]);
+
+    const rows = useMemo(() => {
+        if (!ccres || !enabled || loading || error) return EMPTY;
+        return buildGeneRows({ ccreGenes, ccres, specificity: specificity.data, expression: expression.data, filters });
+    }, [enabled, ccres, loading, error, ccreGenes, specificity.data, expression.data, filters]);
+
+    return { rows, loading, error };
+}
+
+/** 1. Which genes are linked to each cCRE (one query, depending on the linking method). */
+function useLinkedGenes(ccres: Ccre[] | undefined, filters: GeneFilterState) {
+    const active = filters.useGenes && ccres !== undefined;
     const method = filters.methodOfLinkage;
     const isDistance = method === "distance";
     const isComputational = isComputationalMethod(method);
     const accessions = useMemo(() => ccres?.map((c) => c.accession) ?? [], [ccres]);
     const linkage = filters.linkageBiosample;
 
-    // 1. Which genes are linked to each cCRE (one query, depending on the linking method)
     const closest = useQuery(CLOSEST_QUERY, {
         variables: { accessions },
-        skip: !enabled || !ccres || !isDistance,
+        skip: !active || !isDistance,
     });
 
     const linkedVariables = useMemo(
@@ -41,12 +61,12 @@ export function useGeneRows(ccres: Ccre[] | undefined, filters: GeneFilterState)
     );
     const linked = useQuery(LINKED_GENES_QUERY, {
         variables: linkedVariables,
-        skip: !enabled || !ccres || isDistance || isComputational,
+        skip: !active || isDistance || isComputational,
     });
 
     const computational = useQuery(COMPUTATIONAL_LNKED_GENES_QUERY, {
         variables: { accession: accessions, biosample_value: linkage ? linkage.name : [], method },
-        skip: !enabled || !ccres || !isComputational,
+        skip: !active || !isComputational,
     });
 
     const baseGenes = useMemo(
@@ -56,40 +76,41 @@ export function useGeneRows(ccres: Ccre[] | undefined, filters: GeneFilterState)
         [ccres, closest.data, linked.data, computational.data, method, filters.mustBeProteinCoding]
     );
 
-    // 2. Optionally keep only genes with a mouse ortholog
+    return { linkQueries: [closest, linked, computational], baseGenes };
+}
+
+/** 2. Optionally keep only genes with a mouse ortholog. */
+function useOrthologGenes(baseGenes: CcreGenes[], filters: GeneFilterState) {
+    const required = filters.mustHaveOrtholog;
     const geneNames = useMemo(() => uniqueGeneNames(baseGenes), [baseGenes]);
+
     const orthologs = useQuery(GENE_ORTHO_QUERY, {
         variables: { name: geneNames, assembly: "grch38" },
-        skip: !enabled || !filters.mustHaveOrtholog || baseGenes.length === 0,
+        skip: !filters.useGenes || !required || baseGenes.length === 0,
     });
-    const waitingForOrthologs = filters.mustHaveOrtholog && orthologs.loading;
+
     const ccreGenes = useMemo(
-        () => (filters.mustHaveOrtholog && orthologs.data ? filterOrthologGenes(orthologs.data, baseGenes) : baseGenes),
-        [filters.mustHaveOrtholog, orthologs.data, baseGenes]
+        () => (required && orthologs.data ? filterOrthologGenes(orthologs.data, baseGenes) : baseGenes),
+        [required, orthologs.data, baseGenes]
     );
 
-    // 3. Expression and specificity scores for those genes
+    return { orthologs, ccreGenes, waitingForOrthologs: required && orthologs.loading };
+}
+
+/** 3. Expression and specificity scores for the linked genes. */
+function useGeneScores(ccreGenes: CcreGenes[], filters: GeneFilterState, active: boolean) {
     const geneIds = useMemo(() => geneIdsForScores(ccreGenes), [ccreGenes]);
-    const skipScores = !enabled || waitingForOrthologs || geneIds.length === 0;
-    const specificity = useQuery(SPECIFICITY_QUERY, { variables: { geneids: geneIds }, skip: skipScores });
+    const skip = !active || geneIds.length === 0;
+
+    const specificity = useQuery(SPECIFICITY_QUERY, { variables: { geneids: geneIds }, skip });
     const expression = useQuery(GENE_EXP_QUERY, {
         variables: {
             genes: geneIds,
             biosample: filters.selectedBiosample ? filters.selectedBiosample.name : [],
             aggregateBy: (filters.rankGeneExpBy === "avg" ? "AVERAGE" : "MAX") as AggregateByEnum,
         },
-        skip: skipScores,
+        skip,
     });
 
-    const loading =
-        enabled &&
-        (closest.loading || linked.loading || computational.loading || orthologs.loading || specificity.loading || expression.loading);
-    const error = closest.error ?? linked.error ?? computational.error ?? expression.error;
-
-    const rows = useMemo(() => {
-        if (!enabled || !ccres || loading || error) return EMPTY;
-        return buildGeneRows({ ccreGenes, ccres, specificity: specificity.data, expression: expression.data, filters });
-    }, [enabled, ccres, loading, error, ccreGenes, specificity.data, expression.data, filters]);
-
-    return { rows, loading, error };
+    return { specificity, expression };
 }

@@ -1,102 +1,97 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { Box, Stack, Tooltip, Typography } from "@mui/material";
-import InfoOutlined from "@mui/icons-material/InfoOutlined";
-import { GRID_CHECKBOX_SELECTION_COL_DEF, GridColumnHeaderParams, GridSortModel, useGridApiRef } from "@mui/x-data-grid-premium";
+import { useMemo } from "react";
+import { Box, Stack, Typography } from "@mui/material";
+import { GridSortModel } from "@mui/x-data-grid-premium";
 import { Table, TableColDef } from "@weng-lab/ui-components";
+import { BRAND, RankCategory } from "@/lib/colors";
 import { useFilters } from "@/state/filters";
 import { RegionID } from "@/types/regions";
 import { MainTableRow } from "@/types/rows";
-import AutoSortSwitch from "./AutoSortSwitch";
-import { missingLastComparator } from "./cells";
+import { missingLastComparator } from "@/lib/sort";
+import { Mono, RankBadge, RankPill } from "./cells";
+import { regionSelectProps } from "./rowSelection";
+import { cardSx, tableSx, toolbarStyle } from "./tableStyles";
 
 const AGGREGATE_SORT: GridSortModel = [{ field: "aggregateRank", sort: "asc" }];
-const SELECTED_FIRST_SORT: GridSortModel = [{ field: "__check__", sort: "desc" }];
 
 /** Category ranks of 0 mean "not ranked" and always sort last. */
 const naLast = missingLastComparator((v) => v === "N/A" || v === 0);
-const rankOrNA = (rank?: number) => (rank === 0 ? "N/A" : rank);
-
-/** Header checkbox that doesn't also trigger column sorting when clicked. */
-const SelectAllHeader = (params: GridColumnHeaderParams) => (
-    <div onClick={(e) => e.stopPropagation()}>
-        <GRID_CHECKBOX_SELECTION_COL_DEF.renderHeader {...params} />
-    </div>
-);
 
 type MainTableProps = {
     rows: MainTableRow[];
     loading: boolean;
-    selected: Set<RegionID>;
-    onSelectedChange: (selected: Set<RegionID>) => void;
+    /** The selected region: its rows are isolated in the detail tables and shown in the inspector */
+    selected: RegionID | null;
+    onSelect: (regionID: RegionID | null) => void;
 };
 
-/** The ranked regions table; selecting rows isolates them in the detail tables below. */
-export default function MainTable({ rows, loading, selected, onSelectedChange }: MainTableProps) {
+/** The ranked regions table. Clicking a row selects it; clicking it again clears the selection. */
+export default function MainTable({ rows, loading, selected, onSelect }: MainTableProps) {
     const { sequence, element, gene } = useFilters();
     const useSequence = sequence.useConservation || sequence.useMotifs;
-    const [autoSort, setAutoSort] = useState(true);
-    const apiRef = useGridApiRef();
 
     const columns = useMemo(() => {
         const cols: TableColDef<MainTableRow>[] = [
             {
-                ...(GRID_CHECKBOX_SELECTION_COL_DEF as TableColDef<MainTableRow>),
-                sortable: true,
-                hideable: false,
-                renderHeader: SelectAllHeader,
+                field: "aggregateRank",
+                headerName: "Aggregate",
+                renderCell: ({ row }) => <RankBadge rank={row.aggregateRank} />,
             },
             { field: "regionID", headerName: "Region ID" },
             {
                 field: "inputRegion",
                 headerName: "Input Region",
                 valueGetter: (_, row) => `${row.inputRegion.chr}: ${row.inputRegion.start}-${row.inputRegion.end}`,
+                renderCell: ({ value }) => <Mono color={BRAND.muted}>{value}</Mono>,
             },
-            { field: "aggregateRank", headerName: "Aggregate" },
+            {
+                field: "change",
+                headerName: "Change",
+                valueGetter: (_, row) => (row.ref || row.alt ? `${row.ref ?? "?"} → ${row.alt ?? "?"}` : ""),
+                renderCell: ({ value }) => <Mono>{value}</Mono>,
+            },
         ];
-        const category = (field: "sequenceRank" | "elementRank" | "geneRank", headerName: string): TableColDef<MainTableRow> => ({
+        const category = (field: "sequenceRank" | "elementRank" | "geneRank", headerName: string, cat: RankCategory): TableColDef<MainTableRow> => ({
             field,
             headerName,
             sortComparator: naLast,
-            renderCell: ({ row }) => rankOrNA(row[field]),
+            renderCell: ({ row }) => <RankPill rank={row[field]} category={cat} />,
         });
-        if (useSequence) cols.push(category("sequenceRank", "Sequence"));
-        if (element.usecCREs) cols.push(category("elementRank", "Element"));
-        if (gene.useGenes) cols.push(category("geneRank", "Gene"));
+        if (useSequence) cols.push(category("sequenceRank", "Sequence", "sequence"));
+        if (element.usecCREs) cols.push(category("elementRank", "Element", "element"));
+        if (gene.useGenes) cols.push(category("geneRank", "Gene", "gene"));
         return cols;
     }, [useSequence, element.usecCREs, gene.useGenes]);
 
-    // With auto sort on, selected rows float to the top; otherwise sort by aggregate rank
-    useEffect(() => {
-        apiRef.current?.setSortModel(autoSort && selected.size > 0 ? SELECTED_FIRST_SORT : AGGREGATE_SORT);
-    }, [apiRef, autoSort, selected]);
-
-    const toolbarExtra = useMemo(() => <AutoSortSwitch autoSort={autoSort} setAutoSort={setAutoSort} />, [autoSort]);
-    const selectionModel = useMemo(() => ({ type: "include" as const, ids: selected }), [selected]);
+    const toggle = (id: RegionID) => onSelect(id === selected ? null : id);
 
     return (
-        <Box mt="20px">
+        <Box sx={cardSx}>
             <Table
-                apiRef={apiRef}
                 columns={columns}
                 rows={rows}
                 loading={loading}
                 initialState={{ sorting: { sortModel: AGGREGATE_SORT } }}
                 divHeight={{ height: "440px", maxHeight: "440px" }}
-                slotProps={{ toolbar: { extra: toolbarExtra } }}
+                slotProps={{ toolbar: { style: toolbarStyle } }}
                 label={
-                    <Tooltip title="Select a row to isolate it" arrow placement="top-start">
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <InfoOutlined fontSize="small" />
-                            <Typography>Ranked Regions</Typography>
-                        </Stack>
-                    </Tooltip>
+                    <Stack direction="row" alignItems="baseline" gap={1.5} flexWrap="wrap">
+                        <Typography component="h2" sx={{ fontSize: 15, fontWeight: 600 }}>
+                            Ranked regions
+                        </Typography>
+                        <Typography sx={{ fontSize: 12, color: BRAND.muted }}>Click a row to inspect it</Typography>
+                    </Stack>
                 }
-                checkboxSelection
                 getRowId={(row) => row.regionID}
-                onRowSelectionModelChange={(model) => onSelectedChange(new Set(model.ids as Set<RegionID>))}
-                rowSelectionModel={selectionModel}
-                keepNonExistentRowsSelected
+                {...regionSelectProps<MainTableRow>(toggle)}
+                getRowClassName={({ id }) => (id === selected ? "selected-region" : "")}
+                sx={{
+                    ...tableSx,
+                    "& .MuiDataGrid-row.selected-region, & .MuiDataGrid-row.selected-region:hover": {
+                        backgroundColor: BRAND.selectedRow,
+                    },
+                    "& .selected-region .rank-badge": { backgroundColor: "primary.main", color: "primary.contrastText" },
+                }}
             />
         </Box>
     );

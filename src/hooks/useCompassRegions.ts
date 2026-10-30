@@ -12,7 +12,10 @@ export function useCompassRegions(collection: string) {
     useEffect(() => {
         let cancelled = false;
         fetch(COMPASS_COLLECTIONS[collection].file)
-            .then((res) => res.text())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.text();
+            })
             .then((text) => !cancelled && setState({ collection, regions: parseCompassVcf(text) }))
             .catch((err) => {
                 console.error(`Failed to load compass collection ${collection}:`, err);

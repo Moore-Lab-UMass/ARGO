@@ -19,7 +19,7 @@ export default function BiosampleChip({ label, onClear, onClick }: BiosampleChip
                 justifyContent="space-between"
                 alignItems="center"
                 width="100%"
-                sx={{ backgroundColor: (theme) => theme.palette.secondary.main }}
+                sx={{ backgroundColor: "secondary.main" }}
             >
                 <Typography sx={{ color: COLORS.chipText, pl: 1 }}>{label}</Typography>
                 <IconButton
@@ -35,7 +35,3 @@ export default function BiosampleChip({ label, onClear, onClick }: BiosampleChip
         </Paper>
     );
 }
-
-/** "Tissue - Display name", with the tissue capitalised. */
-export const biosampleLabel = (b: { ontology: string; displayname: string }) =>
-    `${b.ontology.charAt(0).toUpperCase()}${b.ontology.slice(1)} - ${b.displayname}`;

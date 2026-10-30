@@ -6,19 +6,14 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import { useGrowOnScroll } from "@/hooks/useGrowOnScroll";
 import { useSubmitRegions } from "@/hooks/useSubmitRegions";
 import { parseRegionsTsv } from "@/lib/regions/parse";
-
-const examples = [
-  { name: "Example 1", file: "/ArgoExample.tsv" },
-  { name: "Example 2", file: "/ArgoExample2.tsv" },
-  { name: "Example 3", file: "/ArgoExample3.tsv" },
-];
+import { EXAMPLES } from "@/lib/constants";
 
 /** Cards for the example files in /public: download one, or submit it directly. */
 const ExampleFiles: React.FC = () => {
   const submitRegions = useSubmitRegions();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { visible: examplesVisible, refs: examplesRefs } = useGrowOnScroll(examples.length);
+  const { visible: examplesVisible, refs: examplesRefs } = useGrowOnScroll(EXAMPLES.length);
 
   const handleUseExample = async (url: string) => {
     setLoading(true);
@@ -35,11 +30,11 @@ const ExampleFiles: React.FC = () => {
 
   return (
     <Grid container spacing={5} justifyContent="flex-start" marginTop={6} width={"100%"}>
-      {examples.map((file, index) => (
+      {EXAMPLES.map((file, index) => (
         <Grow
           in={examplesVisible[index]}
           timeout={800 + index * 300}
-          key={`${file.name}-${index}`}
+          key={file.file}
         >
           <Grid
             ref={(el) => {

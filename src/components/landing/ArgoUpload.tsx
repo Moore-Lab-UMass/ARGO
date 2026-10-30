@@ -1,22 +1,22 @@
 import { useCallback, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, IconButton, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useLazyQuery } from "@apollo/client/react";
 import { useSubmitRegions } from "@/hooks/useSubmitRegions";
 import { REF_CHECK_QUERY } from "@/lib/graphql/queries";
 import { parseRegionsTsv } from "@/lib/regions/parse";
 import { RegionField, validateRegions } from "@/lib/regions/validate";
 import { InputRegion } from "@/types/regions";
+import ExampleLinks from "./ExampleLinks";
+import FormatHint from "./FormatHint";
 import UploadForm from "./UploadForm";
 
-const REQUIRED_FIELDS: { label: string; tooltip: string; field?: RegionField }[] = [
-    { label: "Chromosome", tooltip: "Chromosome where the variant is located Ex: Chr1", field: "chr" },
-    { label: "Start", tooltip: "Start position of the variant Ex: 1000000", field: "numbers" },
-    { label: "End", tooltip: "End position of the variant Ex: 1000001", field: "numbers" },
-    { label: "Reference Allele", tooltip: "Original Sequence Ex: G", field: "ref" },
-    { label: "Alternate Allele", tooltip: "Mutated Sequence, Insertion Ex: C, Deletion Ex: -", field: "alt" },
-    { label: "Strand", tooltip: "Strand information (+ or -)", field: "strand" },
-    { label: "Region ID (optional)", tooltip: "Optional region identifier, String or Number" },
+const COLUMNS: { label: string; tooltip: string; field?: RegionField; optional?: boolean }[] = [
+    { label: "chr", tooltip: "Chromosome where the variant is located, e.g. chr1", field: "chr" },
+    { label: "start", tooltip: "Start position of the variant, e.g. 1000000", field: "numbers" },
+    { label: "end", tooltip: "End position of the variant, e.g. 1000001", field: "numbers" },
+    { label: "ref", tooltip: "Reference allele, e.g. G", field: "ref" },
+    { label: "alt", tooltip: "Alternate allele. Insertion e.g. C, deletion: -", field: "alt" },
+    { label: "strand", tooltip: "Strand, + or -", field: "strand" },
+    { label: "regionID (optional)", tooltip: "Optional region identifier, text or a number", optional: true },
 ];
 
 /** Upload in ARGO's required-fields format (chr, start, end, ref, alt, strand, optional ID). */
@@ -24,7 +24,6 @@ export default function ArgoUpload() {
     const submitRegions = useSubmitRegions();
     const [checkRefs] = useLazyQuery(REF_CHECK_QUERY);
     const [errorField, setErrorField] = useState<RegionField | null>(null);
-    const [requiredOpen, setRequiredOpen] = useState(false);
 
     /** Compares each reference allele to the genome; returns an error message or "". */
     const checkReferenceAlleles = useCallback(
@@ -64,51 +63,18 @@ export default function ArgoUpload() {
     };
 
     return (
-        <>
-            <UploadForm
-                onSubmit={handleSubmit}
-                textSubmissionName="textSubmission"
-                onReset={() => setErrorField(null)}
-                helpButton={
-                    <Tooltip title="View required fields" arrow>
-                        <IconButton color={errorField ? "error" : "default"} onClick={() => setRequiredOpen(true)}>
-                            <HelpOutlineIcon />
-                        </IconButton>
-                    </Tooltip>
-                }
-            />
-            <Dialog open={requiredOpen} onClose={() => setRequiredOpen(false)} maxWidth="md" fullWidth>
-                <DialogTitle>Required Fields</DialogTitle>
-                <DialogContent>
-                    <Table
-                        sx={{
-                            border: "1px solid",
-                            borderColor: "black",
-                            width: "100%",
-                            "& td, & th": { padding: "8px", fontSize: "1rem", textAlign: "center", border: "1px solid", borderColor: "black" },
-                        }}
-                    >
-                        <TableBody>
-                            <TableRow>
-                                {REQUIRED_FIELDS.map(({ label, tooltip, field }) => (
-                                    <TableCell
-                                        key={label}
-                                        sx={{ backgroundColor: field && errorField === field ? "error.light" : "transparent" }}
-                                    >
-                                        <Tooltip title={tooltip} arrow>
-                                            <span>{label}</span>
-                                        </Tooltip>
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                    <Typography variant="body1" fontSize="1rem" sx={{ mt: 2 }}>
-                        If using the text box, separate fields with a tab. Below is an example file to help you format your
-                        data correctly.
-                    </Typography>
-                </DialogContent>
-            </Dialog>
-        </>
+        <UploadForm
+            onSubmit={handleSubmit}
+            textSubmissionName="textSubmission"
+            textPlaceholder={"Paste rows from Excel, tab separated:\nchr1\t1000000\t1000001\tG\tC\t+\tvariant1"}
+            onReset={() => setErrorField(null)}
+            format={
+                <FormatHint
+                    title="Columns, tab separated"
+                    chips={COLUMNS.map(({ field, ...chip }) => ({ ...chip, error: !!field && field === errorField }))}
+                />
+            }
+            footer={<ExampleLinks />}
+        />
     );
 }

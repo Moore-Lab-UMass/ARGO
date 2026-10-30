@@ -4,6 +4,7 @@ import { useFilterActions, useFilters } from "@/state/filters";
 import { Alignment, DataSource, MotifCatalog, MotifQuality, SequenceFilterState } from "@/types/filters";
 import CheckboxGroup, { CheckboxOption } from "./CheckboxGroup";
 import FilterAccordion from "./FilterAccordion";
+import SegmentedControl from "./SegmentedControl";
 
 const QUALITY_OPTIONS: CheckboxOption<keyof MotifQuality>[] = [
     { key: "a", label: "A" },
@@ -43,14 +44,36 @@ const DATA_SOURCE_INFO = (
 
 type Props = { expanded: boolean; onToggle: () => void };
 
+const RANK_BY_OPTIONS: { value: SequenceFilterState["rankBy"]; label: string }[] = [
+    { value: "min", label: "Min" },
+    { value: "max", label: "Max" },
+    { value: "avg", label: "Avg" },
+];
+
+/** e.g. "phyloP - 241 mammals · max · TF motifs" */
+function summarize(f: SequenceFilterState): string {
+    const parts: string[] = [];
+    if (f.useConservation) parts.push(CONSERVATION_TRACKS[f.alignment].menuLabel, f.rankBy);
+    if (f.useMotifs) parts.push("TF motifs");
+    return parts.join(" · ");
+}
+
 export default function SequenceFilters({ expanded, onToggle }: Props) {
     const { sequence: f } = useFilters();
     const { setSequence, dispatch } = useFilterActions();
 
+    const setEnabled = (on: boolean) => {
+        setSequence("useConservation", on);
+        setSequence("useMotifs", on);
+    };
+
     return (
         <FilterAccordion
-            title="Sequence"
+            category="sequence"
             info="Filter results based on conservation score (Mammal, Primate, and Vertebrate) or TF Motif details"
+            enabled={f.useConservation || f.useMotifs}
+            onEnabledChange={setEnabled}
+            summary={summarize(f)}
             expanded={expanded}
             onToggle={onToggle}
         >
@@ -58,12 +81,13 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
                 label="Conservation"
                 control={<Checkbox checked={f.useConservation} onChange={() => setSequence("useConservation", !f.useConservation)} />}
             />
-            <Stack ml={2}>
+            <Stack ml={1} gap={1.5}>
                 <FormControl fullWidth>
                     <Select
                         size="small"
                         value={f.alignment}
                         disabled={!f.useConservation}
+                        inputProps={{ "aria-label": "Conservation track" }}
                         onChange={(e) => setSequence("alignment", e.target.value as Alignment)}
                     >
                         {Object.entries(CONSERVATION_TRACKS)
@@ -75,26 +99,21 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
                             ))}
                     </Select>
                 </FormControl>
-                <FormControl sx={{ mt: 1 }}>
-                    <Typography>Rank conservation scores by</Typography>
-                    <RadioGroup
-                        row
-                        value={f.rankBy}
-                        onChange={(e) => setSequence("rankBy", e.target.value as SequenceFilterState["rankBy"])}
-                    >
-                        <FormControlLabel value="min" control={<Radio disabled={!f.useConservation} />} label="Min" />
-                        <FormControlLabel value="max" control={<Radio disabled={!f.useConservation} />} label="Max" />
-                        <FormControlLabel value="avg" control={<Radio disabled={!f.useConservation} />} label="Average" />
-                    </RadioGroup>
-                </FormControl>
+                <SegmentedControl
+                    label="Rank conservation scores by"
+                    value={f.rankBy}
+                    options={RANK_BY_OPTIONS}
+                    onChange={(v) => setSequence("rankBy", v)}
+                    disabled={!f.useConservation}
+                />
             </Stack>
 
-            <FormGroup>
+            <FormGroup sx={{ mt: 1 }}>
                 <FormControlLabel
                     label="TF Motifs"
                     control={<Checkbox checked={f.useMotifs} onChange={() => setSequence("useMotifs", !f.useMotifs)} />}
                 />
-                <Stack ml={2}>
+                <Stack ml={1}>
                     {/* Factorbook and ZMotif catalogs are not available yet */}
                     <RadioGroup
                         row
@@ -112,9 +131,8 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
                                 values={f.motifQuality}
                                 onChange={(v) => setSequence("motifQuality", v)}
                                 disabled={!f.useMotifs}
-                                layout="row"
-                                selectAllLabel="Select All"
-                                sx={{ mt: 1 }}
+                                layout="chips"
+                                sx={{ mt: 0.5 }}
                             />
                             <CheckboxGroup
                                 label="Data source"
@@ -123,7 +141,7 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
                                 values={f.dataSource}
                                 onChange={(v) => setSequence("dataSource", v)}
                                 disabled={!f.useMotifs}
-                                sx={{ mt: 1 }}
+                                sx={{ mt: 1.5 }}
                             />
                         </>
                     )}
@@ -131,10 +149,10 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
             </FormGroup>
 
             <FormGroup>
-                <FormControl sx={{ marginLeft: 2 }}>
-                    <Typography>Include in ranking</Typography>
+                <FormControl sx={{ ml: 1 }}>
+                    <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 1 }}>Include in ranking</Typography>
                     <FormControlLabel
-                        label="Number of Overlaping Motifs"
+                        label="Number of overlapping motifs"
                         disabled={!f.useMotifs}
                         control={
                             <Checkbox
@@ -144,7 +162,7 @@ export default function SequenceFilters({ expanded, onToggle }: Props) {
                         }
                     />
                     <FormControlLabel
-                        label="Motif Score Delta"
+                        label="Motif score delta"
                         disabled={!f.useMotifs}
                         control={<Checkbox checked={f.motifScoreDelta} onChange={() => setSequence("motifScoreDelta", !f.motifScoreDelta)} />}
                     />

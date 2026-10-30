@@ -1,15 +1,29 @@
 import { useState } from "react";
-import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, MenuItem, Radio, RadioGroup, Select, Stack, Typography } from "@mui/material";
+import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, MenuItem, Select, Stack, ThemeProvider, Typography } from "@mui/material";
+import theme from "@/app/theme";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import { LINKAGE_METHOD_OPTIONS } from "@/lib/constants";
 import { useFilterActions, useFilters } from "@/state/filters";
 import { GeneFilterState, GeneLinkingMethod } from "@/types/filters";
-import BiosampleChip, { biosampleLabel } from "./BiosampleChip";
+import { biosampleLabel } from "@/lib/format";
+import BiosampleChip from "./BiosampleChip";
 import { BiosampleModal } from "./BiosampleModal";
 import FilterAccordion from "./FilterAccordion";
+import SegmentedControl from "./SegmentedControl";
 import { LinkageBiosampleModal } from "./LinkageBiosampleModal";
 
 type Props = { expanded: boolean; onToggle: () => void };
+
+const MAX_OR_AVERAGE: { value: "max" | "avg"; label: string }[] = [
+    { value: "max", label: "Max" },
+    { value: "avg", label: "Avg" },
+];
+
+/** e.g. "Distance · max expression · most linked" */
+function summarize(f: GeneFilterState): string {
+    const method = LINKAGE_METHOD_OPTIONS.find((o) => o.value === f.methodOfLinkage)?.label ?? f.methodOfLinkage;
+    return [method, `${f.rankGeneExpBy} expression`, `${f.rankLinkedBy} linked`].join(" · ");
+}
 
 /**
  * Linking a gene by anything other than distance needs a biosample. Picking such a method
@@ -34,32 +48,21 @@ export default function GeneFilters({ expanded, onToggle }: Props) {
         setLinkageDialog(null);
     };
 
-    const radio = <K extends keyof GeneFilterState>(key: K, options: { value: string; label: string }[]) => (
-        <RadioGroup row value={f[key]} onChange={(e) => setGene(key, e.target.value as GeneFilterState[K])}>
-            {options.map((o) => (
-                <FormControlLabel key={o.value} value={o.value} control={<Radio />} label={o.label} />
-            ))}
-        </RadioGroup>
-    );
-    const maxOrAverage = [
-        { value: "max", label: "Max" },
-        { value: "avg", label: "Average" },
-    ];
-
     return (
         <FilterAccordion
-            title="Genes"
-            info="Filter results based on linked genes and thier linking method"
+            category="gene"
+            info="Filter results based on linked genes and their linking method"
+            enabled={f.useGenes}
+            onEnabledChange={(on) => setGene("useGenes", on)}
+            summary={summarize(f)}
             expanded={expanded}
             onToggle={onToggle}
         >
-            <FormControlLabel
-                label="Linked Genes"
-                control={<Checkbox checked={f.useGenes} onChange={() => setGene("useGenes", !f.useGenes)} />}
-            />
-            <Stack ml={2}>
+            <Stack gap={1.5}>
                 <FormControl fullWidth disabled={disabled}>
-                    <Typography>Linking method</Typography>
+                    <Typography sx={{ fontSize: 12, color: disabled ? "text.disabled" : "text.secondary", mb: 0.75 }}>
+                        Linking method
+                    </Typography>
                     <Select
                         value={f.methodOfLinkage}
                         onChange={(e) => handleMethodChange(e.target.value as GeneLinkingMethod)}
@@ -79,12 +82,15 @@ export default function GeneFilters({ expanded, onToggle }: Props) {
                         onClear={() => dispatch({ type: "clearLinkage" })}
                     />
                 )}
-                <FormControl disabled={disabled} sx={{ mt: 2 }}>
-                    <Typography>Rank gene expression by</Typography>
-                    {radio("rankGeneExpBy", maxOrAverage)}
-                </FormControl>
+                <SegmentedControl
+                    label="Rank gene expression by"
+                    value={f.rankGeneExpBy}
+                    options={MAX_OR_AVERAGE}
+                    onChange={(v) => setGene("rankGeneExpBy", v)}
+                    disabled={disabled}
+                />
                 <Button
-                    size="large"
+                    size="small"
                     startIcon={<BiotechIcon />}
                     onClick={() => setExpressionBiosampleOpen(true)}
                     disabled={disabled}
@@ -96,19 +102,25 @@ export default function GeneFilters({ expanded, onToggle }: Props) {
                 {f.selectedBiosample && (
                     <BiosampleChip label={biosampleLabel(f.selectedBiosample)} onClear={() => setGene("selectedBiosample", null)} />
                 )}
-                <FormControl disabled={disabled}>
-                    <Typography sx={{ mt: 1 }}>Rank expression specificity by</Typography>
-                    {radio("rankExpSpecBy", maxOrAverage)}
-                </FormControl>
-                <FormControl disabled={disabled}>
-                    <Typography sx={{ mt: 1 }}>Rank # of linked genes by</Typography>
-                    {radio("rankLinkedBy", [
+                <SegmentedControl
+                    label="Rank expression specificity by"
+                    value={f.rankExpSpecBy}
+                    options={MAX_OR_AVERAGE}
+                    onChange={(v) => setGene("rankExpSpecBy", v)}
+                    disabled={disabled}
+                />
+                <SegmentedControl
+                    label="Rank # of linked genes by"
+                    value={f.rankLinkedBy}
+                    options={[
                         { value: "most", label: "Most" },
                         { value: "least", label: "Least" },
-                    ])}
-                </FormControl>
+                    ]}
+                    onChange={(v) => setGene("rankLinkedBy", v)}
+                    disabled={disabled}
+                />
                 <FormControl disabled={disabled}>
-                    <Typography sx={{ mt: 1 }}>Gene filters</Typography>
+                    <Typography sx={{ fontSize: 12, color: disabled ? "text.disabled" : "text.secondary" }}>Gene filters</Typography>
                     <FormGroup>
                         <FormControlLabel
                             label="Must be protein coding"
@@ -125,30 +137,33 @@ export default function GeneFilters({ expanded, onToggle }: Props) {
                     </FormGroup>
                 </FormControl>
             </Stack>
-            {expressionBiosampleOpen && (
-                <BiosampleModal
-                    open
-                    onClose={() => setExpressionBiosampleOpen(false)}
-                    assembly="GRCh38"
-                    selected={f.selectedBiosample}
-                    onSelectionChange={(biosample) => {
-                        setGene("selectedBiosample", biosample);
-                        setExpressionBiosampleOpen(false);
-                    }}
-                    prefilterBiosamples={(biosample) => biosample.rna_seq_tracks.length > 0}
-                />
-            )}
-            {linkageDialog && (
-                <LinkageBiosampleModal
-                    open
-                    method={linkageDialog.method}
-                    onClose={handleLinkageCancel}
-                    onSubmit={(biosample, includeInExpression) => {
-                        dispatch({ type: "setLinkage", method: linkageDialog.method, biosample, includeInExpression });
-                        setLinkageDialog(null);
-                    }}
-                />
-            )}
+            {/* The dialogs keep the site's light theme, not the sidebar's */}
+            <ThemeProvider theme={theme}>
+                {expressionBiosampleOpen && (
+                    <BiosampleModal
+                        open
+                        onClose={() => setExpressionBiosampleOpen(false)}
+                        assembly="GRCh38"
+                        selected={f.selectedBiosample}
+                        onSelectionChange={(biosample) => {
+                            setGene("selectedBiosample", biosample);
+                            setExpressionBiosampleOpen(false);
+                        }}
+                        prefilterBiosamples={(biosample) => biosample.rna_seq_tracks.length > 0}
+                    />
+                )}
+                {linkageDialog && (
+                    <LinkageBiosampleModal
+                        open
+                        method={linkageDialog.method}
+                        onClose={handleLinkageCancel}
+                        onSubmit={(biosample, includeInExpression) => {
+                            dispatch({ type: "setLinkage", method: linkageDialog.method, biosample, includeInExpression });
+                            setLinkageDialog(null);
+                        }}
+                    />
+                )}
+            </ThemeProvider>
         </FilterAccordion>
     );
 }

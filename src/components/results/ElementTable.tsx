@@ -1,12 +1,15 @@
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { Stack } from "@mui/material";
 import { Table, TableColDef } from "@weng-lab/ui-components";
 import { ProportionsBar } from "@weng-lab/visualization";
-import { CCRE_CLASSES, COLORS } from "@/lib/colors";
+import { CCRE_CLASSES } from "@/lib/colors";
 import { useFilters } from "@/state/filters";
 import { Assay, ElementFilterState } from "@/types/filters";
+import { RegionID } from "@/types/regions";
 import { ElementTableRow } from "@/types/rows";
 import { CcreLink } from "./cells";
+import { regionSelectProps } from "./rowSelection";
+import { tableSx, toolbarStyle } from "./tableStyles";
 
 const CLASS_NAMES: Record<string, string> = { PLS: "Promoter", pELS: "Proximal Enhancer", dELS: "Distal Enhancer" };
 
@@ -22,7 +25,7 @@ const ASSAY_COLUMNS: { key: Assay; label: string }[] = [
 function ClassCell({ value }: { value?: string }) {
     if (!value) return null;
     const category = CCRE_CLASSES[value] ?? Object.values(CCRE_CLASSES).find((c) => c.label === value);
-    const { label, color } = category ?? { label: "Unknown", color: "black" };
+    const { label, color } = category ?? { label: "Unknown", color: "grey" };
     return <span style={{ color: value === "InActive" ? "gray" : color, fontWeight: "bold" }}>{label}</span>;
 }
 
@@ -66,10 +69,11 @@ type ElementTableProps = {
     isolatedRows?: ElementTableRow[];
     loading: boolean;
     error: boolean;
-    toolbarExtra: ReactNode;
+    /** Called with a row's region when the row is clicked */
+    onSelect: (regionID: RegionID) => void;
 };
 
-export default function ElementTable({ rows, isolatedRows, loading, error, toolbarExtra }: ElementTableProps) {
+export default function ElementTable({ rows, isolatedRows, loading, error, onSelect }: ElementTableProps) {
     const { element: f } = useFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const columns = useMemo(() => elementColumns(f), [f.assays, f.cCREAssembly, f.mustHaveOrtholog]);
@@ -88,7 +92,7 @@ export default function ElementTable({ rows, isolatedRows, loading, error, toolb
                     data={classCounts}
                     loading={loading}
                     tooltipTitle="cCRE Classification Proportions"
-                    getColor={(key) => CCRE_CLASSES[key]?.color ?? "black"}
+                    getColor={(key) => CCRE_CLASSES[key]?.color ?? "grey"}
                     formatLabel={(key) => CCRE_CLASSES[key]?.label ?? key}
                     sortDescending
                     label="cCRE Classification Proportions"
@@ -106,8 +110,10 @@ export default function ElementTable({ rows, isolatedRows, loading, error, toolb
                 label="Element Details (Overlapping cCREs)"
                 divHeight={{ height: "440px", maxHeight: "440px" }}
                 emptyTableFallback="No Overlapping cCREs"
-                slotProps={{ toolbar: { extra: toolbarExtra, style: { backgroundColor: COLORS.toolbar } } }}
+                slotProps={{ toolbar: { style: toolbarStyle } }}
+                sx={tableSx}
                 error={error}
+                {...regionSelectProps<ElementTableRow>(onSelect)}
             />
         </Stack>
     );

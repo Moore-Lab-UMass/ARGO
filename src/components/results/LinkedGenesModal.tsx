@@ -1,7 +1,8 @@
 import { Table, TableColDef } from "@weng-lab/ui-components";
 import { GeneTableRow, LinkedGene } from "@/types/rows";
 import { GeneLink } from "./cells";
-import DetailsModal, { formatRegion } from "./DetailsModal";
+import { formatRegion } from "@/lib/format";
+import DetailsModal from "./DetailsModal";
 
 const COLUMNS: TableColDef<LinkedGene>[] = [
     {

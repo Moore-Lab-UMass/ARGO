@@ -4,8 +4,12 @@ import React from "react";
 import Image from "next/image";
 // import exampleCards from "../../../public/help/exampleCards.png";
 import requiredFields from "../../../public/help/requiredFields.png";
-import snpUpload from "../../../public/help/snpUpload.png";
+import image from "../../../public/help/image.png";
+import { BRAND } from "@/lib/colors";
 import ContactForm from "./contactForm";
+
+/** Frames the screenshots so they sit cleanly on the page in dark mode too. */
+const SCREENSHOT_STYLE = { borderRadius: 10, border: `1px solid ${BRAND.border}` };
 
 export default function About() {
     return (
@@ -35,7 +39,7 @@ export default function About() {
                     alignItems={"center"}
                     display={"flex"}
                 >
-                    <Image src={exampleCards} alt={"example"} style={{ width: "80%", height: "100%" }} />
+                    <Image src={exampleCards} alt={"example"} style={{ width: "80%", height: "100%", ...SCREENSHOT_STYLE }} />
                 </Grid> */}
                 {/* <Grid size={12}>
                     <Typography mt={1} variant="body1" paragraph>
@@ -49,7 +53,7 @@ export default function About() {
                     alignItems={"center"}
                     display={"flex"}
                 >
-                    <Image src={requiredFields} alt={"Required Fields"} style={{ width: "80%", height: "100%" }} />
+                    <Image src={requiredFields} alt={"Required Fields"} style={{ width: "80%", height: "100%", ...SCREENSHOT_STYLE }} />
                 </Grid>
                 <Grid size={12}
                     sx={{
@@ -62,7 +66,7 @@ export default function About() {
                         common RSIDs, and then we&apos;ll do the rest! Just make sure that your home screen upload section says &quot;Common RSID List&quot; before you begin.
                         We will autofill the rest of the required fields for you based on the IDs you provide and automatically rank them.
                     </Typography>
-                    <Image src={snpUpload} alt={"Required Fields"} style={{ width: "80%", height: "80%" }} />
+                    <Image src={image} alt={"Required Fields"} style={{ width: "80%", height: "80%", ...SCREENSHOT_STYLE }} />
                 </Grid>
                 <Grid size={12}
                     sx={{

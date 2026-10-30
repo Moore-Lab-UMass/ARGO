@@ -1,17 +1,15 @@
 "use client";
 import * as React from "react";
-import {
-    AppBar,
-    Box,
-    Toolbar,
-    Stack,
-    Typography,
-} from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { LinkComponent } from "./LinkComponent";
-import { COLORS } from "@/lib/colors";
+import { BRAND } from "@/lib/colors";
+import ThemeToggle from "./ThemeToggle";
+
+/** Height of the header bar in px (the results page sizes its sticky filter sidebar from this). */
+export const HEADER_HEIGHT = 64;
 
 export type PageInfo = {
     pageName: string,
@@ -57,39 +55,52 @@ function Header({ maintenance }: ResponsiveAppBarProps) {
                 </Typography>
                 <WarningAmberIcon />
             </Stack>
-            <AppBar position="static">
-                <Toolbar sx={{ justifyContent: "space-between", backgroundColor: COLORS.panel }}>
-                    <Stack direction={"row"} spacing={2} alignItems={"center"} component={Link} href={"/"} sx={{ textDecoration: "none" }}>
-                        <Box height={45} width={40} position={"relative"}>
-                            <Image
-                                priority
-                                src="/argoLogo.png"
-                                fill
-                                alt="ARGO logo"
-                                style={{ objectFit: "contain", objectPosition: "left center" }}
-                            />
+            <Box
+                component="header"
+                sx={{ backgroundColor: BRAND.cream, borderBottom: `1px solid ${BRAND.creamBorder}`, px: 3 }}
+            >
+                <Stack direction="row" alignItems="center" gap={2} minHeight={HEADER_HEIGHT}>
+                    <Stack
+                        direction="row"
+                        gap={1.5}
+                        alignItems="center"
+                        component={Link}
+                        href="/"
+                        sx={{ textDecoration: "none", color: "text.primary" }}
+                    >
+                        {/* Both logos render; CSS shows the one for the current mode, so there's no flash */}
+                        <Box height={40} width={36} position="relative" sx={(theme) => theme.applyStyles("dark", { display: "none" })}>
+                            <Image priority src="/argoLogo.png" fill sizes="36px" alt="ARGO logo" style={{ objectFit: "contain" }} />
                         </Box>
-                        <Typography variant="h5" color="black" >
-                            ARGO
-                        </Typography>
+                        <Box height={40} width={36} position="relative" sx={(theme) => ({ display: "none", ...theme.applyStyles("dark", { display: "block" }) })}>
+                            <Image src="/argoOnDark.png" fill sizes="36px" alt="ARGO logo" style={{ objectFit: "contain" }} />
+                        </Box>
+                        <Typography sx={{ fontSize: 22, fontWeight: 600, letterSpacing: "0.02em" }}>ARGO</Typography>
                     </Stack>
-                    <Stack spacing={3} direction={"row"} display={{ xs: "none", md: "flex" }} alignItems={"center"}>
+                    <Box flexGrow={1} />
+                    <Stack component="nav" aria-label="Main" direction="row" gap={0.5} alignItems="center">
                         {pageLinks.map((page) => (
-                            <Box
+                            <LinkComponent
                                 key={page.pageName}
-                                display={"flex"}
-                                alignItems={"center"}
-                                id="LinkBox"
-                                sx={{ mr: 2 }}
+                                href={page.link}
+                                underline="none"
+                                sx={{
+                                    color: "text.primary",
+                                    fontSize: 15,
+                                    fontWeight: 500,
+                                    px: 1.75,
+                                    py: 1.25,
+                                    borderRadius: "6px",
+                                    "&:hover": { backgroundColor: "action.hover" },
+                                }}
                             >
-                                <LinkComponent id="Link" display={"flex"} color={"black"} href={page.link} underline="none">
-                                    {page.pageName}
-                                </LinkComponent>
-                            </Box>
+                                {page.pageName}
+                            </LinkComponent>
                         ))}
                     </Stack>
-                </Toolbar>
-            </AppBar>
+                    <ThemeToggle />
+                </Stack>
+            </Box>
         </Box>
     );
 };

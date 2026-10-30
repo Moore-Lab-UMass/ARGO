@@ -122,7 +122,7 @@ export function LinkageBiosampleModal({ open, method, onClose, onSubmit }: Linka
                         alignItems="center"
                         borderRadius={1}
                         justifyContent="space-between"
-                        sx={{ backgroundColor: (theme) => theme.palette.secondary.main }}
+                        sx={{ backgroundColor: "secondary.main" }}
                         width="fit-content"
                         paddingX={1}
                     >
