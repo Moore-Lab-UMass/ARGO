@@ -89,5 +89,12 @@ export const COMPASS_COLLECTIONS: Record<string, { file: string; count: number }
 
 export const DEFAULT_COMPASS_COLLECTION = "Clinvar Disease Agnostic";
 
+/** Example upload files in /public, offered on the home page. */
+export const EXAMPLES = [
+    { name: "Example 1", file: "/ArgoExample.tsv" },
+    { name: "Example 2", file: "/ArgoExample2.tsv" },
+    { name: "Example 3", file: "/ArgoExample3.tsv" },
+];
+
 export const SCREEN_URL = "https://screen.wenglab.org";
 export const HOCOMOCO_MOTIF_URL = "https://hocomoco14.autosome.org/motif";

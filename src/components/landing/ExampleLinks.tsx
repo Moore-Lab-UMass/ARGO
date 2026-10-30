@@ -3,7 +3,7 @@ import { CircularProgress, Link, Stack, Typography } from "@mui/material";
 import { useSubmitRegions } from "@/hooks/useSubmitRegions";
 import { parseRegionsTsv } from "@/lib/regions/parse";
 import { BRAND } from "@/lib/colors";
-import { EXAMPLES } from "./ExampleFiles";
+import { EXAMPLES } from "@/lib/constants";
 
 /** "Try an example" links that submit one of the example files in /public. */
 export default function ExampleLinks() {

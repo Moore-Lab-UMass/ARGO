@@ -6,12 +6,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import { useGrowOnScroll } from "@/hooks/useGrowOnScroll";
 import { useSubmitRegions } from "@/hooks/useSubmitRegions";
 import { parseRegionsTsv } from "@/lib/regions/parse";
-
-export const EXAMPLES = [
-  { name: "Example 1", file: "/ArgoExample.tsv" },
-  { name: "Example 2", file: "/ArgoExample2.tsv" },
-  { name: "Example 3", file: "/ArgoExample3.tsv" },
-];
+import { EXAMPLES } from "@/lib/constants";
 
 /** Cards for the example files in /public: download one, or submit it directly. */
 const ExampleFiles: React.FC = () => {
